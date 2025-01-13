@@ -300,7 +300,20 @@ export default {
     },
     getCategoryDisplayName(category) {
       if (!category) return ''
-      return category.parent ? `${category.parent.name} > ${category.name}` : category.name
+      if (category.parent) {
+        // 如果parent是ID，需要查找对应的分类对象
+        if (typeof category.parent === 'number') {
+          const parentCategory = this.categories.find(c => c.id === category.parent)
+          return parentCategory ? `${parentCategory.name} > ${category.name}` : category.name
+        }
+        // 如果parent是对象且有name属性
+        else if (category.parent.name) {
+          return `${category.parent.name} > ${category.name}`
+        }
+        // 其他情况直接返回分类名
+        return category.name
+      }
+      return category.name
     },
     getCategoryById(id) {
       return this.categories.find(c => c.id === id)
