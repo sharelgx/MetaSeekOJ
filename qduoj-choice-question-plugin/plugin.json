@@ -1,0 +1,161 @@
+{
+  "name": "qduoj-choice-question-plugin",
+  "version": "1.0.0",
+  "title": "青岛OJ选择题插件",
+  "description": "为青岛OJ系统提供选择题功能，包括单选题、多选题的创建、管理、答题、统计等功能",
+  "author": "QDUOJ Team",
+  "license": "MIT",
+  "homepage": "https://github.com/QingdaoU/OnlineJudge",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/QingdaoU/qduoj-choice-question-plugin.git"
+  },
+  "keywords": [
+    "qduoj",
+    "online-judge",
+    "choice-question",
+    "multiple-choice",
+    "education"
+  ],
+  "compatibility": {
+    "qduoj_version": ">=2.0.0",
+    "django_version": ">=2.2.0",
+    "vue_version": ">=2.6.0"
+  },
+  "backend": {
+    "app_name": "choice_question",
+    "models": [
+      "ChoiceQuestionCategory",
+      "ChoiceQuestionTag",
+      "ChoiceQuestion",
+      "ChoiceQuestionSubmission",
+      "WrongQuestion"
+    ],
+    "urls": {
+      "prefix": "choice-question",
+      "include": "choice_question.urls"
+    },
+    "permissions": [
+      "choice_question.add_choicequestion",
+      "choice_question.change_choicequestion",
+      "choice_question.delete_choicequestion",
+      "choice_question.view_choicequestion"
+    ],
+    "admin": true
+  },
+  "frontend": {
+    "routes": [
+      {
+        "name": "choice-question-list",
+        "path": "/choice-questions",
+        "component": "ChoiceQuestionList",
+        "meta": {
+          "title": "选择题练习",
+          "requiresAuth": true
+        }
+      },
+      {
+        "name": "choice-question-detail",
+        "path": "/choice-questions/:id",
+        "component": "ChoiceQuestionDetail",
+        "meta": {
+          "title": "选择题详情",
+          "requiresAuth": true
+        }
+      },
+      {
+        "name": "wrong-question-book",
+        "path": "/wrong-questions",
+        "component": "WrongQuestionBook",
+        "meta": {
+          "title": "错题本",
+          "requiresAuth": true
+        }
+      }
+    ],
+    "menu": {
+      "name": "选择题练习",
+      "icon": "el-icon-edit-outline",
+      "order": 50,
+      "children": [
+        {
+          "name": "题目练习",
+          "route": "choice-question-list",
+          "icon": "el-icon-document"
+        },
+        {
+          "name": "错题本",
+          "route": "wrong-question-book",
+          "icon": "el-icon-warning"
+        }
+      ]
+    },
+    "store": {
+      "module": "choiceQuestion",
+      "namespaced": true
+    }
+  },
+  "dependencies": {
+    "backend": [],
+    "frontend": []
+  },
+  "installation": {
+    "pre_install": [
+      "检查系统兼容性",
+      "备份数据库"
+    ],
+    "install_steps": [
+      "复制后端文件到Django项目",
+      "添加应用到INSTALLED_APPS",
+      "添加URL路由",
+      "运行数据库迁移",
+      "复制前端文件到Vue项目",
+      "注册路由和Store模块",
+      "重启服务"
+    ],
+    "post_install": [
+      "创建默认分类和标签",
+      "设置权限",
+      "验证功能"
+    ]
+  },
+  "uninstallation": {
+    "pre_uninstall": [
+      "备份用户数据",
+      "确认卸载操作"
+    ],
+    "uninstall_steps": [
+      "移除前端路由和组件",
+      "从INSTALLED_APPS移除应用",
+      "移除URL路由",
+      "删除数据库表（可选）",
+      "删除插件文件"
+    ],
+    "post_uninstall": [
+      "清理缓存",
+      "重启服务"
+    ]
+  },
+  "configuration": {
+    "settings": {
+      "CHOICE_QUESTION_PAGE_SIZE": 20,
+      "CHOICE_QUESTION_MAX_TAGS": 10,
+      "CHOICE_QUESTION_ALLOW_ANONYMOUS": false
+    },
+    "permissions": {
+      "admin_only": [
+        "create_question",
+        "edit_question",
+        "delete_question",
+        "manage_categories",
+        "manage_tags"
+      ],
+      "user_allowed": [
+        "view_questions",
+        "submit_answer",
+        "manage_wrong_questions",
+        "view_stats"
+      ]
+    }
+  }
+}

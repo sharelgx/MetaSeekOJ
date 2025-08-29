@@ -19,6 +19,7 @@ import {
 
 import * as Contest from '@oj/views/contest'
 import * as Setting from '@oj/views/setting'
+import * as ChoiceQuestion from '@oj/views/choice-question'
 
 export default [
   {
@@ -56,6 +57,24 @@ export default [
     path: '/problem/:problemID',
     meta: {title: 'Problem Details'},
     component: Problem
+  },
+  {
+    name: 'choice-question-list',
+    path: '/choice-questions',
+    meta: {title: 'Choice Questions'},
+    component: ChoiceQuestion.ChoiceQuestionList
+  },
+  {
+    name: 'choice-question-detail',
+    path: '/choice-question/:id',
+    meta: {title: 'Choice Question Details'},
+    component: ChoiceQuestion.ChoiceQuestionDetail
+  },
+  {
+    name: 'wrong-question-book',
+    path: '/wrong-questions',
+    meta: {title: 'Wrong Question Book'},
+    component: ChoiceQuestion.WrongQuestionBook
   },
   {
     name: 'submission-list',

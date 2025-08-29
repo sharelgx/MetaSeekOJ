@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <link rel="icon" href="<%= BASE_URL %>favicon.ico">
+  <title>QDUOJ选择题插件 - 开发测试</title>
+  
+  <!-- Element UI CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+  
+  <!-- KaTeX CSS for math rendering -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.min.css">
+  
+  <!-- Highlight.js CSS for code highlighting -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/styles/default.min.css">
+  
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
+      background-color: #f5f5f5;
+    }
+    
+    .dev-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+      padding: 20px;
+    }
+    
+    .dev-header {
+      text-align: center;
+      margin-bottom: 30px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid #ebeef5;
+    }
+    
+    .dev-header h1 {
+      color: #303133;
+      margin: 0 0 10px 0;
+    }
+    
+    .dev-header p {
+      color: #909399;
+      margin: 0;
+    }
+    
+    .plugin-container {
+      min-height: 500px;
+    }
+    
+    .loading {
+      text-align: center;
+      padding: 50px;
+      color: #909399;
+    }
+    
+    .error {
+      text-align: center;
+      padding: 50px;
+      color: #f56c6c;
+    }
+  </style>
+</head>
+<body>
+  <noscript>
+    <strong>很抱歉，QDUOJ选择题插件需要JavaScript支持才能正常运行。请启用JavaScript后重试。</strong>
+  </noscript>
+  
+  <div class="dev-container">
+    <div class="dev-header">
+      <h1>QDUOJ选择题插件</h1>
+      <p>开发测试环境 - Choice Question Plugin Development</p>
+    </div>
+    
+    <div id="app">
+      <div class="loading">
+        <i class="el-icon-loading"></i>
+        正在加载插件...
+      </div>
+    </div>
+  </div>
+  
+  <!-- Vue.js -->
+  <script src="https://unpkg.com/vue@2.6.14/dist/vue.js"></script>
+  
+  <!-- Vue Router -->
+  <script src="https://unpkg.com/vue-router@3.5.4/dist/vue-router.js"></script>
+  
+  <!-- Vuex -->
+  <script src="https://unpkg.com/vuex@3.6.2/dist/vuex.js"></script>
+  
+  <!-- Element UI -->
+  <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+  
+  <!-- Axios -->
+  <script src="https://unpkg.com/axios@0.27.2/dist/axios.min.js"></script>
+  
+  <!-- Lodash -->
+  <script src="https://unpkg.com/lodash@4.17.21/lodash.min.js"></script>
+  
+  <!-- Moment.js -->
+  <script src="https://unpkg.com/moment@2.29.4/moment.min.js"></script>
+  
+  <!-- KaTeX -->
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.min.js"></script>
+  
+  <!-- Highlight.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/highlight.min.js"></script>
+  
+  <!-- ECharts -->
+  <script src="https://unpkg.com/echarts@5.4.0/dist/echarts.min.js"></script>
+  
+  <!-- FileSaver -->
+  <script src="https://unpkg.com/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+  
+  <!-- XLSX -->
+  <script src="https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  
+  <script>
+    // 开发环境初始化
+    window.addEventListener('DOMContentLoaded', function() {
+      // 模拟主应用环境
+      window.QDUOJ = {
+        version: '2.0.0',
+        api: {
+          baseURL: 'http://localhost:8000/api/v1',
+          request: axios.create({
+            baseURL: 'http://localhost:8000/api/v1',
+            timeout: 10000
+          })
+        },
+        user: {
+          id: 1,
+          username: 'admin',
+          is_admin: true
+        },
+        router: new VueRouter({
+          mode: 'hash',
+          routes: []
+        }),
+        store: new Vuex.Store({
+          state: {},
+          mutations: {},
+          actions: {},
+          modules: {}
+        })
+      }
+      
+      // 初始化Vue应用
+      const app = new Vue({
+        el: '#app',
+        router: window.QDUOJ.router,
+        store: window.QDUOJ.store,
+        data: {
+          pluginLoaded: false,
+          pluginError: null
+        },
+        mounted() {
+          this.loadPlugin()
+        },
+        methods: {
+          async loadPlugin() {
+            try {
+              // 等待插件脚本加载
+              await this.waitForPlugin()
+              
+              if (window.ChoiceQuestionPlugin) {
+                const plugin = new window.ChoiceQuestionPlugin()
+                
+                // 安装插件
+                await plugin.install({
+                  Vue: Vue,
+                  router: this.$router,
+                  store: this.$store,
+                  api: window.QDUOJ.api
+                })
+                
+                this.pluginLoaded = true
+                
+                // 导航到插件首页
+                this.$router.push('/choice-questions')
+              } else {
+                throw new Error('插件未正确加载')
+              }
+            } catch (error) {
+              console.error('插件加载失败:', error)
+              this.pluginError = error.message
+            }
+          },
+          
+          waitForPlugin(timeout = 10000) {
+            return new Promise((resolve, reject) => {
+              const startTime = Date.now()
+              
+              const check = () => {
+                if (window.ChoiceQuestionPlugin) {
+                  resolve()
+                } else if (Date.now() - startTime > timeout) {
+                  reject(new Error('插件加载超时'))
+                } else {
+                  setTimeout(check, 100)
+                }
+              }
+              
+              check()
+            })
+          }
+        },
+        template: `
+          <div class="plugin-container">
+            <div v-if="!pluginLoaded && !pluginError" class="loading">
+              <i class="el-icon-loading"></i>
+              正在加载插件...
+            </div>
+            
+            <div v-if="pluginError" class="error">
+              <i class="el-icon-warning"></i>
+              插件加载失败: {{ pluginError }}
+            </div>
+            
+            <router-view v-if="pluginLoaded"></router-view>
+          </div>
+        `
+      })
+    })
+  </script>
+</body>
+</html>

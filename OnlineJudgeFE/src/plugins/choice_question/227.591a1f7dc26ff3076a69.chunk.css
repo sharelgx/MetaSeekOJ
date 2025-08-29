@@ -1,0 +1,102 @@
+
+.choice-question-detail[data-v-cf59b808] {
+  margin: 20px;
+}
+.loading-container[data-v-cf59b808] {
+  text-align: center;
+  padding: 100px 0;
+}
+.question-info[data-v-cf59b808] {
+  margin-bottom: 24px;
+  padding: 16px;
+  background: #f8f8f9;
+  border-radius: 4px;
+}
+.info-item[data-v-cf59b808] {
+  margin-bottom: 8px;
+}
+.info-item[data-v-cf59b808]:last-child {
+  margin-bottom: 0;
+}
+.label[data-v-cf59b808] {
+  font-weight: bold;
+  color: #666;
+  margin-right: 8px;
+}
+.question-content[data-v-cf59b808] {
+  margin-bottom: 24px;
+}
+.question-content h3[data-v-cf59b808] {
+  margin-bottom: 12px;
+  color: #333;
+}
+.content[data-v-cf59b808] {
+  line-height: 1.6;
+  color: #666;
+}
+.question-options h3[data-v-cf59b808] {
+  margin-bottom: 16px;
+  color: #333;
+}
+.option-item[data-v-cf59b808] {
+  margin-bottom: 12px;
+  padding: 12px;
+  border: 1px solid #e8eaec;
+  border-radius: 4px;
+  transition: all 0.3s;
+}
+.option-item[data-v-cf59b808]:hover {
+  border-color: #2d8cf0;
+  background: #f7f9fc;
+}
+.option-item.option-correct[data-v-cf59b808] {
+  border-color: #19be6b;
+  background: #f0f9ff;
+}
+.option-item.option-wrong[data-v-cf59b808] {
+  border-color: #ed4014;
+  background: #fff2f0;
+}
+.option-label[data-v-cf59b808] {
+  font-weight: bold;
+  margin-right: 8px;
+  color: #2d8cf0;
+}
+.option-content[data-v-cf59b808] {
+  line-height: 1.5;
+}
+.submit-section[data-v-cf59b808] {
+  margin: 32px 0;
+  text-align: center;
+}
+.answer-analysis[data-v-cf59b808] {
+  margin-top: 24px;
+}
+.result-info[data-v-cf59b808] {
+  margin-bottom: 20px;
+}
+.correct-answer[data-v-cf59b808] {
+  margin-bottom: 20px;
+}
+.correct-answer h4[data-v-cf59b808],
+.explanation h4[data-v-cf59b808] {
+  margin-bottom: 12px;
+  color: #333;
+}
+.answer-label[data-v-cf59b808] {
+  display: inline-block;
+  padding: 4px 8px;
+  background: #19be6b;
+  color: white;
+  border-radius: 4px;
+  font-weight: bold;
+}
+.explanation .content[data-v-cf59b808] {
+  padding: 12px;
+  background: #f8f8f9;
+  border-radius: 4px;
+  line-height: 1.6;
+}
+
+
+/*# sourceMappingURL=227.591a1f7dc26ff3076a69.chunk.css.map*/
