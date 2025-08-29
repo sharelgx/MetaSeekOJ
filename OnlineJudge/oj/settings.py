@@ -27,6 +27,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Applications
 VENDOR_APPS = [
+    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.sessions',
     'django.contrib.contenttypes',
@@ -51,6 +52,7 @@ LOCAL_APPS = [
     'submission',
     'options',
     'judge',
+    'choice_question',
 ]
 
 INSTALLED_APPS = VENDOR_APPS + LOCAL_APPS

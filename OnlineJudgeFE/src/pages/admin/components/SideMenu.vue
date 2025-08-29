@@ -20,6 +20,11 @@
       <el-menu-item index="/problem/batch_ops">{{$t('m.Export_Import_Problem')}}</el-menu-item>
 
     </el-submenu>
+    <el-submenu index="choice-question" v-if="hasProblemPermission">
+      <template slot="title"><i class="el-icon-fa-list-alt"></i>{{$t('m.Choice_Question')}}</template>
+      <el-menu-item index="/choice-questions">{{$t('m.Choice_Question_List')}}</el-menu-item>
+      <el-menu-item index="/choice-question/create">{{$t('m.Create_Choice_Question')}}</el-menu-item>
+    </el-submenu>
     <el-submenu index="contest">
       <template slot="title"><i class="el-icon-fa-trophy"></i>{{$t('m.Contest')}}</template>
       <el-menu-item index="/contest">{{$t('m.Contest_List')}}</el-menu-item>

@@ -296,6 +296,44 @@ export default {
     return ajax('export_problem', 'post', {
       data
     })
+  },
+  // Choice Question APIs
+  getChoiceQuestionList (offset, limit, keyword) {
+    let params = {
+      paging: true,
+      offset,
+      limit
+    }
+    if (keyword) {
+      params.keyword = keyword
+    }
+    return ajax('admin/choice_question', 'get', {
+      params
+    })
+  },
+  createChoiceQuestion (data) {
+    return ajax('admin/choice_question', 'post', {
+      data
+    })
+  },
+  getChoiceQuestion (id) {
+    return ajax('admin/choice_question', 'get', {
+      params: {
+        id
+      }
+    })
+  },
+  editChoiceQuestion (data) {
+    return ajax('admin/choice_question', 'put', {
+      data
+    })
+  },
+  deleteChoiceQuestion (id) {
+    return ajax('admin/choice_question', 'delete', {
+      params: {
+        id
+      }
+    })
   }
 }
 
@@ -338,5 +376,48 @@ function ajax (url, method, options) {
       reject(res)
       Vue.prototype.$error(res.data.data)
     })
+  })
+}
+
+// Choice Question API
+export function getChoiceQuestions(offset, limit, keyword) {
+  let params = {
+    paging: true,
+    offset,
+    limit
+  }
+  if (keyword) {
+    params.keyword = keyword
+  }
+  return ajax('choice_questions', 'get', {
+    params
+  })
+}
+
+export function createChoiceQuestion(data) {
+  return ajax('choice_question', 'post', {
+    data
+  })
+}
+
+export function getChoiceQuestion(id) {
+  return ajax('choice_question', 'get', {
+    params: {
+      id
+    }
+  })
+}
+
+export function editChoiceQuestion(data) {
+  return ajax('choice_question', 'put', {
+    data
+  })
+}
+
+export function deleteChoiceQuestion(id) {
+  return ajax('choice_question', 'delete', {
+    params: {
+      id
+    }
   })
 }

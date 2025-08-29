@@ -135,7 +135,7 @@ class TwoFactorAuthAPI(APIView):
             return self.error("Invalid code")
 
 
-class CheckTFARequiredAPI(APIView):
+class CheckTFARequiredAPI(CSRFExemptAPIView):
     @validate_serializer(UsernameOrEmailCheckSerializer)
     def post(self, request):
         """
