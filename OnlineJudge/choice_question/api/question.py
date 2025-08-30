@@ -9,7 +9,7 @@ from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from utils.api import APIView, validate_serializer
-from utils.api._serializers import PaginationSerializer
+from utils.api import APIView, validate_serializer
 from utils.shortcuts import paginate_data
 from account.decorators import login_required, super_admin_required
 from ..models import ChoiceQuestion, Category, QuestionTag, ChoiceQuestionSubmission, WrongQuestion
