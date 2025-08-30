@@ -61,6 +61,50 @@ class ChoiceQuestionCreateSerializer(serializers.ModelSerializer):
         queryset=QuestionTag.objects.all(),
         required=False
     )
+    question_type = serializers.ChoiceField(
+        choices=ChoiceQuestion.QUESTION_TYPE_CHOICES,
+        default='single',
+        required=False
+    )
+    difficulty = serializers.CharField(
+        default='easy',
+        required=False
+    )
+    
+    def validate_difficulty(self, value):
+        """
+        验证并转换难度值 - 支持多种输入格式
+        """
+        # 支持的难度值映射
+        difficulty_map = {
+            # 英文格式（前端可能发送的）
+            'Easy': 'easy',
+            'Medium': 'medium', 
+            'Hard': 'hard',
+            'easy': 'easy',
+            'medium': 'medium',
+            'hard': 'hard',
+            # 中文格式
+            '简单': 'easy',
+            '中等': 'medium',
+            '困难': 'hard',
+            # 数字格式（兼容旧版本）
+            '1': 'easy',
+            '2': 'medium',
+            '3': 'hard',
+            1: 'easy',
+            2: 'medium', 
+            3: 'hard'
+        }
+        
+        if value in difficulty_map:
+            return difficulty_map[value]
+            
+        # 如果已经是正确格式，直接返回
+        if value in ['easy', 'medium', 'hard']:
+            return value
+            
+        raise serializers.ValidationError(f"无效的难度值: {value}，支持的值: easy, medium, hard")
     
     class Meta:
         model = ChoiceQuestion
@@ -73,8 +117,17 @@ class ChoiceQuestionCreateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("至少需要2个选项")
         
         for option in value:
-            if not isinstance(option, dict) or 'key' not in option or 'value' not in option:
-                raise serializers.ValidationError("选项格式错误")
+            if not isinstance(option, dict):
+                raise serializers.ValidationError("选项格式错误：每个选项必须是字典格式")
+            
+            # 支持两种格式：前端格式 {content, is_correct, explanation} 和后端格式 {key, text}
+            if 'content' not in option and 'key' not in option and 'text' not in option:
+                raise serializers.ValidationError("选项格式错误：缺少必要的内容字段")
+            
+            # 检查内容是否为空
+            content = option.get('content') or option.get('text') or option.get('value', '')
+            if not content or not content.strip():
+                raise serializers.ValidationError("选项内容不能为空")
         
         return value
     
@@ -83,6 +136,43 @@ class ChoiceQuestionCreateSerializer(serializers.ModelSerializer):
         if not value:
             raise serializers.ValidationError("必须指定正确答案")
         return value
+    
+    def validate(self, attrs):
+        """整体验证并转换数据格式"""
+        # 转换前端选项格式到后端格式
+        if 'options' in attrs:
+            converted_options = []
+            correct_answers = []
+            
+            for i, option in enumerate(attrs['options']):
+                # 生成选项键（A, B, C, D...）
+                option_key = chr(65 + i)
+                
+                # 转换格式
+                if 'content' in option:
+                    # 前端格式：{content, is_correct, explanation}
+                    converted_option = {
+                        'key': option_key,
+                        'text': option['content']
+                    }
+                    if option.get('is_correct'):
+                        correct_answers.append(option_key)
+                else:
+                    # 后端格式：{key, text} 或 {key, value}
+                    converted_option = {
+                        'key': option.get('key', option_key),
+                        'text': option.get('text') or option.get('value', '')
+                    }
+                
+                converted_options.append(converted_option)
+            
+            attrs['options'] = converted_options
+            
+            # 如果没有指定正确答案，从选项中提取
+            if not attrs.get('correct_answer') and correct_answers:
+                attrs['correct_answer'] = ','.join(correct_answers) if len(correct_answers) > 1 else correct_answers[0]
+        
+        return attrs
 
 
 class ChoiceQuestionSubmissionSerializer(serializers.ModelSerializer):

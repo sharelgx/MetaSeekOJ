@@ -16,5 +16,6 @@ urlpatterns = [
     url(r"^api/", include("submission.urls.oj")),
     url(r"^api/admin/", include("submission.urls.admin")),
     url(r"^api/plugin/choice/", include("choice_question.urls")),
+    url(r"^api/admin/", include("choice_question.admin_urls")),
     url(r"^api/admin/", include("utils.urls")),
 ]

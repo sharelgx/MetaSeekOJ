@@ -212,17 +212,20 @@ class ChoiceQuestionAPI(CSRFExemptAPIView):
         return self.success(self.paginate_queryset(request, questions, ChoiceQuestionListSerializer))
     
     @super_admin_required
-    @validate_serializer(ChoiceQuestionCreateSerializer)
     def post(self, request, pk=None):
         """创建选择题"""
-        data = request.data
-        data['created_by'] = request.user
+        data = request.data.copy()
+        
+        # 生成显示ID
+        if not data.get('_id'):
+            import uuid
+            data['_id'] = str(uuid.uuid4())[:8].upper()
         
         serializer = ChoiceQuestionCreateSerializer(data=data)
         if serializer.is_valid():
             question = serializer.save(created_by=request.user)
-            return Response(ChoiceQuestionDetailSerializer(question).data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return self.success(ChoiceQuestionDetailSerializer(question).data)
+        return self.error(f"数据验证失败: {serializer.errors}")
 
 
 class ChoiceQuestionDetailAPI(CSRFExemptAPIView):
