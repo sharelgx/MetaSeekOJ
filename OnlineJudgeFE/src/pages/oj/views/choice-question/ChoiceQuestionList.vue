@@ -21,7 +21,7 @@
             </Input>
           </Col>
           <Col :span="4">
-            <Select v-model="selectedCategory" placeholder="选择分类" clearable>
+            <Select v-model="selectedCategory" placeholder="选择分类" clearable @on-change="handleCategoryChange">
               <Option 
                 v-for="category in categories" 
                 :key="category.id"
@@ -32,7 +32,7 @@
             </Select>
           </Col>
           <Col :span="4">
-            <Select v-model="selectedTag" placeholder="选择标签" clearable>
+            <Select v-model="selectedTag" placeholder="选择标签" clearable @on-change="handleTagChange">
               <Option 
                 v-for="tag in tags" 
                 :key="tag.id"
@@ -43,7 +43,7 @@
             </Select>
           </Col>
           <Col :span="3">
-            <Select v-model="selectedDifficulty" placeholder="难度" clearable>
+            <Select v-model="selectedDifficulty" placeholder="难度" clearable @on-change="handleDifficultyChange">
               <Option value="1">简单</Option>
               <Option value="2">中等</Option>
               <Option value="3">困难</Option>
@@ -58,6 +58,7 @@
           <Col :span="4">
             <Button type="primary" @click="getQuestionList">搜索</Button>
             <Button @click="resetFilter" style="margin-left: 8px">重置</Button>
+            <Button type="warning" @click="setTestFilter" style="margin-left: 8px">测试筛选</Button>
           </Col>
         </Row>
       </div>
@@ -88,7 +89,7 @@
 </template>
 
 <script>
-import api from './api'
+import api from './api/index'
 import { DIFFICULTY_CHOICES, QUESTION_TYPE_CHOICES } from './constants'
 
 export default {
@@ -120,25 +121,19 @@ export default {
         {
           title: '题目',
           key: 'title',
-          minWidth: 200,
+          width: 250,
           render: (h, params) => {
-            return h('div', [
-              h('div', {
-                style: {
-                  fontWeight: 'bold',
-                  marginBottom: '4px'
-                }
-              }, params.row.title),
-              h('div', {
-                style: {
-                  fontSize: '12px',
-                  color: '#999'
-                },
-                domProps: {
-                  innerHTML: params.row.content.substring(0, 100) + '...'
-                }
-              })
-            ])
+            return h('div', {
+              style: {
+                fontWeight: 'bold',
+                fontSize: '14px',
+                cursor: 'pointer',
+                color: '#2d8cf0'
+              },
+              on: {
+                click: () => this.goToQuestion(params.row)
+              }
+            }, params.row.title || '无标题')
           }
         },
         {
@@ -160,12 +155,12 @@ export default {
             return h('div', params.row.tags.map(tag => {
               return h('Tag', {
                 props: {
-                  color: tag.color
+                  color: 'blue'
                 },
                 style: {
                   marginRight: '4px'
                 }
-              }, tag.name)
+              }, tag.name || tag)
             }))
           }
         },
@@ -176,11 +171,11 @@ export default {
           align: 'center',
           render: (h, params) => {
             const difficultyMap = {
-              1: { text: '简单', color: 'success' },
-              2: { text: '中等', color: 'warning' },
-              3: { text: '困难', color: 'error' }
+              'easy': { text: '简单', color: 'success' },
+              'medium': { text: '中等', color: 'warning' },
+              'hard': { text: '困难', color: 'error' }
             }
-            const difficulty = difficultyMap[params.row.difficulty]
+            const difficulty = difficultyMap[params.row.difficulty] || { text: '未知', color: 'default' }
             return h('Tag', {
               props: {
                 color: difficulty.color
@@ -208,7 +203,72 @@ export default {
           key: 'create_time',
           width: 150,
           render: (h, params) => {
-            return h('span', this.$moment(params.row.create_time).format('YYYY-MM-DD HH:mm'))
+            const date = new Date(params.row.create_time)
+            return h('span', date.toLocaleString('zh-CN', {
+              year: 'numeric',
+              month: '2-digit',
+              day: '2-digit',
+              hour: '2-digit',
+              minute: '2-digit'
+            }))
+          }
+        },
+        {
+          title: '操作',
+          key: 'action',
+          width: 200,
+          align: 'center',
+          render: (h, params) => {
+            const currentIndex = this.questions.findIndex(q => q.id === params.row.id)
+            const hasPrevious = currentIndex > 0
+            const hasNext = currentIndex < this.questions.length - 1
+            
+            return h('div', {
+              style: {
+                display: 'flex',
+                justifyContent: 'center',
+                gap: '8px'
+              }
+            }, [
+              h('Button', {
+                props: {
+                  type: 'primary',
+                  size: 'small',
+                  disabled: !hasPrevious
+                },
+                on: {
+                  click: (e) => {
+                    e.stopPropagation()
+                    this.goToPreviousQuestion(currentIndex)
+                  }
+                }
+              }, '上一题'),
+              h('Button', {
+                props: {
+                  type: 'success',
+                  size: 'small'
+                },
+                on: {
+                  click: (e) => {
+                    e.stopPropagation()
+                    this.goToQuestion(params.row)
+                  }
+                }
+              }, '查看'),
+              h('Button', {
+                props: {
+                  type: 'primary',
+                  size: 'small',
+                  disabled: !hasNext
+                },
+                on: {
+                  click: (e) => {
+                    e.stopPropagation()
+                    this.goToNextQuestion(currentIndex)
+                  }
+                }
+              }, '下一题')
+            ])
           }
         }
       ]
@@ -231,18 +291,20 @@ export default {
     async getCategoryList() {
       try {
         const res = await api.getCategoryList()
-        this.categories = res.data.data
+        this.categories = res.data.data || []
       } catch (err) {
         console.error('获取分类列表失败:', err)
+        this.categories = []
       }
     },
     
     async getTagList() {
       try {
         const res = await api.getTagList()
-        this.tags = res.data.data
+        this.tags = res.data.data.results || []
       } catch (err) {
         console.error('获取标签列表失败:', err)
+        this.tags = []
       }
     },
     
@@ -261,12 +323,16 @@ export default {
         if (this.selectedType) params.type = this.selectedType
         
         const res = await api.getQuestionList(params)
-        this.questions = res.data.data.results
-        this.total = res.data.data.total
+        this.questions = res.data.data.results || []
+        this.total = res.data.data.total || 0
       } catch (err) {
         this.$Message.error('获取题目列表失败')
         console.error(err)
+        // 确保在错误情况下也清空数据
+        this.questions = []
+        this.total = 0
       } finally {
+        // 确保loading状态总是被重置
         this.loading = false
       }
     },
@@ -281,6 +347,22 @@ export default {
       this.getQuestionList()
     },
     
+    setTestFilter() {
+      console.log('=== 设置测试筛选条件 ===')
+      this.selectedCategory = 1
+      this.selectedTag = 1
+      this.selectedDifficulty = '2'
+      this.selectedType = 'single'
+      this.keyword = '测试'
+      console.log('测试筛选条件已设置:')
+      console.log('- selectedCategory:', this.selectedCategory)
+      console.log('- selectedTag:', this.selectedTag)
+      console.log('- selectedDifficulty:', this.selectedDifficulty)
+      console.log('- selectedType:', this.selectedType)
+      console.log('- keyword:', this.keyword)
+      this.getQuestionList()
+    },
+    
     handlePageChange(page) {
       this.currentPage = page
       this.getQuestionList()
@@ -292,11 +374,82 @@ export default {
       this.getQuestionList()
     },
     
+    handleCategoryChange() {
+      this.currentPage = 1
+      this.getQuestionList()
+    },
+    
+    handleTagChange() {
+      this.currentPage = 1
+      this.getQuestionList()
+    },
+    
+    handleDifficultyChange() {
+      this.currentPage = 1
+      this.getQuestionList()
+    },
+    
     goToQuestion(row) {
+      console.log('=== 题目列表跳转调试 ===')
+      console.log('当前筛选条件:')
+      console.log('- selectedCategory:', this.selectedCategory)
+      console.log('- selectedTag:', this.selectedTag)
+      console.log('- selectedDifficulty:', this.selectedDifficulty)
+      console.log('- selectedType:', this.selectedType)
+      console.log('- keyword:', this.keyword)
+      console.log('点击的题目信息:', row)
+      
+      // 构建查询参数，传递当前的筛选条件
+      const query = {}
+      
+      if (this.selectedCategory) {
+        query.category = this.selectedCategory
+        console.log('添加 category 参数:', query.category)
+      }
+      
+      if (this.selectedTag) {
+        query.tags = this.selectedTag // 修正字段名：tag -> tags
+        console.log('添加 tags 参数:', query.tags)
+      }
+      
+      if (this.selectedDifficulty) {
+        query.difficulty = this.selectedDifficulty
+        console.log('添加 difficulty 参数:', query.difficulty)
+      }
+      
+      if (this.selectedType) {
+        query.question_type = this.selectedType // 修正字段名：type -> question_type
+        console.log('添加 question_type 参数:', query.question_type)
+      }
+      
+      if (this.keyword) {
+        query.keyword = this.keyword
+        console.log('添加 keyword 参数:', query.keyword)
+      }
+      
+      console.log('最终查询参数:', query)
+      
       this.$router.push({
-        name: 'choice-question-detail',
-        params: { id: row._id }
-      })
+          name: 'choice-question-detail',
+          params: { id: row.id },
+          query: query
+        })
+      
+      console.log('题目列表跳转完成，传递的查询参数:', query)
+    },
+    
+    goToPreviousQuestion(currentIndex) {
+      if (currentIndex > 0) {
+        const previousQuestion = this.questions[currentIndex - 1]
+        this.goToQuestion(previousQuestion)
+      }
+    },
+    
+    goToNextQuestion(currentIndex) {
+      if (currentIndex < this.questions.length - 1) {
+        const nextQuestion = this.questions[currentIndex + 1]
+        this.goToQuestion(nextQuestion)
+      }
     }
   }
 }
@@ -317,5 +470,24 @@ export default {
 .pagination {
   margin-top: 20px;
   text-align: right;
+}
+
+/* 表格样式优化 */
+::v-deep .ivu-table {
+  font-size: 14px;
+}
+
+::v-deep .ivu-table-tbody tr {
+  height: 60px;
+}
+
+::v-deep .ivu-table td {
+  padding: 12px 8px;
+  vertical-align: middle;
+}
+
+::v-deep .ivu-table-row:hover {
+  background-color: #f5f7fa;
+  cursor: pointer;
 }
 </style>
