@@ -11,14 +11,18 @@
       <div class="filter-section">
         <Row :gutter="10">
           <Col :span="6">
-            <Input 
-              v-model="keyword" 
-              placeholder="搜索题目标题或内容"
-              @on-enter="getQuestionList"
-              clearable
-            >
-              <Icon type="ios-search" slot="prefix" />
-            </Input>
+            <div class="custom-input-wrapper" style="position: relative; display: inline-block; width: 100%;">
+              <Icon type="ios-search" style="position: absolute; left: 8px; top: 50%; transform: translateY(-50%); z-index: 1; color: #c5c8ce;" />
+              <input 
+                v-model="keyword" 
+                type="text" 
+                class="ivu-input" 
+                style="padding-left: 32px;" 
+                placeholder="搜索题目标题或内容" 
+                @keyup.enter="getQuestionList" 
+                @input="getQuestionList" 
+              />
+            </div>
           </Col>
           <Col :span="4">
             <Select v-model="selectedCategory" placeholder="选择分类" clearable @on-change="handleCategoryChange">
@@ -58,7 +62,6 @@
           <Col :span="4">
             <Button type="primary" @click="getQuestionList">搜索</Button>
             <Button @click="resetFilter" style="margin-left: 8px">重置</Button>
-            <Button type="warning" @click="setTestFilter" style="margin-left: 8px">测试筛选</Button>
           </Col>
         </Row>
       </div>
@@ -216,59 +219,21 @@ export default {
         {
           title: '操作',
           key: 'action',
-          width: 200,
+          width: 100,
           align: 'center',
           render: (h, params) => {
-            const currentIndex = this.questions.findIndex(q => q.id === params.row.id)
-            const hasPrevious = currentIndex > 0
-            const hasNext = currentIndex < this.questions.length - 1
-            
-            return h('div', {
-              style: {
-                display: 'flex',
-                justifyContent: 'center',
-                gap: '8px'
+            return h('Button', {
+              props: {
+                type: 'success',
+                size: 'small'
+              },
+              on: {
+                click: (e) => {
+                  e.stopPropagation()
+                  this.goToQuestion(params.row)
+                }
               }
-            }, [
-              h('Button', {
-                props: {
-                  type: 'primary',
-                  size: 'small',
-                  disabled: !hasPrevious
-                },
-                on: {
-                  click: (e) => {
-                    e.stopPropagation()
-                    this.goToPreviousQuestion(currentIndex)
-                  }
-                }
-              }, '上一题'),
-              h('Button', {
-                props: {
-                  type: 'success',
-                  size: 'small'
-                },
-                on: {
-                  click: (e) => {
-                    e.stopPropagation()
-                    this.goToQuestion(params.row)
-                  }
-                }
-              }, '查看'),
-              h('Button', {
-                props: {
-                  type: 'primary',
-                  size: 'small',
-                  disabled: !hasNext
-                },
-                on: {
-                  click: (e) => {
-                    e.stopPropagation()
-                    this.goToNextQuestion(currentIndex)
-                  }
-                }
-              }, '下一题')
-            ])
+            }, '查看')
           }
         }
       ]
@@ -347,21 +312,7 @@ export default {
       this.getQuestionList()
     },
     
-    setTestFilter() {
-      console.log('=== 设置测试筛选条件 ===')
-      this.selectedCategory = 1
-      this.selectedTag = 1
-      this.selectedDifficulty = '2'
-      this.selectedType = 'single'
-      this.keyword = '测试'
-      console.log('测试筛选条件已设置:')
-      console.log('- selectedCategory:', this.selectedCategory)
-      console.log('- selectedTag:', this.selectedTag)
-      console.log('- selectedDifficulty:', this.selectedDifficulty)
-      console.log('- selectedType:', this.selectedType)
-      console.log('- keyword:', this.keyword)
-      this.getQuestionList()
-    },
+
     
     handlePageChange(page) {
       this.currentPage = page
@@ -438,19 +389,7 @@ export default {
       console.log('题目列表跳转完成，传递的查询参数:', query)
     },
     
-    goToPreviousQuestion(currentIndex) {
-      if (currentIndex > 0) {
-        const previousQuestion = this.questions[currentIndex - 1]
-        this.goToQuestion(previousQuestion)
-      }
-    },
-    
-    goToNextQuestion(currentIndex) {
-      if (currentIndex < this.questions.length - 1) {
-        const nextQuestion = this.questions[currentIndex + 1]
-        this.goToQuestion(nextQuestion)
-      }
-    }
+
   }
 }
 </script>

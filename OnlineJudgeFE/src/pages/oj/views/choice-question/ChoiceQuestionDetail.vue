@@ -8,29 +8,6 @@
       </div>
       
       <div slot="extra">
-        <!-- 题目导航按钮 -->
-        <ButtonGroup class="navigation-buttons">
-          <Button 
-            type="primary" 
-            size="small" 
-            @click="goToPreviousQuestion"
-            :disabled="!hasPreviousQuestion"
-            title="上一题 (←)"
-          >
-            <Icon type="ios-arrow-back" />
-            上一题
-          </Button>
-          <Button 
-            type="primary" 
-            size="small" 
-            @click="goToNextQuestion"
-            :disabled="!hasNextQuestion"
-            title="下一题 (→)"
-          >
-            下一题
-            <Icon type="ios-arrow-forward" />
-          </Button>
-        </ButtonGroup>
         
         <!-- 加入错题本按钮 -->
         <Button 
@@ -194,26 +171,35 @@
         
         <!-- 导航按钮 -->
         <div class="navigation-section" v-if="showNavigation">
-          <Button 
-            type="default" 
-            size="large"
-            @click="goToPreviousQuestion"
-            :disabled="!hasPreviousQuestion"
-            class="nav-btn"
-          >
-            <Icon type="ios-arrow-back" />
-            上一题
-          </Button>
-          <Button 
-            type="success" 
-            size="large"
-            @click="goToNextQuestion"
-            :disabled="!hasNextQuestion"
-            class="nav-btn next-btn"
-          >
-            下一题
-            <Icon type="ios-arrow-forward" />
-          </Button>
+          <div class="navigation-buttons">
+            <Button 
+              type="default" 
+              size="large"
+              @click="goToPreviousQuestion"
+              :disabled="!hasPreviousQuestion"
+              class="nav-btn prev-btn"
+            >
+              <Icon type="ios-arrow-back" />
+              上一题
+            </Button>
+            
+            <div class="question-progress">
+              <span class="progress-text">
+                {{ currentIndex + 1 }} / {{ questionList.length }}
+              </span>
+            </div>
+            
+            <Button 
+              type="default" 
+              size="large"
+              @click="goToNextQuestion"
+              :disabled="!hasNextQuestion"
+              class="nav-btn next-btn"
+            >
+              下一题
+              <Icon type="ios-arrow-forward" />
+            </Button>
+          </div>
         </div>
       </div>
       
@@ -1394,29 +1380,51 @@ export default {
 }
 
 /* 导航按钮样式 */
+.navigation-section {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid #e8eaec;
+}
+
 .navigation-buttons {
-  margin-right: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
 }
 
-.navigation-buttons .ivu-btn {
-  border-radius: 4px;
+.nav-btn {
+  min-width: 120px;
+  height: 40px;
+  border-radius: 6px;
   font-weight: 500;
+  transition: all 0.3s ease;
 }
 
-.navigation-buttons .ivu-btn:first-child {
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
+.nav-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.navigation-buttons .ivu-btn:last-child {
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
-  border-left: none;
-}
-
-.navigation-buttons .ivu-btn:disabled {
+.nav-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.question-progress {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  background: #f8f9fa;
+  border-radius: 20px;
+  border: 1px solid #e8eaec;
+}
+
+.progress-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: #666;
 }
 
 /* 确保父容器没有限制 */
