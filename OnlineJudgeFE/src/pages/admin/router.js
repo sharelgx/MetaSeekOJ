@@ -3,7 +3,7 @@ import VueRouter from 'vue-router'
 // 引入 view 组件
 import { Announcement, Conf, Contest, ContestList, Home, JudgeServer, Login,
   Problem, ProblemList, User, PruneTestCase, Dashboard, ProblemImportOrExport,
-  ChoiceQuestion, ChoiceQuestionList } from './views'
+  ChoiceQuestion, ChoiceQuestionList, CategoryManagement, TagManagement } from './views'
 Vue.use(VueRouter)
 
 export default new VueRouter({
@@ -84,6 +84,16 @@ export default new VueRouter({
           path: '/choice-question/edit/:choiceQuestionId',
           name: 'edit-choice-question',
           component: ChoiceQuestion
+        },
+        {
+          path: '/choice-question/category',
+          name: 'choice-question-category',
+          component: CategoryManagement
+        },
+        {
+          path: '/choice-question/tag',
+          name: 'choice-question-tag',
+          component: TagManagement
         },
         {
           path: '/contest/create',

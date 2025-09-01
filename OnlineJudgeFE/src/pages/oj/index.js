@@ -10,6 +10,7 @@ import { GOOGLE_ANALYTICS_ID } from '@/utils/constants'
 
 import iView from 'iview'
 import 'iview/dist/styles/iview.css'
+import 'font-awesome/css/font-awesome.css'
 
 import Panel from '@oj/components/Panel.vue'
 import VerticalMenu from '@oj/components/verticalMenu/verticalMenu.vue'

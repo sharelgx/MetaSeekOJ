@@ -2616,7 +2616,7 @@ element-resize-detector@^1.1.14:
   dependencies:
     batch-processor "1.0.0"
 
-element-ui@^2.3.7:
+element-ui@^2.15.14:
   version "2.15.14"
   resolved "https://registry.npmmirror.com/element-ui/-/element-ui-2.15.14.tgz"
   integrity sha512-2v9fHL0ZGINotOlRIAJD5YuVB8V7WKxrE9Qy7dXhRipa035+kF7WuU/z+tEmLVPBcJ0zt8mOu1DKpWcVzBK8IA==
@@ -4405,11 +4405,6 @@ jquery@^2.1.4, jquery@2.x:
   resolved "https://registry.npmmirror.com/jquery/-/jquery-2.2.4.tgz"
   integrity sha512-lBHj60ezci2u1v2FqnZIraShGgEXq35qCzMv4lITyHGppTnA13rwR0MgwyNJh9TnDs3aXUvd1xjAotfraMHX/Q==
 
-jquery@=3.1.1:
-  version "3.1.1"
-  resolved "https://registry.npmmirror.com/jquery/-/jquery-3.1.1.tgz"
-  integrity sha512-zuiWRmx65Kd1oFGdWLvAjbsumdOBFvs3r1vuqCyKFF79R7exBHNbiNEJ8LR+xkzgfxqBznMD/4Cv6PHXS6mvEw==
-
 js-base64@^2.1.9:
   version "2.6.4"
   resolved "https://registry.npmmirror.com/js-base64/-/js-base64-2.6.4.tgz"
@@ -4792,7 +4787,7 @@ map-visit@^1.0.0:
   dependencies:
     object-visit "^1.0.0"
 
-marked@^0.3.19, marked@^0.3.5:
+marked@^0.3.5:
   version "0.3.19"
   resolved "https://registry.npmmirror.com/marked/-/marked-0.3.19.tgz"
   integrity sha512-ea2eGWOqNxPcXv8dyERdSr/6FmzvWwzjMxpfGB/sbMccXoct+xY+YukPD+QTUZwyvK7BZwcr4m21WBOW41pAkg==
@@ -7089,24 +7084,12 @@ simple-hotkeys@^1.0.3, simple-hotkeys@~1.0.3:
     jquery "2.x"
     simple-module "~2.0.5"
 
-"simple-hotkeys@github:itargaryen/simple-hotkeys":
-  version "0.2.1"
-  resolved "https://codeload.github.com/itargaryen/simple-hotkeys/tar.gz/8a6b2cf19d06100ac86d7ce4d442df08c561b7e9"
-  integrity sha512-j/XFMl0rwTUHPx8EuUyfK7pMmnaELF1sJM3hsdxCHS7YoEZY9FFTHgJqF7/dj2/RgE/05BWJVI/o7/JyGJ0uJg==
-
 simple-module@^2.0.6, simple-module@~2.0.5, simple-module@~2.0.6:
   version "2.0.6"
   resolved "https://registry.npmmirror.com/simple-module/-/simple-module-2.0.6.tgz"
   integrity sha512-uyGIeOVlGZxOhADL6anB/GAq/XvmFe0hdgckQWrQ+bUwTuKMI5O1jz9i9/nNSdVzuwHaS/eMXaJiSz0JJgNyKA==
   dependencies:
     jquery "2.x"
-
-"simple-module@github:itargaryen/simple-module#v2.1.0":
-  version "2.1.0"
-  resolved "https://codeload.github.com/itargaryen/simple-module/tar.gz/ea2688c579170eca533cd0bd8ba7f83c8d241a1c"
-  integrity sha512-EYyStshAamO+SBlPkMGYhSgGxPualnm6ECUby+laK2nmtt5jsstYKk9wL8UNsOPOyZ5jEo8gURJibb1oiCKTuQ==
-  dependencies:
-    jquery "=3.1.1"
 
 simple-swizzle@^0.2.2:
   version "0.2.2"
@@ -7122,14 +7105,6 @@ simple-uploader@^2.0.7, simple-uploader@~2.0.7:
   dependencies:
     jquery "2.x"
     simple-module "~2.0.5"
-
-"simple-uploader@github:itargaryen/simple-uploader#v2.1.0":
-  version "2.1.0"
-  resolved "https://codeload.github.com/itargaryen/simple-uploader/tar.gz/79d795ca1ce0b163c0e335fddad5bf9393004780"
-  integrity sha512-e+ZE0Xcl2hvgv4wcb/LfuCweFnDVjVEppqOiTpK86KCtYTrf7iCcz6Jy+qTYZJO0EWa/OY2X6rclU1MdYSgPGw==
-  dependencies:
-    jquery "=3.1.1"
-    simple-module "github:itargaryen/simple-module#v2.1.0"
 
 slash@^1.0.0:
   version "1.0.0"
@@ -7550,7 +7525,7 @@ tar-simditor-markdown@^1.2.3:
     tar-simditor "^2.3.15"
     to-markdown "^3.1.0"
 
-tar-simditor@^2.3.15:
+tar-simditor@^2.3.15, tar-simditor@^2.4.3:
   version "2.4.3"
   resolved "https://registry.npmmirror.com/tar-simditor/-/tar-simditor-2.4.3.tgz"
   integrity sha512-yHu66vpvY9fw8RDw6a/pAt2XsJRH0tVix8y6sgg7ieiCTA0mnmQUqS4WsiWOhGyFsmPuJq2EnMfvYyG7bHWHcw==
@@ -7560,17 +7535,6 @@ tar-simditor@^2.3.15:
     simple-module "~2.0.6"
     simple-uploader "~2.0.7"
     to-markdown "^3.1.0"
-
-tar-simditor@^3.0.5:
-  version "3.0.5"
-  resolved "https://registry.npmmirror.com/tar-simditor/-/tar-simditor-3.0.5.tgz"
-  integrity sha512-fUQhIVVfp2crf2wanLCpDLWp5Mao/i9lTQeS9Mj46/IOF+FuAKKyJ/ULk6+OlH0Ro6VEVGzlr/bQFArJdCfKsQ==
-  dependencies:
-    marked "^0.3.19"
-    simple-hotkeys "github:itargaryen/simple-hotkeys"
-    simple-module "github:itargaryen/simple-module#v2.1.0"
-    simple-uploader "github:itargaryen/simple-uploader#v2.1.0"
-    to-markdown "^3.1.1"
 
 text-table@^0.2.0, text-table@~0.2.0:
   version "0.2.0"
@@ -7632,7 +7596,7 @@ to-fast-properties@^1.0.3:
   resolved "https://registry.npmmirror.com/to-fast-properties/-/to-fast-properties-1.0.3.tgz"
   integrity sha512-lxrWP8ejsq+7E3nNjwYmUBMAgjMTZoTI+sdBOpvNyijeDLa29LUn9QaoXAHv4+Z578hbmHHJKZknzxVtvo77og==
 
-to-markdown@^3.1.0, to-markdown@^3.1.1:
+to-markdown@^3.1.0:
   version "3.1.1"
   resolved "https://registry.npmmirror.com/to-markdown/-/to-markdown-3.1.1.tgz"
   integrity sha512-uLXSsdlBF4VdwUec1DGNdX3ao5RzgaYDxP4SquGRAeonENil+5RQptK6Ot6z8mfdiutX+6cQCgQMieN59mOimA==

@@ -17,6 +17,9 @@ export const m = {
   Choice_Question: 'Choice Question',
   Choice_Question_List: 'Choice Question List',
   Create_Choice_Question: 'Create Choice Question',
+  Category_Management: 'Category Management',
+  Category: 'Category',
+  Tag_Management: 'Tag Management',
   Options: 'Options',
   Explanation: 'Explanation',
   Contest: 'Contest',
@@ -125,5 +128,15 @@ export const m = {
   Welcome_to_Login: 'Welcome to Login',
   GO: 'GO',
   username: 'username',
-  password: 'password'
+  password: 'password',
+  // Common
+  Create: 'Create',
+  Search: 'Search',
+  Edit: 'Edit',
+  Delete: 'Delete',
+  Save: 'Save',
+  Cancel: 'Cancel',
+  Confirm: 'Confirm',
+  Reset: 'Reset',
+  OK: 'OK'
 }

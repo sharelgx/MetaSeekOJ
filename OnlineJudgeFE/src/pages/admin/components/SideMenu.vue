@@ -24,6 +24,8 @@
       <template slot="title"><i class="el-icon-fa-list-alt"></i>{{$t('m.Choice_Question')}}</template>
       <el-menu-item index="/choice-questions">{{$t('m.Choice_Question_List')}}</el-menu-item>
       <el-menu-item index="/choice-question/create">{{$t('m.Create_Choice_Question')}}</el-menu-item>
+      <el-menu-item index="/choice-question/category">{{$t('m.Category_Management')}}</el-menu-item>
+      <el-menu-item index="/choice-question/tag">{{$t('m.Tag_Management')}}</el-menu-item>
     </el-submenu>
     <el-submenu index="contest">
       <template slot="title"><i class="el-icon-fa-trophy"></i>{{$t('m.Contest')}}</template>

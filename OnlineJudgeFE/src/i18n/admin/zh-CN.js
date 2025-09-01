@@ -17,6 +17,8 @@ export const m = {
   Choice_Question: '选择题',
   Choice_Question_List: '选择题列表',
   Create_Choice_Question: '创建选择题',
+  Category_Management: '分类管理',
+  Tag_Management: '标签管理',
   Options: '选项',
   Explanation: '解释',
   Contest: '比赛&练习',
@@ -101,6 +103,7 @@ export const m = {
   Low: '低',
   Tag: '标签',
   New_Tag: '新增标签',
+  Category: '分类',
   // ProblemList.vue
   Contest_Problem_List: '比赛问题列表',
   // Contest.vue
@@ -125,5 +128,15 @@ export const m = {
   Welcome_to_Login: '欢迎登录 OnlineJudge 后台管理系统',
   GO: '登录',
   username: '用户名',
-  password: '密码'
+  password: '密码',
+  // Common
+  Create: '创建',
+  Search: '搜索',
+  Edit: '编辑',
+  Delete: '删除',
+  Save: '保存',
+  Cancel: '取消',
+  Confirm: '确认',
+  Reset: '重置',
+  OK: '确定'
 }

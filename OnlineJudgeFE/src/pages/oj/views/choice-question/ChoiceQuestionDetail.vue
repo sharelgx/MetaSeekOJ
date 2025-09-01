@@ -105,33 +105,51 @@
           <Icon type="ios-radio-button-on" class="section-icon" />
           <h3>选择答案</h3>
         </div>
-        <div v-if="question.question_type === 'single'">
-          <RadioGroup v-model="selectedAnswer" :disabled="hasSubmitted">
+        
+        <!-- 使用原生HTML元素避免iView组件冲突 -->
+        <div class="choice-options">
+          <!-- 单选题 -->
+          <div v-if="question.question_type === 'single'" class="options-container">
             <div v-for="(option, index) in question.options" 
                  :key="index"
-                 class="option-item" 
-                 :class="[getOptionClass(option.key), { selected: selectedAnswer === option.key }]"
-               >
-              <Radio :label="option.key">
-                <span class="option-label">{{ option.key }}.</span>
-                <span class="option-content" v-html="option.text"></span>
-              </Radio>
+                 class="option-row" 
+                 :class="[getOptionClass(option.key), { 'selected': selectedAnswer === option.key }]"
+                 @click="selectOption(option.key, false)">
+              <!-- 使用原生radio -->
+              <input type="radio" 
+                     :id="'radio_' + option.key"
+                     :name="'question_' + question.id"
+                     :value="option.key"
+                     v-model="selectedAnswer"
+                     :disabled="hasSubmitted"
+                     class="option-input" />
+              <label :for="'radio_' + option.key" class="option-label">
+                <span class="option-key">{{ option.key }}.</span>
+                <div class="option-content" v-html="option.text"></div>
+              </label>
             </div>
-          </RadioGroup>
-        </div>
-        <div v-else>
-          <CheckboxGroup v-model="selectedAnswers" :disabled="hasSubmitted">
+          </div>
+          
+          <!-- 多选题 -->
+          <div v-else class="options-container">
             <div v-for="(option, index) in question.options" 
                  :key="index"
-                 class="option-item" 
-                 :class="[getOptionClass(option.key), { selected: selectedAnswers.includes(option.key) }]"
-               >
-              <Checkbox :label="String.fromCharCode(65 + index)">
-                <span class="option-label">{{ option.key }}.</span>
-                <span class="option-content" v-html="option.text"></span>
-              </Checkbox>
+                 class="option-row" 
+                 :class="[getOptionClass(option.key), { 'selected': selectedAnswers.includes(option.key) }]"
+                 @click="selectOption(option.key, true)">
+              <!-- 使用原生checkbox -->
+              <input type="checkbox" 
+                     :id="'checkbox_' + option.key"
+                     :value="option.key"
+                     v-model="selectedAnswers"
+                     :disabled="hasSubmitted"
+                     class="option-input" />
+              <label :for="'checkbox_' + option.key" class="option-label">
+                <span class="option-key">{{ option.key }}.</span>
+                <div class="option-content" v-html="option.text"></div>
+              </label>
             </div>
-          </CheckboxGroup>
+          </div>
         </div>
       </div>
       
@@ -267,6 +285,10 @@
 <script>
 import api from './api/index'
 import { mapGetters } from 'vuex'
+import hljs from 'highlight.js'
+import 'highlight.js/styles/default.css'
+import katex from 'katex'
+import 'katex/dist/katex.min.css'
 
 export default {
   name: 'ChoiceQuestionDetail',
@@ -358,6 +380,10 @@ export default {
       handler() {
         if (this.question) {
           this.handleImageResize();
+          this.$nextTick(() => {
+            this.highlightCode()
+            this.renderMath()
+          })
         }
       },
       deep: true
@@ -381,6 +407,12 @@ export default {
     // 获取题目详情和列表
     this.getQuestionDetail()
     this.getQuestionListForNavigation()
+    
+    // 初始化代码高亮和数学公式渲染
+    this.$nextTick(() => {
+      this.highlightCode()
+      this.renderMath()
+    })
   },
   
   methods: {
@@ -394,7 +426,28 @@ export default {
       this.isInWrongQuestions = false
     },
     
-    // 处理图片尺寸的方法
+    // 简化的选项选择方法
+    selectOption(key, isMultiple) {
+      if (this.hasSubmitted) return
+      
+      if (!isMultiple) {
+        // 单选题 - 直接设置值，v-model会自动处理
+        this.selectedAnswer = key
+      } else {
+        // 多选题 - 切换选择状态
+        if (!Array.isArray(this.selectedAnswers)) {
+          this.selectedAnswers = []
+        }
+        const index = this.selectedAnswers.indexOf(key)
+        if (index === -1) {
+          this.selectedAnswers.push(key)
+        } else {
+          this.selectedAnswers.splice(index, 1)
+        }
+      }
+    },
+      
+      // 处理图片尺寸的方法
     handleImageResize() {
       // 等待DOM更新后处理图片
       this.$nextTick(() => {
@@ -425,8 +478,12 @@ export default {
           throw new Error('题目数据为空')
         }
         
-        // 数据加载完成后处理图片
-        this.handleImageResize();
+        // 数据加载完成后处理图片、代码高亮和数学公式渲染
+        this.$nextTick(() => {
+          this.handleImageResize()
+          this.highlightCode()
+          this.renderMath()
+        })
         
       } catch (err) {
         this.$Message.error('获取题目详情失败')
@@ -899,6 +956,92 @@ export default {
         difficulty: query.difficulty || null,
         question_type: query.question_type || null
       }
+    },
+    
+    // 代码高亮方法
+    highlightCode() {
+      try {
+        const codeBlocks = this.$el.querySelectorAll('pre code, code')
+        codeBlocks.forEach(block => {
+          if (block.tagName === 'CODE' && block.parentNode.tagName !== 'PRE') {
+            // 行内代码，不需要高亮
+            return
+          }
+          try {
+            // 兼容不同版本的 highlight.js
+            if (typeof hljs.highlightElement === 'function') {
+              hljs.highlightElement(block)
+            } else if (typeof hljs.highlightBlock === 'function') {
+              hljs.highlightBlock(block)
+            } else {
+              // 手动高亮
+              const result = hljs.highlightAuto(block.textContent)
+              block.innerHTML = result.value
+              block.className = `hljs ${result.language || ''}`
+            }
+          } catch (e) {
+            console.warn('代码高亮失败:', e)
+          }
+        })
+      } catch (error) {
+        console.error('代码高亮处理失败:', error)
+      }
+    },
+    
+    // 数学公式渲染方法
+    renderMath() {
+      try {
+        // 扩大选择器范围，包含所有可能包含数学公式的元素
+        const mathElements = this.$el.querySelectorAll('.content, .option-content, .explanation-content, .question-content, p, div')
+        mathElements.forEach(element => {
+          let html = element.innerHTML
+          
+          // 跳过已经渲染过的KaTeX元素
+          if (element.querySelector('.katex') || element.classList.contains('katex')) {
+            return
+          }
+          
+          // 处理块级数学公式 $$...$$
+          html = html.replace(/\$\$([^$]+?)\$\$/g, (match, formula) => {
+            try {
+              const rendered = katex.renderToString(formula.trim(), {
+                displayMode: true,
+                throwOnError: false
+              })
+              console.log('渲染块级公式:', formula.trim())
+              return rendered
+            } catch (e) {
+              console.warn('数学公式渲染失败:', formula, e)
+              return match
+            }
+          })
+          
+          // 处理行内数学公式 $...$（避免匹配$$...$$）
+           html = html.replace(/\$([^$\n]+?)\$/g, (match, formula) => {
+             // 跳过已经是$$...$$格式的公式
+             if (match.includes('$$')) {
+               return match
+             }
+            try {
+              const rendered = katex.renderToString(formula.trim(), {
+                displayMode: false,
+                throwOnError: false
+              })
+              console.log('渲染行内公式:', formula.trim())
+              return rendered
+            } catch (e) {
+              console.warn('数学公式渲染失败:', formula, e)
+              return match
+            }
+          })
+          
+          if (html !== element.innerHTML) {
+            element.innerHTML = html
+          }
+        })
+      } catch (error) {
+        console.error('数学公式渲染处理失败:', error)
+      }
     }
   },
 
@@ -911,6 +1054,12 @@ export default {
     
     // 获取题目列表（用于导航）
     this.getQuestionList()
+    
+    // 初始化代码高亮和数学公式渲染
+    this.$nextTick(() => {
+      this.highlightCode()
+      this.renderMath()
+    })
   },
 
   watch: {
@@ -920,6 +1069,12 @@ export default {
         this.getFilterParamsFromRoute()
         this.getQuestionDetail()
         this.getQuestionList()
+        
+        // 重新渲染代码高亮和数学公式
+        this.$nextTick(() => {
+          this.highlightCode()
+          this.renderMath()
+        })
       }
     }
   }
@@ -1141,81 +1296,125 @@ export default {
   color: #333;
 }
 
-/* 选项样式优化 */
-.option-item {
-  margin-bottom: 16px;
+/* 选项容器样式 - 原生HTML元素版本 */
+.choice-options {
+  width: 100%;
+}
+
+.options-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* 选项行样式 */
+.option-row {
+  display: flex;
+  align-items: flex-start;
   padding: 16px;
   border: 2px solid #e8eaec;
   border-radius: 8px;
-  transition: all 0.3s ease;
-  cursor: pointer;
   background: #fff;
-  position: relative;
-  overflow: hidden;
-}
-
-.option-item::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  height: 100%;
-  width: 4px;
-  background: transparent;
+  cursor: pointer;
   transition: all 0.3s ease;
+  position: relative;
 }
 
-.option-item:hover {
+.option-row:hover {
   border-color: #2d8cf0;
-  background: #f7f9fc;
-  transform: translateX(4px);
+  background: #f8f9fa;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(45, 140, 240, 0.15);
 }
 
-.option-item:hover::before {
-  background: #2d8cf0;
-}
-
-.option-item.selected {
+.option-row.selected {
   border-color: #2d8cf0;
-  background: #e6f7ff;
-  transform: translateX(4px);
+  background: #f0f7ff;
+  box-shadow: 0 2px 8px rgba(45, 140, 240, 0.2);
 }
 
-.option-item.selected::before {
-  background: #2d8cf0;
-}
-
-.option-item.option-correct {
+.option-row.option-correct {
   border-color: #19be6b !important;
-  background: #f0f9ff !important;
+  background: #f0f9f4 !important;
 }
 
-.option-item.option-correct::before {
-  background: #19be6b !important;
-}
-
-.option-item.option-wrong {
+.option-row.option-wrong {
   border-color: #ed4014 !important;
   background: #fff2f0 !important;
 }
 
-.option-item.option-wrong::before {
-  background: #ed4014 !important;
+/* 原生input样式 */
+.option-input {
+  width: 18px;
+  height: 18px;
+  margin-right: 12px;
+  margin-top: 2px;
+  cursor: pointer;
+  accent-color: #2d8cf0;
+  flex-shrink: 0;
 }
 
+.option-input:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* label样式 */
 .option-label {
-  font-weight: bold;
-  margin-right: 12px;
+  display: flex;
+  align-items: flex-start;
+  flex: 1;
+  cursor: pointer;
+  line-height: 1.6;
+}
+
+.option-label:hover {
   color: #2d8cf0;
-  font-size: 16px;
-  min-width: 24px;
-  display: inline-block;
+}
+
+.option-key {
+  font-weight: 600;
+  color: #2d8cf0;
+  margin-right: 8px;
+  min-width: 20px;
+  flex-shrink: 0;
 }
 
 .option-content {
+  flex: 1;
+  color: #515a6e;
   line-height: 1.6;
-  font-size: 15px;
-  color: #333;
+}
+
+/* 数学公式样式 */
+.option-content .katex {
+  display: inline-block;
+}
+
+/* 代码块样式 */
+.option-content pre,
+.option-content code {
+  background: #f8f8f9;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-family: 'Monaco', 'Consolas', monospace;
+}
+
+.option-content pre {
+  padding: 12px;
+  margin: 8px 0;
+  overflow-x: auto;
+}
+
+/* 禁用状态样式 */
+.option-row:has(.option-input:disabled) {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.option-row:has(.option-input:disabled) .option-label {
+  cursor: not-allowed;
 }
 
 /* 选项内容中的图片尺寸控制 */
@@ -1362,21 +1561,40 @@ export default {
   color: #333;
 }
 
-/* 图片自适应样式 - 最大宽度400px，高度自适应 */
+/* 统一的图片样式 - 适用于题目描述和答案解析区域 */
+.choice-question-detail img,
+.choice-question-detail .content img,
+.choice-question-detail .option-content img,
+.choice-question-detail .explanation-content img,
+.choice-question-detail .explanation-section img,
+.choice-question-detail .answer-analysis img,
 .choice-question-detail >>> .content img,
 .choice-question-detail ::v-deep .content img,
 .choice-question-detail /deep/ .content img,
 .choice-question-detail .ivu-panel-body .content img,
 .choice-question-detail .option-item .option-content img,
-.choice-question-detail .answer-analysis .explanation .content img {
+.choice-question-detail .answer-analysis .explanation .content img,
+.choice-question-detail div[data-v-c7142b94] .content img,
+.choice-question-detail [data-v-c7142b94] .content img,
+.choice-question-detail div.content img[width],
+.choice-question-detail div.content img[height],
+.choice-question-detail .content img[width][height] {
   max-width: 400px !important;
   width: auto !important;
   height: auto !important;
   display: block !important;
   margin: 10px auto !important;
   object-fit: contain !important;
-  border: 1px solid #e8eaec;
-  border-radius: 4px;
+  border: 1px solid #e8eaec !important;
+  border-radius: 4px !important;
+}
+
+/* 强制覆盖内联样式的图片尺寸 */
+.choice-question-detail img[style*="width"],
+.choice-question-detail img[style*="height"] {
+  max-width: 400px !important;
+  width: auto !important;
+  height: auto !important;
 }
 
 /* 导航按钮样式 */

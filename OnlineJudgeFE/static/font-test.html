@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Font Test</title>
+    <style>
+        @font-face {
+            font-family: "Ionicons";
+            src: url("/static/fonts/ionicons.woff") format("woff"),
+                 url("/static/fonts/ionicons.ttf") format("truetype");
+        }
+        .test-icon {
+            font-family: "Ionicons";
+            font-size: 24px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Font Loading Test</h1>
+    <div class="test-icon">&#xf101;</div>
+    <p>If you see an icon above, the font is working.</p>
+</body>
+</html>

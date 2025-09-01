@@ -122,11 +122,11 @@ export default {
         },
         {
           title: 'ID',
-          key: 'question._id',
+          key: 'question.id',
           width: 80,
           align: 'center',
           render: (h, params) => {
-            return h('span', params.row.question._id)
+            return h('span', params.row.question.id)
           }
         },
         {
@@ -143,18 +143,15 @@ export default {
                   color: '#2d8cf0'
                 },
                 on: {
-                  click: () => this.goToQuestion(params.row.question._id)
+                  click: () => this.goToQuestion(params.row.question.id)
                 }
               }, params.row.question.title),
               h('div', {
                 style: {
                   fontSize: '12px',
                   color: '#999'
-                },
-                domProps: {
-                  innerHTML: params.row.question.content.substring(0, 100) + '...'
                 }
-              })
+              }, `${params.row.question.question_type === 'single' ? '单选题' : '多选题'} | 难度: ${params.row.question.difficulty} | 分数: ${params.row.question.score}`)
             ])
           }
         },
@@ -177,7 +174,7 @@ export default {
               2: { text: '中等', color: 'warning' },
               3: { text: '困难', color: 'error' }
             }
-            const difficulty = difficultyMap[params.row.question.difficulty]
+            const difficulty = difficultyMap[params.row.question.difficulty] || { text: '未知', color: 'default' }
             return h('Tag', {
               props: {
                 color: difficulty.color
@@ -241,7 +238,7 @@ export default {
           key: 'create_time',
           width: 150,
           render: (h, params) => {
-            return h('span', this.$moment(params.row.create_time).format('YYYY-MM-DD HH:mm'))
+            return h('span', new Date(params.row.create_time).toLocaleString('zh-CN'))
           }
         },
         {
@@ -260,7 +257,7 @@ export default {
                   marginRight: '8px'
                 },
                 on: {
-                  click: () => this.redoQuestion(params.row.question._id)
+                  click: () => this.redoQuestion(params.row.question.id)
                 }
               }, '重做'),
               h('Button', {
