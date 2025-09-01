@@ -65,6 +65,10 @@ export default [
     component: ChoiceQuestion.ChoiceQuestionList
   },
   {
+    path: '/choice-question',
+    redirect: '/choice-questions'
+  },
+  {
     name: 'choice-question-detail',
     path: '/choice-question/:id',
     meta: {title: 'Choice Question Details'},

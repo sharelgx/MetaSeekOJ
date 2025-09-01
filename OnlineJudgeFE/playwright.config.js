@@ -10,6 +10,10 @@ module.exports = {
     {
       name: 'admin-tests',
       testMatch: 'admin-*.spec.js'
+    },
+    {
+      name: 'choice-questions-tests',
+      testMatch: 'choice-questions.spec.js'
     }
   ]
 }

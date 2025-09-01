@@ -146,6 +146,7 @@ export const m = {
   // NavBar.vue
   Home: '首页',
   NavProblems: '问题',
+  Choice_Question: '选择题',
   Contests: '练习&比赛',
   NavStatus: '状态',
   Rank: '排名',
@@ -158,6 +159,7 @@ export const m = {
   Register: '注册',
   MyHome: '我的主页',
   MySubmissions: '我的提交',
+  WrongQuestions: '错题本',
   Settings: '我的设置',
   Management: '后台管理',
   Logout: '退出',

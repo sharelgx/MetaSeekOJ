@@ -334,6 +334,46 @@ export default {
         id
       }
     })
+  },
+  // Choice Question Categories
+  getChoiceQuestionCategories () {
+    return ajax('admin/choice_question/categories', 'get')
+  },
+  createChoiceQuestionCategory (data) {
+    return ajax('admin/choice_question/categories', 'post', {
+      data
+    })
+  },
+  updateChoiceQuestionCategory (id, data) {
+    return ajax('admin/choice_question/categories', 'put', {
+      params: { id },
+      data
+    })
+  },
+  deleteChoiceQuestionCategory (id) {
+    return ajax('admin/choice_question/categories', 'delete', {
+      params: { id }
+    })
+  },
+  // Choice Question Tags
+  getChoiceQuestionTags () {
+    return ajax('admin/choice_question/tags', 'get')
+  },
+  createChoiceQuestionTag (data) {
+    return ajax('admin/choice_question/tags', 'post', {
+      data
+    })
+  },
+  updateChoiceQuestionTag (id, data) {
+    return ajax('admin/choice_question/tags', 'put', {
+      params: { id },
+      data
+    })
+  },
+  deleteChoiceQuestionTag (id) {
+    return ajax('admin/choice_question/tags', 'delete', {
+      params: { id }
+    })
   }
 }
 
@@ -374,7 +414,12 @@ function ajax (url, method, options) {
     }, res => {
       // API请求异常，一般为Server error 或 network error
       reject(res)
-      Vue.prototype.$error(res.data.data)
+      // 检查res.data是否存在，避免undefined错误
+      if (res.data && res.data.data) {
+        Vue.prototype.$error(res.data.data)
+      } else {
+        Vue.prototype.$error('Network error or server error')
+      }
     })
   })
 }

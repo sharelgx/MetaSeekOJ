@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>iView 图标测试</title>
+    <link rel="stylesheet" href="http://localhost:8080/oj.css">
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            padding: 20px; 
+            background: #f5f5f5;
+        }
+        .test-section { 
+            background: white;
+            margin: 20px 0; 
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .icon-test { 
+            margin: 10px; 
+            font-size: 18px; 
+            padding: 8px;
+            border-left: 3px solid #2d8cf0;
+            background: #f8f9fa;
+        }
+        .success { color: #19be6b; }
+        .error { color: #ed3f14; }
+        h2 { color: #2d8cf0; }
+        h3 { color: #495060; }
+    </style>
+</head>
+<body>
+    <h2>🎯 iView 图标测试页面</h2>
+    
+    <div class="test-section">
+        <h3>✅ iView 导航栏图标测试:</h3>
+        <div class="icon-test"><i class="ivu-icon ivu-icon-home"></i> 首页 (home)</div>
+        <div class="icon-test"><i class="ivu-icon ivu-icon-ios-keypad"></i> 键盘 (ios-keypad)</div>
+        <div class="icon-test"><i class="ivu-icon ivu-icon-trophy"></i> 奖杯 (trophy)</div>
+        <div class="icon-test"><i class="ivu-icon ivu-icon-ios-pulse-strong"></i> 脉搏 (ios-pulse-strong)</div>
+        <div class="icon-test"><i class="ivu-icon ivu-icon-podium"></i> 领奖台 (podium)</div>
+        <div class="icon-test"><i class="ivu-icon ivu-icon-information-circled"></i> 信息 (information-circled)</div>
+    </div>
+    
+    <div class="test-section">
+        <h3>🔧 字体文件测试:</h3>
+        <p>• <a href="/static/fonts/ionicons.woff" target="_blank">ionicons.woff</a></p>
+        <p>• <a href="/static/fonts/ionicons.ttf" target="_blank">ionicons.ttf</a></p>
+        <p>• <a href="/static/fonts/ionicons.eot" target="_blank">ionicons.eot</a></p>
+        <p>• <a href="/static/fonts/ionicons.svg" target="_blank">ionicons.svg</a></p>
+    </div>
+    
+    <div class="test-section">
+        <h3>📋 修复说明:</h3>
+        <p><span class="success">✓</span> 已复制 iView 的 Ionicons 字体文件到 static/fonts 目录</p>
+        <p><span class="success">✓</span> 已创建 iview-font-fix.css 修正字体路径</p>
+        <p><span class="success">✓</span> 已在 index.less 中引入字体修复文件</p>
+        <p><span class="success">✓</span> 字体文件现在可以通过 HTTP 正确访问</p>
+    </div>
+    
+    <div class="test-section">
+        <h3>🔗 相关链接:</h3>
+        <p>• <a href="http://localhost:8080/index.html" target="_blank">主页面 (OJ)</a></p>
+        <p>• <a href="http://localhost:8080/admin/index.html" target="_blank">管理页面 (Admin)</a></p>
+    </div>
+</body>
+</html>

@@ -146,6 +146,7 @@ export const m = {
   // NavBar.vue
   Home: 'Home',
   NavProblems: 'Problems',
+  Choice_Question: 'Choice Questions',
   Contests: 'Contests',
   NavStatus: 'Status',
   Rank: 'Rank',
@@ -158,6 +159,7 @@ export const m = {
   Register: 'Register',
   MyHome: 'Home',
   MySubmissions: 'Submissions',
+  WrongQuestions: 'Wrong Questions',
   Settings: 'Settings',
   Management: 'Management',
   Logout: 'Logout',

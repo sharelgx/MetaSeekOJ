@@ -1,0 +1,35 @@
+/* iView 图标字体路径修复 - 使用CDN */
+@font-face {
+  font-family: "Ionicons";
+  src: url("https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.0/fonts/ionicons.eot");
+  src: url("https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.0/fonts/ionicons.eot#iefix") format("embedded-opentype"),
+       url("https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.0/fonts/ionicons.ttf") format("truetype"),
+       url("https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.0/fonts/ionicons.woff") format("woff"),
+       url("https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.0/fonts/ionicons.svg#Ionicons") format("svg");
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* Element UI 图标字体修复 - 使用CDN */
+@font-face {
+  font-family: "element-icons";
+  src: url("https://unpkg.com/element-ui/lib/theme-chalk/fonts/element-icons.woff") format("woff"),
+       url("https://unpkg.com/element-ui/lib/theme-chalk/fonts/element-icons.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* 确保iView图标使用正确的字体 */
+.ivu-icon {
+  font-family: "Ionicons" !important;
+  display: inline-block;
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  text-rendering: auto;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

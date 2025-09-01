@@ -13,9 +13,11 @@ import Home from './Home.vue'
 import ProblemImportOrExport from './problem/ImportAndExport.vue'
 import ChoiceQuestion from './choice-question/ChoiceQuestion.vue'
 import ChoiceQuestionList from './choice-question/ChoiceQuestionList.vue'
+import CategoryManagement from './choice-question/CategoryManagement.vue'
+import TagManagement from './choice-question/TagManagement.vue'
 
 export {
   Announcement, User, Conf, JudgeServer, Problem, ProblemList, Contest,
   ContestList, Login, Home, PruneTestCase, Dashboard, ProblemImportOrExport,
-  ChoiceQuestion, ChoiceQuestionList
+  ChoiceQuestion, ChoiceQuestionList, CategoryManagement, TagManagement
 }
