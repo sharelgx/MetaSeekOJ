@@ -34,17 +34,17 @@
         <p>{{$t('m.DashBoardJudge_Server')}}:  {{infoData.judge_server_count}}</p>
         <p>{{$t('m.HTTPS_Status')}}:
           <el-tag :type="https ? 'success' : 'danger'" size="small">
-            {{ https ? 'Enabled' : 'Disabled'}}
+            {{ https ? $t('m.Enabled') : $t('m.Disabled')}}
           </el-tag>
         </p>
         <p>{{$t('m.Force_HTTPS')}}:
           <el-tag :type="forceHttps ? 'success' : 'danger'" size="small">
-            {{forceHttps ? 'Enabled' : 'Disabled'}}
+            {{forceHttps ? $t('m.Enabled') : $t('m.Disabled')}}
           </el-tag>
         </p>
         <p>{{$t('m.CDN_HOST')}}:
           <el-tag :type="cdn ? 'success' : 'warning'" size="small">
-            {{cdn ? cdn : 'Not Use'}}
+            {{cdn ? cdn : $t('m.Not_Use')}}
           </el-tag>
         </p>
       </panel>
@@ -52,15 +52,15 @@
 
     <el-col :md="14" :lg="16" v-if="isSuperAdmin">
       <div class="info-container">
-        <info-card color="#909399" icon="el-icon-fa-users" message="Total Users" iconSize="30px" class="info-item"
+        <info-card color="#909399" icon="el-icon-fa-users" :message="$t('m.Total_Users')" iconSize="30px" class="info-item"
                    :value="infoData.user_count"></info-card>
-        <info-card color="#67C23A" icon="el-icon-fa-list" message="Today Submissions" class="info-item"
+        <info-card color="#67C23A" icon="el-icon-fa-list" :message="$t('m.Today_Submissions')" class="info-item"
                    :value="infoData.today_submission_count"></info-card>
-        <info-card color="#409EFF" icon="el-icon-fa-trophy" message="Recent Contests" class="info-item"
+        <info-card color="#409EFF" icon="el-icon-fa-trophy" :message="$t('m.Recent_Contests')" class="info-item"
                    :value="infoData.recent_contest_count"></info-card>
       </div>
       <panel style="margin-top: 5px">
-        <span slot="title" v-loading="loadingReleases">Release Notes
+        <span slot="title" v-loading="loadingReleases">{{$t('m.Release_Notes')}}
         <el-popover placement="right" trigger="hover">
           <i slot="reference" class="el-icon-fa-question-circle import-user-icon"></i>
           <p>Please upgrade to the latest version to enjoy the new features. </p>
@@ -74,7 +74,7 @@
           <el-collapse-item :name="index+1">
             <template slot="title">
               <div v-if="release.new_version">{{release.title}}
-                <el-tag size="mini" type="success">New Version</el-tag>
+                <el-tag size="mini" type="success">{{$t('m.New_Version')}}</el-tag>
               </div>
               <span v-else>{{release.title}}</span>
             </template>

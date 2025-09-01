@@ -38,7 +38,7 @@
           <el-table-column
             width="100"
             prop="visible"
-            label="Visible">
+            :label="$t('m.Visible')">
             <template slot-scope="scope">
               <el-switch v-model="scope.row.visible"
                          active-text=""
@@ -49,16 +49,16 @@
           </el-table-column>
           <el-table-column
             fixed="right"
-            label="Option"
+            :label="$t('m.Option')"
             width="200">
             <div slot-scope="scope">
-              <icon-btn name="Edit" icon="edit" @click.native="openAnnouncementDialog(scope.row.id)"></icon-btn>
-              <icon-btn name="Delete" icon="trash" @click.native="deleteAnnouncement(scope.row.id)"></icon-btn>
+              <icon-btn :name="$t('m.Edit')" icon="edit" @click.native="openAnnouncementDialog(scope.row.id)"></icon-btn>
+              <icon-btn :name="$t('m.Delete')" icon="trash" @click.native="deleteAnnouncement(scope.row.id)"></icon-btn>
             </div>
           </el-table-column>
         </el-table>
         <div class="panel-options">
-          <el-button type="primary" size="small" @click="openAnnouncementDialog(null)" icon="el-icon-plus">Create</el-button>
+          <el-button type="primary" size="small" @click="openAnnouncementDialog(null)" icon="el-icon-plus">{{$t('m.Create')}}</el-button>
           <el-pagination
             v-if="!contestID"
             class="page"
@@ -130,7 +130,7 @@
           content: ''
         },
         // 对话框标题
-        announcementDialogTitle: 'Edit Announcement',
+        announcementDialogTitle: this.$t('m.Edit_Announcement'),
         // 是否显示loading
         loading: true,
         // 当前页码

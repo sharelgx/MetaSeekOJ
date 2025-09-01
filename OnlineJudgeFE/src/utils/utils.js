@@ -83,15 +83,30 @@ function getLanguages () {
     let languages = storage.get(STORAGE_KEY.languages)
     if (languages) {
       resolve(languages)
+    } else {
+      ojAPI.getLanguages().then(res => {
+        let languages = res.data.data
+        storage.set(STORAGE_KEY.languages, languages)
+        resolve(languages)
+      }, err => {
+        reject(err)
+      })
     }
-    ojAPI.getLanguages().then(res => {
-      let languages = res.data.data.languages
-      storage.set(STORAGE_KEY.languages, languages)
-      resolve(languages)
-    }, err => {
-      reject(err)
-    })
   })
+}
+
+function debounce (func, wait, immediate) {
+  let timeout
+  return function executedFunction(...args) {
+    const later = () => {
+      timeout = null
+      if (!immediate) func(...args)
+    }
+    const callNow = immediate && !timeout
+    clearTimeout(timeout)
+    timeout = setTimeout(later, wait)
+    if (callNow) func(...args)
+  }
 }
 
 export default {
@@ -101,5 +116,6 @@ export default {
   filterEmptyValue: filterEmptyValue,
   breakLongWords: breakLongWords,
   downloadFile: downloadFile,
-  getLanguages: getLanguages
+  getLanguages: getLanguages,
+  debounce: debounce
 }

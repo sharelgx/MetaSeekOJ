@@ -39,20 +39,20 @@
           </template>
         </el-table-column>
 
-        <el-table-column prop="real_name" label="Real Name"></el-table-column>
+        <el-table-column prop="real_name" :label="$t('m.Real_Name')"></el-table-column>
 
-        <el-table-column prop="email" label="Email"></el-table-column>
+        <el-table-column prop="email" :label="$t('m.Email')"></el-table-column>
 
-        <el-table-column prop="admin_type" label="User Type">
+        <el-table-column prop="admin_type" :label="$t('m.User_Type')">
           <template slot-scope="scope">
             {{ scope.row.admin_type }}
           </template>
         </el-table-column>
 
-        <el-table-column fixed="right" label="Option" width="200">
+        <el-table-column fixed="right" :label="$t('m.Option')" width="200">
           <template slot-scope="{row}">
-            <icon-btn name="Edit" icon="edit" @click.native="openUserDialog(row.id)"></icon-btn>
-            <icon-btn name="Delete" icon="trash" @click.native="deleteUsers([row.id])"></icon-btn>
+            <icon-btn :name="$t('m.Edit')" icon="edit" @click.native="openUserDialog(row.id)"></icon-btn>
+            <icon-btn :name="$t('m.Delete')" icon="trash" @click.native="deleteUsers([row.id])"></icon-btn>
           </template>
         </el-table-column>
       </el-table>
@@ -70,7 +70,7 @@
     <Panel>
       <span slot="title">{{$t('m.Import_User')}}
         <el-popover placement="right" trigger="hover">
-          <p>Only support csv file without headers, check the <a
+          <p>{{$t('m.Only_support_csv_file_without_headers')}}, check the <a
             href="http://docs.onlinejudge.me/#/onlinejudge/guide/import_users">link</a> for details</p>
           <i slot="reference" class="el-icon-fa-question-circle import-user-icon"></i>
         </el-popover>
@@ -80,7 +80,7 @@
                  :show-file-list="false"
                  accept=".csv"
                  :before-upload="handleUsersCSV">
-        <el-button size="small" icon="el-icon-fa-upload" type="primary">Choose File</el-button>
+        <el-button size="small" icon="el-icon-fa-upload" type="primary">{{$t('m.Choose_File')}}</el-button>
       </el-upload>
       <template v-else>
         <el-table :data="uploadUsersPage">

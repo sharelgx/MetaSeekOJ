@@ -93,7 +93,7 @@
     },
     data () {
       return {
-        title: 'Create Contest',
+        title: this.$t('m.Create_Contest'),
         disableRuleType: false,
         contest: {
           title: '',
@@ -138,7 +138,7 @@
     },
     mounted () {
       if (this.$route.name === 'edit-contest') {
-        this.title = 'Edit Contest'
+        this.title = this.$t('m.Edit_Contest')
         this.disableRuleType = true
         api.getContest(this.$route.params.contestId).then(res => {
           let data = res.data.data

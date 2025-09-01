@@ -86,7 +86,7 @@ export default {
       },
       tagRules: {
         name: [
-          { required: true, message: '请输入标签名称', trigger: 'blur' }
+          { required: true, message: this.$t('m.Tag_Name_Required'), trigger: 'blur' }
         ]
       }
     }
@@ -102,7 +102,7 @@ export default {
         this.tags = res.data.data || []
         this.filteredTags = [...this.tags]
       } catch (err) {
-        this.$message.error('获取标签列表失败')
+        this.$message.error(this.$t('m.Get_Tag_List_Failed'))
         console.error(err)
       } finally {
         this.loading = false
@@ -128,9 +128,9 @@ export default {
       this.showCreateModal = true
     },
     async deleteTag(tag) {
-      this.$confirm(`确定要删除标签 "${tag.name}" 吗？`, '确认删除', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
+      this.$confirm(this.$t('m.Delete_Tag_Confirm', {name: tag.name}), this.$t('m.Confirm_Delete'), {
+        confirmButtonText: this.$t('m.OK'),
+        cancelButtonText: this.$t('m.Cancel'),
         type: 'warning'
       }).then(async () => {
         try {

@@ -265,8 +265,39 @@ export default {
     })
   },
   updateACInfoCheckedStatus (data) {
-    return ajax('admin/contest/acm_helper', 'put', {
+    return ajax('admin/contest/acm_helper/', 'put', {
       data
+    })
+  },
+  
+  // 统一提交系统API
+  getUnifiedSubmissions (offset, limit, params) {
+    params.limit = limit
+    params.offset = offset
+    return ajax('judge/submissions', 'get', {
+      params
+    })
+  },
+  
+  submitUnified (data) {
+    return ajax('judge/submit', 'post', {
+      data
+    })
+  },
+  
+  getUnifiedSubmissionDetail (id) {
+    return ajax('judge/submission/detail', 'get', {
+      params: {
+        id
+      }
+    })
+  },
+  
+  getUserStatistics (userId) {
+    return ajax('judge/statistics', 'get', {
+      params: {
+        user_id: userId
+      }
     })
   }
 }
