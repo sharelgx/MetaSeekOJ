@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>HMR 连接测试</title>
+</head>
+<body>
+    <h1>Webpack HMR 连接测试</h1>
+    <div id="status">检查中...</div>
+    <div id="logs"></div>
+
+    <script>
+        const statusDiv = document.getElementById('status');
+        const logsDiv = document.getElementById('logs');
+        
+        function addLog(message) {
+            const p = document.createElement('p');
+            p.textContent = new Date().toLocaleTimeString() + ': ' + message;
+            logsDiv.appendChild(p);
+        }
+        
+        // 检查 HMR 连接
+        function checkHMR() {
+            addLog('开始检查 HMR 连接...');
+            
+            // 尝试连接到 webpack-dev-server 的 HMR 端点
+            const eventSource = new EventSource('http://localhost:8080/__webpack_hmr');
+            
+            eventSource.onopen = function(event) {
+                statusDiv.textContent = '✅ HMR 连接成功';
+                statusDiv.style.color = 'green';
+                addLog('HMR 连接已建立');
+            };
+            
+            eventSource.onmessage = function(event) {
+                addLog('收到 HMR 消息: ' + event.data);
+            };
+            
+            eventSource.onerror = function(event) {
+                statusDiv.textContent = '❌ HMR 连接失败';
+                statusDiv.style.color = 'red';
+                addLog('HMR 连接错误: ' + JSON.stringify(event));
+            };
+            
+            // 5秒后检查连接状态
+            setTimeout(() => {
+                if (eventSource.readyState === EventSource.CONNECTING) {
+                    statusDiv.textContent = '⚠️ HMR 连接中...';
+                    statusDiv.style.color = 'orange';
+                    addLog('HMR 连接仍在尝试中');
+                } else if (eventSource.readyState === EventSource.CLOSED) {
+                    statusDiv.textContent = '❌ HMR 连接已关闭';
+                    statusDiv.style.color = 'red';
+                    addLog('HMR 连接已关闭');
+                }
+            }, 5000);
+        }
+        
+        // 页面加载后开始检查
+        window.onload = checkHMR;
+    </script>
+</body>
+</html>

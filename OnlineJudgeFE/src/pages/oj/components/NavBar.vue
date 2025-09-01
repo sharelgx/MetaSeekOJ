@@ -18,10 +18,18 @@
         <Icon type="trophy"></Icon>
         {{$t('m.Contests')}}
       </Menu-item>
-      <Menu-item name="/status">
-        <Icon type="ios-pulse-strong"></Icon>
-        {{$t('m.NavStatus')}}
-      </Menu-item>
+      <Submenu name="status">
+        <template slot="title">
+          <Icon type="ios-pulse-strong"></Icon>
+          {{$t('m.NavStatus')}}
+        </template>
+        <Menu-item name="/status">
+          {{$t('m.Programming_Submissions')}}
+        </Menu-item>
+        <Menu-item name="/unified-status">
+          {{$t('m.Unified_Submissions')}}
+        </Menu-item>
+      </Submenu>
       <Submenu name="rank">
         <template slot="title">
           <Icon type="podium"></Icon>

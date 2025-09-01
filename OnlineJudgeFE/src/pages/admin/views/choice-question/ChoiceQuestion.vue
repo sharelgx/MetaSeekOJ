@@ -23,7 +23,7 @@
           </el-col>
           <el-col :span="8">
             <el-form-item prop="category" :label="$t('m.Category')">
-              <el-select v-model="choiceQuestion.category" placeholder="Select Category" clearable>
+              <el-select v-model="choiceQuestion.category" :placeholder="$t('m.Select_Category')" clearable>
                 <el-option
                   v-for="category in categories"
                   :key="category.id"
@@ -34,10 +34,10 @@
             </el-form-item>
           </el-col>
           <el-col :span="8">
-            <el-form-item prop="question_type" :label="题目类型" required>
-              <el-select v-model="choiceQuestion.question_type" placeholder="选择题目类型">
-                <el-option label="单选题" value="single"></el-option>
-                <el-option label="多选题" value="multiple"></el-option>
+            <el-form-item prop="question_type" :label="$t('m.Question_Type')" required>
+              <el-select v-model="choiceQuestion.question_type" :placeholder="$t('m.Select_Question_Type')">
+                <el-option :label="$t('m.Single_Choice')" value="single"></el-option>
+                <el-option :label="$t('m.Multiple_Choice')" value="multiple"></el-option>
               </el-select>
             </el-form-item>
           </el-col>
@@ -54,7 +54,7 @@
                 filterable
                 allow-create
                 default-first-option
-                placeholder="Select or create tags">
+                :placeholder="$t('m.Select_or_create_tags')">
                 <el-option
                   v-for="tag in tags"
                   :key="tag.id"
@@ -94,15 +94,15 @@
                   </el-col>
                 </el-row>
               </div>
-              <el-button v-if="choiceQuestion.options.length < 6" @click="addOption" type="primary" icon="el-icon-plus" size="small">Add Option</el-button>
+              <el-button v-if="choiceQuestion.options.length < 6" @click="addOption" type="primary" icon="el-icon-plus" size="small">{{$t('m.Add_Option')}}</el-button>
             </el-form-item>
           </el-col>
         </el-row>
 
         <el-row>
           <el-col :span="24">
-            <el-form-item prop="explanation" :label="解析">
-              <Simditor v-model="choiceQuestion.explanation" placeholder="请输入答案解析（可选）"></Simditor>
+            <el-form-item prop="explanation" :label="$t('m.Explanation')">
+              <Simditor v-model="choiceQuestion.explanation" :placeholder="$t('m.Enter_explanation_optional')"></Simditor>
             </el-form-item>
           </el-col>
         </el-row>
@@ -128,7 +128,7 @@
     },
     data () {
       return {
-        title: 'Create Choice Question',
+        title: this.$t('m.Create_Choice_Question'),
         submitting: false,
         categories: [],
         tags: [],
@@ -151,13 +151,13 @@
         },
         ruleValidate: {
           title: [
-            {required: true, message: 'Title is required', trigger: 'blur'}
+            {required: true, message: this.$t('m.Title_is_required'), trigger: 'blur'}
           ],
           description: [
-            {required: true, message: 'Description is required', trigger: 'blur'}
+            {required: true, message: this.$t('m.Description_is_required'), trigger: 'blur'}
           ],
           difficulty: [
-            {required: true, message: 'Difficulty is required', trigger: 'change'}
+            {required: true, message: this.$t('m.Difficulty_is_required'), trigger: 'change'}
           ]
         }
       }
@@ -166,24 +166,24 @@
       this.getCategories()
       this.getTags()
       if (this.$route.name === 'edit-choice-question') {
-        this.title = 'Edit Choice Question'
+        this.title = this.$t('m.Edit_Choice_Question')
         this.getChoiceQuestion(this.$route.params.choiceQuestionId)
       } else {
-        this.title = 'Create Choice Question'
+        this.title = this.$t('m.Create_Choice_Question')
       }
     },
     methods: {
       submitChoiceQuestion () {
         this.$refs['formValidate'].validate((valid) => {
           if (!valid) {
-            this.$error('Please check the error fields')
+            this.$error(this.$t('m.Please_check_the_error_fields'))
             return
           }
           
           // 验证选项
           const validOptions = this.choiceQuestion.options.filter(option => option.text.trim() !== '')
           if (validOptions.length < 2) {
-            this.$error('At least 2 options are required')
+            this.$error(this.$t('m.At_least_2_options_are_required'))
             return
           }
           
@@ -191,14 +191,14 @@
           if (this.choiceQuestion.question_type === 'single') {
             const correctIndex = this.choiceQuestion.correct_answer.charCodeAt(0) - 65
             if (correctIndex >= validOptions.length || !validOptions[correctIndex].text.trim()) {
-              this.$error('Please select a valid correct answer')
+              this.$error(this.$t('m.Please_select_a_valid_correct_answer'))
               return
             }
           } else {
             // 多选题验证
             const hasCorrectAnswer = validOptions.some(option => option.is_correct)
             if (!hasCorrectAnswer) {
-              this.$error('Please select at least one correct answer for multiple choice question')
+              this.$error(this.$t('m.Please_select_at_least_one_correct_answer'))
               return
             }
           }
@@ -229,7 +229,7 @@
           
           api[funcName](data).then(res => {
             this.submitting = false
-            this.$success('Saved successfully')
+            this.$success(this.$t('m.Saved_successfully'))
             this.$router.push({name: 'choice-question-list'})
           }).catch(() => {
             this.submitting = false
@@ -300,10 +300,10 @@
       '$route' (newVal, oldVal) {
         if (newVal !== oldVal) {
           if (newVal.name === 'edit-choice-question') {
-            this.title = 'Edit Choice Question'
+            this.title = this.$t('m.Edit_Choice_Question')
             this.getChoiceQuestion(newVal.params.choiceQuestionId)
           } else {
-            this.title = 'Create Choice Question'
+            this.title = this.$t('m.Create_Choice_Question')
           }
         }
       }

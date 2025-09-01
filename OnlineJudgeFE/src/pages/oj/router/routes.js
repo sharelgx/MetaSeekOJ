@@ -14,6 +14,8 @@ import {
   ResetPassword,
   SubmissionDetails,
   SubmissionList,
+  UnifiedSubmissionList,
+  UnifiedSubmissionDetails,
   UserHome
 } from '../views'
 
@@ -91,6 +93,18 @@ export default [
     path: '/status/:id/',
     meta: {title: 'Submission Details'},
     component: SubmissionDetails
+  },
+  {
+    name: 'unified-submission-list',
+    path: '/unified-status',
+    meta: {title: 'Unified Submission List'},
+    component: UnifiedSubmissionList
+  },
+  {
+    name: 'unified-submission-details',
+    path: '/unified-status/:id/',
+    meta: {title: 'Unified Submission Details'},
+    component: UnifiedSubmissionDetails
   },
   {
     name: 'contest-list',

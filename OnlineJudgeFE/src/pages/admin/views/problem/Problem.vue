@@ -114,9 +114,9 @@
         </el-row>
         <div>
           <el-form-item v-for="(sample, index) in problem.samples" :key="'sample'+index">
-            <Accordion :title="'Sample' + (index + 1)">
+            <Accordion :title="$t('m.Sample') + ' ' + (index + 1)">
               <el-button type="warning" size="small" icon="el-icon-delete" slot="header" @click="deleteSample(index)">
-                Delete
+                {{$t('m.Delete')}}
               </el-button>
               <el-row :gutter="20">
                 <el-col :span="12">
@@ -281,10 +281,10 @@
     data () {
       return {
         rules: {
-          _id: {required: true, message: 'Display ID is required', trigger: 'blur'},
-          title: {required: true, message: 'Title is required', trigger: 'blur'},
-          input_description: {required: true, message: 'Input Description is required', trigger: 'blur'},
-          output_description: {required: true, message: 'Output Description is required', trigger: 'blur'}
+          _id: {required: true, message: '显示ID是必需的', trigger: 'blur'},
+          title: {required: true, message: '标题是必需的', trigger: 'blur'},
+          input_description: {required: true, message: '输入描述是必需的', trigger: 'blur'},
+          output_description: {required: true, message: '输出描述是必需的', trigger: 'blur'}
         },
         loadingCompile: false,
         mode: '',
@@ -418,9 +418,9 @@
     methods: {
       switchSpj () {
         if (this.testCaseUploaded) {
-          this.$confirm('If you change problem judge method, you need to re-upload test cases', 'Warning', {
-            confirmButtonText: 'Yes',
-            cancelButtonText: 'Cancel',
+          this.$confirm('如果您更改题目判题方法，需要重新上传测试用例', '警告', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
             type: 'warning'
           }).then(() => {
             this.problem.spj = !this.problem.spj
@@ -498,7 +498,7 @@
           this.problem.spj_compile_ok = false
           const h = this.$createElement
           this.$msgbox({
-            title: 'Compile Error',
+            title: this.$t('m.Compile_Error'),
             type: 'error',
             message: h('pre', err.data.data),
             showCancelButton: false,
@@ -509,26 +509,26 @@
       },
       submit () {
         if (!this.problem.samples.length) {
-          this.$error('Sample is required')
+          this.$error(this.$t('m.Sample_Required'))
           return
         }
         for (let sample of this.problem.samples) {
           if (!sample.input || !sample.output) {
-            this.$error('Sample input and output is required')
+            this.$error(this.$t('m.Sample_Input_Output_Required'))
             return
           }
         }
         if (!this.problem.tags.length) {
-          this.error.tags = 'Please add at least one tag'
+          this.error.tags = this.$t('m.Please_Add_At_Least_One_Tag')
           this.$error(this.error.tags)
           return
         }
         if (this.problem.spj) {
           if (!this.problem.spj_code) {
-            this.error.spj = 'Spj code is required'
+            this.error.spj = this.$t('m.SPJ_Code_Required')
             this.$error(this.error.spj)
           } else if (!this.problem.spj_compile_ok) {
-            this.error.spj = 'SPJ code has not been successfully compiled'
+            this.error.spj = this.$t('m.SPJ_Code_Not_Compiled')
           }
           if (this.error.spj) {
             this.$error(this.error.spj)
@@ -536,12 +536,12 @@
           }
         }
         if (!this.problem.languages.length) {
-          this.error.languages = 'Please choose at least one language for problem'
+          this.error.languages = this.$t('m.Please_Choose_At_Least_One_Language')
           this.$error(this.error.languages)
           return
         }
         if (!this.testCaseUploaded) {
-          this.error.testCase = 'Test case is not uploaded yet'
+          this.error.testCase = this.$t('m.Test_Case_Not_Uploaded')
           this.$error(this.error.testCase)
           return
         }
@@ -549,11 +549,11 @@
           for (let item of this.problem.test_case_score) {
             try {
               if (parseInt(item.score) <= 0) {
-                this.$error('Invalid test case score')
+                this.$error(this.$t('m.Invalid_Test_Case_Score'))
                 return
               }
             } catch (e) {
-              this.$error('Test case score must be an integer')
+              this.$error(this.$t('m.Test_Case_Score_Must_Be_Integer'))
               return
             }
           }

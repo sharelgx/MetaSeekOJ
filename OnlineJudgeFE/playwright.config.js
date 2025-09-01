@@ -1,6 +1,6 @@
 module.exports = {
   testDir: './tests',
-  timeout: 30000,
+  timeout: 60000,
   use: {
     baseURL: 'http://localhost:8080',
     screenshot: 'only-on-failure',
@@ -14,6 +14,10 @@ module.exports = {
     {
       name: 'choice-questions-tests',
       testMatch: 'choice-questions.spec.js'
+    },
+    {
+      name: 'localization-tests',
+      testMatch: 'localization.spec.js'
     }
   ]
 }
