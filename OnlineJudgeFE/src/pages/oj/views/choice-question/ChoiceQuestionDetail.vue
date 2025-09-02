@@ -114,7 +114,8 @@
                  :key="index"
                  class="option-row" 
                  :class="[getOptionClass(option.key), { 'selected': selectedAnswer === option.key }]"
-                 @click="selectOption(option.key, false)">
+                 @click="selectOption(option.key, false)"
+                 style="cursor: pointer;">
               <!-- 使用原生radio -->
               <input type="radio" 
                      :id="'radio_' + option.key"
@@ -122,7 +123,8 @@
                      :value="option.key"
                      v-model="selectedAnswer"
                      :disabled="hasSubmitted"
-                     class="option-input" />
+                     class="option-input"
+                     @change="onRadioChange(option.key)" />
               <label :for="'radio_' + option.key" class="option-label">
                 <span class="option-key">{{ option.key }}.</span>
                 <div class="option-content" v-html="option.text"></div>
@@ -151,6 +153,20 @@
             </div>
           </div>
         </div>
+      </div>
+      
+      <!-- 调试信息 -->
+      <div class="debug-section" style="background: #f8f9fa; padding: 15px; margin: 20px 0; border-radius: 4px; border-left: 4px solid #007bff;">
+        <h4 style="margin: 0 0 10px 0; color: #007bff;">调试信息</h4>
+        <p><strong>用户登录状态:</strong> {{ isAuthenticated ? '已登录' : '未登录' }}</p>
+        <p><strong>用户信息:</strong> {{ JSON.stringify(user) }}</p>
+        <p><strong>题目类型:</strong> {{ question && question.question_type }}</p>
+        <p><strong>选择的答案:</strong> {{ selectedAnswer }}</p>
+        <p><strong>多选答案:</strong> {{ JSON.stringify(selectedAnswers) }}</p>
+        <p><strong>可以提交:</strong> {{ canSubmit ? '是' : '否' }}</p>
+        <p><strong>已提交:</strong> {{ hasSubmitted ? '是' : '否' }}</p>
+        <Button @click="debugUserInfo" size="small" type="info">刷新用户信息</Button>
+        <Button @click="testOptionClick" size="small" type="warning" style="margin-left: 8px;">测试选项点击</Button>
       </div>
       
       <!-- 提交按钮 -->
@@ -283,7 +299,7 @@
 </template>
 
 <script>
-import api from './api/index'
+import api from '../../api'
 import { mapGetters } from 'vuex'
 import hljs from 'highlight.js'
 import 'highlight.js/styles/default.css'
@@ -326,7 +342,8 @@ export default {
         return false
       }
       if (this.question && this.question.question_type === 'single') {
-        return this.selectedAnswer !== null
+        // 检查selectedAnswer不为null、undefined和空字符串
+        return this.selectedAnswer !== null && this.selectedAnswer !== undefined && this.selectedAnswer !== ''
       } else {
         return this.selectedAnswers.length > 0
       }
@@ -352,8 +369,10 @@ export default {
       console.log('是否有筛选条件:', hasFilters)
       console.log('题目列表长度:', this.questionList.length)
       console.log('当前索引:', this.currentIndex)
+      console.log('用户登录状态:', this.isAuthenticated)
       
-      return hasFilters && this.questionList.length > 1
+      // 修改逻辑：即使没有筛选条件，如果有题目列表也显示导航
+      return this.questionList.length > 1
     }
   },
   
@@ -398,7 +417,16 @@ export default {
     console.log('题目ID:', this.questionId)
     
     // 获取用户信息，确保登录状态
-    this.$store.dispatch('getProfile')
+    console.log('=== 初始化用户状态 ===')
+    console.log('当前用户状态:', this.$store.getters.user)
+    console.log('是否已认证:', this.$store.getters.isAuthenticated)
+    
+    this.$store.dispatch('getProfile').then(() => {
+      console.log('用户信息加载完成:', this.$store.getters.user)
+      console.log('认证状态更新:', this.$store.getters.isAuthenticated)
+    }).catch(err => {
+      console.error('获取用户信息失败:', err)
+    })
     
     // 从URL获取筛选条件
     this.getFilterParamsFromRoute()
@@ -426,25 +454,101 @@ export default {
       this.isInWrongQuestions = false
     },
     
+    // 调试方法：手动刷新用户信息
+    debugUserInfo() {
+      console.log('=== 手动刷新用户信息 ===')
+      console.log('刷新前 - 用户状态:', this.$store.getters.user)
+      console.log('刷新前 - 认证状态:', this.$store.getters.isAuthenticated)
+      
+      this.$store.dispatch('getProfile').then(() => {
+        console.log('刷新后 - 用户状态:', this.$store.getters.user)
+        console.log('刷新后 - 认证状态:', this.$store.getters.isAuthenticated)
+        this.$Message.success('用户信息已刷新')
+      }).catch(err => {
+        console.error('刷新用户信息失败:', err)
+        this.$Message.error('刷新用户信息失败')
+      })
+    },
+    
     // 简化的选项选择方法
     selectOption(key, isMultiple) {
-      if (this.hasSubmitted) return
+      console.log('=== 选项点击事件 ===')
+      console.log('点击的选项:', key)
+      console.log('是否多选:', isMultiple)
+      console.log('是否已提交:', this.hasSubmitted)
+      console.log('题目类型:', this.question && this.question.question_type)
+      
+      if (this.hasSubmitted) {
+        console.log('已提交，忽略点击')
+        return
+      }
       
       if (!isMultiple) {
         // 单选题 - 直接设置值，v-model会自动处理
+        console.log('设置单选答案前:', this.selectedAnswer)
         this.selectedAnswer = key
+        console.log('设置单选答案后:', this.selectedAnswer)
       } else {
         // 多选题 - 切换选择状态
         if (!Array.isArray(this.selectedAnswers)) {
           this.selectedAnswers = []
         }
+        console.log('多选答案操作前:', this.selectedAnswers)
         const index = this.selectedAnswers.indexOf(key)
         if (index === -1) {
           this.selectedAnswers.push(key)
+          console.log('添加选项:', key)
         } else {
           this.selectedAnswers.splice(index, 1)
+          console.log('移除选项:', key)
         }
+        console.log('多选答案操作后:', this.selectedAnswers)
       }
+      
+      // 强制更新调试信息
+      this.$forceUpdate()
+    },
+    
+    // 测试选项点击功能
+    testOptionClick() {
+      console.log('=== 测试选项点击 ===')
+      console.log('当前题目:', this.question)
+      console.log('题目选项:', this.question && this.question.options)
+      console.log('当前选择答案:', this.selectedAnswer)
+      console.log('当前多选答案:', this.selectedAnswers)
+      
+      if (this.question && this.question.options && this.question.options.length > 0) {
+        const firstOption = this.question.options[0]
+        console.log('模拟点击第一个选项:', firstOption.key)
+        this.selectOption(firstOption.key, this.question.question_type === 'multiple')
+      } else {
+        console.log('没有可用的选项进行测试')
+      }
+    },
+    
+    // 处理原生radio change事件
+    onRadioChange(key) {
+      console.log('=== Radio Change事件 ===')
+      console.log('选择的选项:', key)
+      console.log('选项类型:', typeof key)
+      console.log('当前selectedAnswer:', this.selectedAnswer)
+      console.log('当前selectedAnswer类型:', typeof this.selectedAnswer)
+      console.log('canSubmit状态（更新前）:', this.canSubmit)
+      
+      // 确保数据更新（v-model应该已经处理了，但为了确保）
+      this.selectedAnswer = key
+      console.log('更新后selectedAnswer:', this.selectedAnswer)
+      console.log('canSubmit状态（更新后）:', this.canSubmit)
+      
+      // 强制更新界面
+      this.$forceUpdate()
+      console.log('Radio change处理完成')
+      
+      // 延迟检查状态
+      this.$nextTick(() => {
+        console.log('nextTick后 - selectedAnswer:', this.selectedAnswer)
+        console.log('nextTick后 - canSubmit:', this.canSubmit)
+      })
     },
       
       // 处理图片尺寸的方法
@@ -542,10 +646,14 @@ export default {
       try {
         // 获取当前筛选条件（从路由查询参数或localStorage获取）
         const filters = this.getNavigationFilters()
+        console.log('准备获取题目列表，筛选条件:', filters)
+        
         const res = await api.getQuestionList({
           limit: 1000, // 获取足够多的题目用于导航
           ...filters
         })
+        
+        console.log('API响应:', res)
         
         this.questionList = res.data.data.results || res.data.data || []
         
@@ -569,21 +677,18 @@ export default {
         let currentIndex = -1
         const currentId = this.questionId
         
-        // 尝试不同的匹配方式
+        // 尝试不同的匹配方式 - 修复字符串匹配问题
         currentIndex = this.questionList.findIndex(q => {
-          // 尝试匹配 id 字段（数据库索引ID）
-          if (q.id && q.id.toString() === currentId.toString()) {
-            console.log('通过id字段匹配成功:', q.id)
+          // 直接匹配（字符串或数字）
+          if (q._id === currentId || q.id === currentId || q.database_id === currentId) {
+            console.log('直接匹配成功:', { field: '_id或id或database_id', value: currentId })
             return true
           }
-          // 尝试匹配 _id 字段（业务ID）
-          if (q._id && q._id.toString() === currentId.toString()) {
-            console.log('通过_id字段匹配成功:', q._id)
-            return true
-          }
-          // 尝试匹配 database_id 字段
-          if (q.database_id && q.database_id.toString() === currentId.toString()) {
-            console.log('通过database_id字段匹配成功:', q.database_id)
+          // 字符串转换匹配
+          if ((q._id && q._id.toString() === currentId.toString()) ||
+              (q.id && q.id.toString() === currentId.toString()) ||
+              (q.database_id && q.database_id.toString() === currentId.toString())) {
+            console.log('字符串转换匹配成功:', { currentId, matched_field: q._id || q.id || q.database_id })
             return true
           }
           return false
@@ -760,7 +865,7 @@ export default {
         console.log('submitData中question的类型:', typeof submitData.question, '值:', submitData.question)
         console.log('最终提交数据:', submitData)
         
-        const res = await api.submitAnswer(this.questionId, submitData)
+        const res = await api.submitChoiceQuestion(this.questionId, submitData)
         
         const result = res.data.data
         this.hasSubmitted = true
@@ -900,8 +1005,21 @@ export default {
         const res = await api.getQuestionList(params)
         this.questionList = res.data.data.results || []
         
-        // 找到当前题目在列表中的索引
-        this.currentIndex = this.questionList.findIndex(q => q.id.toString() === this.questionId)
+        // 找到当前题目在列表中的索引 - 修复ID字段匹配问题
+        this.currentIndex = this.questionList.findIndex(q => {
+          // 尝试匹配不同的ID字段
+          return q._id === this.questionId || 
+                 q.id === this.questionId || 
+                 q.database_id === this.questionId ||
+                 q._id === parseInt(this.questionId) ||
+                 q.id === parseInt(this.questionId)
+        })
+        
+        console.log('简化匹配逻辑 - 当前题目ID:', this.questionId)
+        console.log('简化匹配逻辑 - 匹配结果索引:', this.currentIndex)
+        if (this.currentIndex >= 0) {
+          console.log('简化匹配逻辑 - 匹配到的题目:', this.questionList[this.currentIndex])
+        }
       } catch (err) {
         console.error('获取题目列表失败:', err)
         this.questionList = []
