@@ -210,6 +210,17 @@
           let processedData = { ...this.choiceQuestion }
           processedData.options = validOptions
           
+          // 根据选项的is_correct状态生成正确答案
+          if (this.choiceQuestion.question_type === 'multiple') {
+            const correctAnswers = []
+            validOptions.forEach((option, index) => {
+              if (option.is_correct) {
+                correctAnswers.push(String.fromCharCode(65 + index)) // A, B, C, D...
+              }
+            })
+            processedData.correct_answer = correctAnswers.join(',')
+          }
+          
           // 处理标签ID
           if (processedData.tags && processedData.tags.length > 0) {
             processedData.tag_ids = this.tags.filter(tag => 
@@ -239,6 +250,29 @@
       getChoiceQuestion (choiceQuestionId) {
         api.getChoiceQuestion(choiceQuestionId).then(res => {
           let data = res.data.data
+          
+          // 处理选项和正确答案
+          let options = data.options || [
+            { text: '', is_correct: false },
+            { text: '', is_correct: false },
+            { text: '', is_correct: false },
+            { text: '', is_correct: false }
+          ]
+          
+          // 根据correct_answer设置选项的is_correct状态
+          if (data.correct_answer && data.question_type === 'multiple') {
+            const correctAnswers = data.correct_answer.split(',')
+            options.forEach((option, index) => {
+              const optionKey = String.fromCharCode(65 + index) // A, B, C, D...
+              option.is_correct = correctAnswers.includes(optionKey)
+            })
+          } else if (data.correct_answer && data.question_type === 'single') {
+            const correctIndex = data.correct_answer.charCodeAt(0) - 65
+            options.forEach((option, index) => {
+              option.is_correct = index === correctIndex
+            })
+          }
+          
           this.choiceQuestion = {
             id: data.id,
             title: data.title,
@@ -247,12 +281,7 @@
             question_type: data.question_type || 'single',
             category: data.category ? data.category.id : null,
             tags: data.tags ? data.tags.map(tag => tag.name) : [],
-            options: data.options || [
-              { text: '', is_correct: false },
-              { text: '', is_correct: false },
-              { text: '', is_correct: false },
-              { text: '', is_correct: false }
-            ],
+            options: options,
             correct_answer: data.correct_answer || 'A',
             explanation: data.explanation || '',
             visible: data.visible
@@ -304,6 +333,21 @@
             this.getChoiceQuestion(newVal.params.choiceQuestionId)
           } else {
             this.title = this.$t('m.Create_Choice_Question')
+          }
+        }
+      },
+      // 监听描述变化，自动生成标题
+      'choiceQuestion.description' (newVal) {
+        if (newVal && (!this.choiceQuestion.title || this.choiceQuestion.title.trim() === '')) {
+          // 从HTML内容中提取纯文本
+          const tempDiv = document.createElement('div')
+          tempDiv.innerHTML = newVal
+          const plainText = tempDiv.textContent || tempDiv.innerText || ''
+          
+          // 截取前50个字符作为标题
+          const autoTitle = plainText.trim().substring(0, 50)
+          if (autoTitle) {
+            this.choiceQuestion.title = autoTitle + (plainText.length > 50 ? '...' : '')
           }
         }
       }

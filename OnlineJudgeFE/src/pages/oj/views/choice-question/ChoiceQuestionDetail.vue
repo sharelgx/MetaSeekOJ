@@ -768,7 +768,7 @@ export default {
         }
         
         // 验证题目数据
-        if (!this.question || !this.question._id) {
+        if (!this.question || (!this.question._id && !this.question.id)) {
           throw new Error('题目数据无效')
         }
         
@@ -876,7 +876,7 @@ export default {
         if (!result.is_correct) {
           try {
             await api.addToWrongQuestions({
-              question_id: this.question._id
+              question_id: this.question._id || this.question.id
             })
             this.isInWrongQuestions = true
           } catch (err) {
@@ -911,7 +911,7 @@ export default {
     async addToWrongQuestions() {
       try {
         await api.addToWrongQuestions({
-          question_id: this.question._id
+          question_id: this.question._id || this.question.id
         })
         this.isInWrongQuestions = true
         this.$Message.success('已加入错题本')
@@ -1086,16 +1086,57 @@ export default {
             return
           }
           try {
+            // 获取题目的编程语言设置
+            const questionLanguage = this.question && this.question.language ? this.question.language : null
+            
+            // 语言映射表，将我们的语言标识映射到highlight.js的语言名称
+            const languageMap = {
+              'cpp': 'cpp',
+              'c': 'c',
+              'java': 'java',
+              'python': 'python',
+              'javascript': 'javascript',
+              'typescript': 'typescript',
+              'go': 'go',
+              'rust': 'rust',
+              'php': 'php',
+              'ruby': 'ruby',
+              'swift': 'swift',
+              'kotlin': 'kotlin',
+              'csharp': 'csharp',
+              'sql': 'sql',
+              'html': 'html',
+              'css': 'css',
+              'bash': 'bash',
+              'text': null
+            }
+            
+            const hlLanguage = questionLanguage ? languageMap[questionLanguage] : null
+            
             // 兼容不同版本的 highlight.js
             if (typeof hljs.highlightElement === 'function') {
+              // 如果指定了语言，先设置语言类
+              if (hlLanguage) {
+                block.className = `language-${hlLanguage}`
+              }
               hljs.highlightElement(block)
             } else if (typeof hljs.highlightBlock === 'function') {
+              if (hlLanguage) {
+                block.className = `language-${hlLanguage}`
+              }
               hljs.highlightBlock(block)
             } else {
               // 手动高亮
-              const result = hljs.highlightAuto(block.textContent)
+              let result
+              if (hlLanguage && hljs.getLanguage(hlLanguage)) {
+                // 使用指定语言高亮
+                result = hljs.highlight(hlLanguage, block.textContent)
+              } else {
+                // 自动检测语言
+                result = hljs.highlightAuto(block.textContent)
+              }
               block.innerHTML = result.value
-              block.className = `hljs ${result.language || ''}`
+              block.className = `hljs ${result.language || hlLanguage || ''}`
             }
           } catch (e) {
             console.warn('代码高亮失败:', e)

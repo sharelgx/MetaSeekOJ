@@ -77,6 +77,7 @@
           <Dropdown-menu slot="list">
             <Dropdown-item name="/user-home">{{$t('m.MyHome')}}</Dropdown-item>
             <Dropdown-item name="/status?myself=1">{{$t('m.MySubmissions')}}</Dropdown-item>
+            <Dropdown-item name="/exam-history">{{$t('m.Exam_History')}}</Dropdown-item>
             <Dropdown-item name="/wrong-questions">{{$t('m.WrongQuestions')}}</Dropdown-item>
             <Dropdown-item name="/setting/profile">{{$t('m.Settings')}}</Dropdown-item>
             <Dropdown-item v-if="isAdminRole" name="/admin">{{$t('m.Management')}}</Dropdown-item>

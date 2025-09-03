@@ -140,5 +140,54 @@ export default {
   // 统计相关API
   getQuestionStats() {
     return ajax('plugin/choice/statistics/', 'get')
+  },
+
+  // 考试相关API
+  // 试卷管理
+  getExamPaperList(params) {
+    return ajax('plugin/choice/exam-papers/', 'get', {
+      params
+    })
+  },
+  getExamPaperDetail(id) {
+    return ajax(`plugin/choice/exam-papers/${id}/`, 'get')
+  },
+  createExamPaper(data) {
+    return ajax('plugin/choice/exam-papers/', 'post', {
+      data
+    })
+  },
+  getExamPaperGeneratePreview(params) {
+    return ajax('plugin/choice/exam-papers/generate-preview/', 'get', {
+      params
+    })
+  },
+
+  // 考试会话管理
+  getExamSessionList(params) {
+    return ajax('plugin/choice/exam-sessions/', 'get', {
+      params
+    })
+  },
+  createExamSession(data) {
+    return ajax('plugin/choice/exam-sessions/', 'post', {
+      data
+    })
+  },
+  startExamSession(sessionId) {
+    return ajax(`plugin/choice/exam-sessions/${sessionId}/start/`, 'post')
+  },
+  getExamSessionDetail(sessionId) {
+    return ajax(`plugin/choice/exam-sessions/${sessionId}/`, 'get')
+  },
+  submitExamAnswer(sessionId, data) {
+    return ajax(`plugin/choice/exam-sessions/${sessionId}/answer/`, 'post', {
+      data
+    })
+  },
+  submitExamSession(sessionId, data) {
+    return ajax(`plugin/choice/exam-sessions/${sessionId}/submit/`, 'post', {
+      data
+    })
   }
 }

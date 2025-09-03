@@ -1,7 +1,28 @@
 <template>
   <div class="practice-mode">
-    <!-- 练习头部 -->
-    <div class="practice-header">
+    <!-- 加载状态 -->
+    <div v-if="loading" class="loading-container">
+      <Spin size="large">
+        <Icon type="ios-loading" size=18 class="spin-icon-load"></Icon>
+        <div>正在加载题目...</div>
+      </Spin>
+    </div>
+    
+    <!-- 调试信息 -->
+    <div v-if="!loading && questions.length > 0 && !practiceStarted" class="debug-info" style="padding: 20px; background: #f0f0f0; margin: 20px; border-radius: 4px;">
+      <h4>调试信息:</h4>
+      <p>loading: {{loading}}</p>
+      <p>questions.length: {{questions.length}}</p>
+      <p>practiceStarted: {{practiceStarted}}</p>
+      <p>_isMounted: {{_isMounted}}</p>
+      <p>等待练习开始...</p>
+      <Button type="primary" @click="startPractice" style="margin-top: 10px;">手动开始练习</Button>
+    </div>
+    
+    <!-- 练习内容 -->
+    <div v-else-if="questions.length > 0 && practiceStarted">
+      <!-- 练习头部 -->
+      <div class="practice-header">
       <Card :bordered="false" class="header-card">
         <div class="header-content">
           <div class="practice-info">
@@ -26,6 +47,31 @@
               <div class="stat-item">
                 <span class="stat-label">用时:</span>
                 <span class="stat-value">{{ formatTime(elapsedTime) }}</span>
+              </div>
+            </div>
+            
+            <!-- 筛选条件显示 -->
+            <div class="filter-info" v-if="hasFilters">
+              <div class="filter-title">
+                <Icon type="ios-funnel" size="16" />
+                <span>当前筛选条件:</span>
+              </div>
+              <div class="filter-tags">
+                <Tag v-if="filterParams.category" color="blue">
+                  分类: {{ getCategoryName(filterParams.category) }}
+                </Tag>
+                <Tag v-if="filterParams.difficulty" color="orange">
+                  难度: {{ getDifficultyText(filterParams.difficulty) }}
+                </Tag>
+                <Tag v-if="filterParams.question_type" color="green">
+                  题型: {{ getQuestionTypeText(filterParams.question_type) }}
+                </Tag>
+                <Tag v-if="filterParams.keyword" color="purple">
+                  关键词: {{ filterParams.keyword }}
+                </Tag>
+                <Tag v-if="filterParams.tags" color="cyan">
+                  标签: {{ filterParams.tags }}
+                </Tag>
               </div>
             </div>
           </div>
@@ -293,11 +339,31 @@
         <Button type="success" @click="exitPractice">返回列表</Button>
       </div>
     </Modal>
+    </div>
+    
+    <!-- 题目已加载但练习未开始状态 -->
+    <div v-else-if="questions.length > 0 && !practiceStarted" class="loading-container">
+      <Spin size="large">
+        <Icon type="ios-loading" size=18 class="spin-icon-load"></Icon>
+        <div>正在初始化练习...</div>
+      </Spin>
+    </div>
+    
+    <!-- 无题目状态 -->
+    <div v-else class="no-questions-container">
+      <div class="no-questions-content">
+        <Icon type="ios-document" size="48" color="#c5c8ce" />
+        <h3>暂无题目</h3>
+        <p>没有找到符合条件的题目，请调整筛选条件后重试。</p>
+        <Button type="primary" @click="$router.push('/choice-questions')">返回题目列表</Button>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
 import AnswerSheet from './components/AnswerSheet.vue'
+import api from '../../api'
 
 export default {
   name: 'PracticeMode',
@@ -307,10 +373,6 @@ export default {
   },
   
   props: {
-    questions: {
-      type: Array,
-      required: true
-    },
     practiceConfig: {
       type: Object,
       default: () => ({})
@@ -318,7 +380,11 @@ export default {
   },
   
   data() {
+    console.log('PracticeMode - data初始化')
     return {
+      _isMounted: false,
+      questions: [],
+      loading: false,
       currentIndex: 0,
       currentAnswer: [],
       answers: {},
@@ -337,7 +403,10 @@ export default {
       timer: null,
       questionTimer: null,
       
-      showResultModal: false
+      showResultModal: false,
+      
+      // 筛选参数
+      filterParams: {}
     }
   },
   
@@ -397,29 +466,127 @@ export default {
     
     currentQuestionResult() {
       return this.results[this.currentIndex] || {}
+    },
+    
+    hasFilters() {
+      return Object.values(this.filterParams).some(value => value !== null && value !== '')
     }
   },
   
   watch: {
     currentIndex() {
       this.loadCurrentQuestion()
+    },
+    
+    questions: {
+      handler(newVal, oldVal) {
+        console.log('PracticeMode - questions数组变化:', {
+          oldLength: oldVal ? oldVal.length : 0,
+          newLength: newVal ? newVal.length : 0,
+          practiceStarted: this.practiceStarted
+        })
+      },
+      deep: true
     }
   },
   
-  mounted() {
-    this.startPractice()
+  async mounted() {
+    // 防止重复挂载，但如果没有题目数据则允许重新加载
+    if (this._isMounted && this.questions.length > 0) {
+      console.log('PracticeMode - 防止重复挂载（已有题目数据）')
+      return
+    }
+    this._isMounted = true
+    console.log('PracticeMode - 开始挂载，当前题目数量:', this.questions.length)
+    
+    // 从路由查询参数中获取筛选条件
+    const query = this.$route.query
+    console.log('PracticeMode mounted - 路由查询参数:', query)
+    
+    // 解析筛选参数
+    this.filterParams = {
+      category: query.category || null,
+      difficulty: query.difficulty || null,
+      tags: query.tags || null,
+      question_type: query.question_type || null,
+      keyword: query.keyword || null,
+      is_public: query.is_public || null
+    }
+    
+    console.log('PracticeMode - 解析的筛选参数:', this.filterParams)
+    
+    await this.loadQuestions(this.filterParams)
+    if (this.questions.length > 0) {
+      this.startPractice()
+    }
   },
   
   beforeDestroy() {
     this.clearTimers()
+    this._isMounted = false
+    console.log('PracticeMode - 组件销毁，重置挂载标志')
   },
   
   methods: {
+    async loadQuestions(filterParams = {}) {
+      this.loading = true
+      try {
+        // 构建API请求参数，移除空值
+        const params = {
+          offset: 0,
+          limit: 100  // 练习模式获取更多题目
+        }
+        
+        // 添加筛选参数（只添加非空值）
+        if (filterParams.category) params.category = filterParams.category
+        if (filterParams.difficulty) params.difficulty = filterParams.difficulty
+        if (filterParams.tags) params.tags = filterParams.tags
+        if (filterParams.question_type) params.question_type = filterParams.question_type
+        if (filterParams.keyword) params.keyword = filterParams.keyword
+        if (filterParams.is_public !== null) params.is_public = filterParams.is_public
+        
+        console.log('PracticeMode - API请求参数:', params)
+        
+        // 练习模式使用getQuestionList
+        const res = await api.getQuestionList(params)
+        this.questions = (res.data.data && res.data.data.results) || res.data.results || []
+        
+        console.log('PracticeMode - 获取到的题目数量:', this.questions.length)
+        
+        if (this.questions.length === 0) {
+          this.$Message.warning('没有找到符合条件的题目，请调整筛选条件')
+          // 不自动跳转，让用户可以调整筛选条件
+          // this.$router.push('/choice-questions')
+        }
+      } catch (err) {
+        console.error('获取题目失败:', err)
+        this.$Message.error('获取题目失败: ' + (err.response && err.response.data && err.response.data.error ? err.response.data.error : err.message))
+        // this.$router.push('/choice-questions')
+      } finally {
+        this.loading = false
+      }
+    },
+    
     startPractice() {
+      console.log('=== startPractice 开始 ===', {
+        questionsLength: this.questions.length,
+        loading: this.loading,
+        practiceStarted: this.practiceStarted
+      })
+      
       this.practiceStarted = true
       this.startTime = Date.now()
+      
+      console.log('startPractice - 设置practiceStarted为true，开始时间:', this.startTime)
+      
       this.loadCurrentQuestion()
       this.startTimer()
+      
+      console.log('=== startPractice 结束 ===', {
+        practiceStarted: this.practiceStarted,
+        currentIndex: this.currentIndex,
+        currentQuestion: !!this.currentQuestion
+      })
     },
     
     pausePractice() {
@@ -439,7 +606,7 @@ export default {
         content: '确定要退出练习吗？当前进度将不会保存。',
         onOk: () => {
           this.clearTimers()
-          this.$emit('exit')
+          this.$router.push('/choice-questions')
         }
       })
     },
@@ -476,13 +643,30 @@ export default {
     },
     
     loadCurrentQuestion() {
-      if (!this.currentQuestion) return
+      console.log('=== loadCurrentQuestion 开始 ===', {
+        currentIndex: this.currentIndex,
+        questionsLength: this.questions.length,
+        currentQuestion: !!this.currentQuestion,
+        currentQuestionId: this.currentQuestion ? this.currentQuestion.id : null
+      })
+      
+      if (!this.currentQuestion) {
+        console.log('loadCurrentQuestion - 当前题目为空，返回')
+        return
+      }
       
       // 加载当前题目的答案
       this.currentAnswer = this.answers[this.currentIndex] || []
       
+      console.log('loadCurrentQuestion - 加载答案:', {
+        currentAnswer: this.currentAnswer,
+        allAnswers: this.answers
+      })
+      
       // 开始计时
       this.startQuestionTimer()
+      
+      console.log('=== loadCurrentQuestion 结束 ===')
     },
     
     goToQuestion(index) {
@@ -612,6 +796,12 @@ export default {
         'fill': '填空题'
       }
       return typeMap[type] || type
+    },
+    
+    getCategoryName(categoryId) {
+      // 这里可以根据实际情况从分类列表中获取分类名称
+      // 暂时直接返回ID
+      return `分类${categoryId}`
     }
   }
 }
@@ -692,6 +882,27 @@ export default {
 .practice-actions {
   display: flex;
   gap: 12px;
+}
+
+.filter-info {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e8eaec;
+}
+
+.filter-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  font-size: 14px;
+  color: #808695;
+}
+
+.filter-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .progress-section {
@@ -946,5 +1157,41 @@ export default {
   .answer-grid {
     grid-template-columns: repeat(8, 1fr);
   }
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  text-align: center;
+}
+
+.spin-icon-load {
+  animation: ani-demo-spin 1s linear infinite;
+}
+
+@keyframes ani-demo-spin {
+  from { transform: rotate(0deg);}
+  50%  { transform: rotate(180deg);}
+  to   { transform: rotate(360deg);}
+}
+
+.no-questions-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  text-align: center;
+}
+
+.no-questions-content h3 {
+  margin: 16px 0 8px 0;
+  color: #17233d;
+}
+
+.no-questions-content p {
+  margin-bottom: 16px;
+  color: #808695;
 }
 </style>

@@ -299,6 +299,176 @@ export default {
         user_id: userId
       }
     })
+  },
+
+  // 选择题相关API
+  getChoiceQuestionList (offset, limit, params) {
+    // 构建查询参数
+    let query = {
+      offset: offset,
+      limit: limit,
+      ...params
+    }
+    
+    // 移除空值参数
+    Object.keys(query).forEach(key => {
+      if (query[key] === '' || query[key] === null || query[key] === undefined) {
+        delete query[key]
+      }
+    })
+    
+    return ajax('plugin/choice/questions/', 'get', {
+      params: query
+    })
+  },
+
+  getChoiceQuestionDetail (id) {
+    return ajax('plugin/choice/questions/' + id + '/', 'get')
+  },
+
+  // 试卷管理API
+  createExamPaper (data) {
+    return ajax('plugin/choice/exam-papers/', 'post', {
+      data
+    })
+  },
+
+  getExamPaperDetail (paperId) {
+    if (!paperId) {
+      return Promise.reject(new Error('试卷ID不能为空'))
+    }
+    return ajax('plugin/choice/exam-papers/' + paperId + '/', 'get')
+  },
+
+  // 考试会话API
+  createExamSession (paperId) {
+    if (!paperId) {
+      return Promise.reject(new Error('试卷ID不能为空'))
+    }
+    return ajax('plugin/choice/exam-sessions/create/', 'post', {
+      data: {
+        paper_id: paperId
+      }
+    })
+  },
+
+  startExamSession (sessionId) {
+    if (!sessionId) {
+      return Promise.reject(new Error('会话ID不能为空'))
+    }
+    return ajax('plugin/choice/exam-sessions/' + sessionId + '/start/', 'post')
+  },
+
+  submitExamSession (sessionId) {
+    if (!sessionId) {
+      return Promise.reject(new Error('会话ID不能为空'))
+    }
+    return ajax('plugin/choice/exam-sessions/' + sessionId + '/submit/', 'post')
+  },
+
+  submitAnswer (sessionId, questionId, answer) {
+    if (!sessionId) {
+      return Promise.reject(new Error('会话ID不能为空'))
+    }
+    return ajax('plugin/choice/exam-sessions/' + sessionId + '/answer/', 'post', {
+      data: {
+        question_id: questionId,
+        answer: answer
+      }
+    })
+  },
+
+  // 提交考试答案（兼容方法）
+  submitExamAnswer (sessionId, data) {
+    if (!sessionId) {
+      return Promise.reject(new Error('会话ID不能为空'))
+    }
+    return ajax('plugin/choice/exam-sessions/' + sessionId + '/answer/', 'post', {
+      data: data
+    })
+  },
+
+  // 获取考试会话详情
+  getExamSessionDetail (sessionId) {
+    if (!sessionId) {
+      return Promise.reject(new Error('会话ID不能为空'))
+    }
+    return ajax('plugin/choice/exam-sessions/' + sessionId + '/', 'get')
+  },
+
+  // 获取题目详情
+  getQuestionDetail (questionId) {
+    if (!questionId) {
+      return Promise.reject(new Error('题目ID不能为空'))
+    }
+    return ajax('plugin/choice/questions/' + questionId + '/', 'get')
+  },
+
+  // 获取题目列表（用于练习模式）
+  getQuestionList (params) {
+    // 构建查询参数（用于练习模式，不需要分页）
+    let query = params || {}
+    
+    // 移除空值参数
+    Object.keys(query).forEach(key => {
+      if (query[key] === '' || query[key] === null || query[key] === undefined) {
+        delete query[key]
+      }
+    })
+    
+    return ajax('plugin/choice/questions/', 'get', {
+      params: query
+    })
+  },
+
+  // 错题本相关API
+  addToWrongQuestions (data) {
+    return ajax('plugin/choice/wrong-questions/', 'post', {
+      data
+    })
+  },
+
+  getWrongQuestionList (params) {
+    return ajax('plugin/choice/wrong-questions/', 'get', {
+      params: params || {}
+    })
+  },
+
+  removeFromWrongQuestions (wrongQuestionId) {
+    return ajax('plugin/choice/wrong-questions/' + wrongQuestionId + '/', 'delete')
+  },
+
+  updateWrongQuestionNote (wrongQuestionId, data) {
+    return ajax('plugin/choice/wrong-questions/' + wrongQuestionId + '/', 'put', {
+      data
+    })
+  },
+
+  // 获取分类列表
+  getCategoryList () {
+    return ajax('plugin/choice/categories/', 'get')
+  },
+
+  // 获取标签列表
+  getTagList () {
+    return ajax('plugin/choice/tags/', 'get')
+  },
+
+  // 获取考试历史记录列表
+  getExamHistoryList (params) {
+    return ajax('plugin/choice/exam-sessions/', 'get', {
+      params: params || {}
+    })
+  },
+
+  // 提交选择题答案（练习模式）
+  submitChoiceQuestion (questionId, data) {
+    if (!questionId) {
+      return Promise.reject(new Error('题目ID不能为空'))
+    }
+    return ajax('plugin/choice/questions/' + questionId + '/submit/', 'post', {
+      data: data
+    })
   }
 }
 
