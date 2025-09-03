@@ -77,10 +77,47 @@ export default [
     component: ChoiceQuestion.ChoiceQuestionDetail
   },
   {
+    name: 'choice-question-practice',
+    path: '/choice-question-practice',
+    redirect: (to) => {
+      // 从查询参数中获取分类ID，如果有的话
+      const category = to.query.category
+      if (category) {
+        // 重定向到题目列表页面，保持分类筛选
+        return {
+          path: '/choice-questions',
+          query: { category: category }
+        }
+      } else {
+        // 没有分类参数，重定向到题目列表首页
+        return '/choice-questions'
+      }
+    }
+  },
+  {
     name: 'wrong-question-book',
     path: '/wrong-questions',
     meta: {title: 'Wrong Question Book'},
     component: ChoiceQuestion.WrongQuestionBook
+  },
+  {
+    name: 'exam-history',
+    path: '/exam-history',
+    meta: {title: 'Exam History', requiresAuth: true},
+    component: ChoiceQuestion.ExamHistory
+  },
+  {
+    name: 'exam-paper',
+    path: '/exam/:paperId',  // 确保路径参数名称是paperId
+    meta: {title: 'Exam Paper'},
+    component: ChoiceQuestion.ExamPaper,
+    props: true  // 允许将路由参数作为props传递
+  },
+  {
+    name: 'exam-result',
+    path: '/exam-result/:sessionId',
+    meta: {title: 'Exam Result'},
+    component: ChoiceQuestion.ExamResult
   },
   {
     name: 'submission-list',

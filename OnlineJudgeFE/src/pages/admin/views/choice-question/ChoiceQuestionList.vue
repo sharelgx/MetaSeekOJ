@@ -3,13 +3,15 @@
     <Panel :title="$t('m.Choice_Question_List')">
       <div slot="header">
         <el-row :gutter="20">
-          <el-col :span="8">
+          <el-col :span="4">
             <el-button type="primary" size="small" @click="goCreateChoiceQuestion" icon="el-icon-plus">{{$t('m.Create')}}</el-button>
           </el-col>
-          <el-col :span="8">
+          <el-col :span="4">
+          </el-col>
+          <el-col :span="6">
             <el-input v-model="keyword" prefix-icon="el-icon-search" placeholder="Keywords"></el-input>
           </el-col>
-          <el-col :span="8">
+          <el-col :span="6">
             <el-button type="primary" size="small" @click="filterByKeyword">{{$t('m.Search')}}</el-button>
           </el-col>
         </el-row>
@@ -61,6 +63,150 @@
         </el-pagination>
       </div>
     </Panel>
+    
+    <!-- 导入选择题对话框 -->
+    <el-dialog
+      :title="$t('m.Import_Choice_Questions')"
+      :visible.sync="importDialogVisible"
+      width="60%"
+      :close-on-click-modal="false">
+      <div class="import-container">
+        <!-- 编程语言选择 -->
+        <div class="language-selection" style="margin-bottom: 20px;">
+          <el-row :gutter="20">
+            <el-col :span="8">
+              <label style="display: block; margin-bottom: 8px; font-weight: bold;">{{$t('m.Programming_Language')}}:</label>
+              <el-select v-model="selectedLanguage" :placeholder="$t('m.Select_Programming_Language')" style="width: 100%;">
+                <el-option value="text" label="Plain Text"></el-option>
+                <el-option value="c" label="C"></el-option>
+                <el-option value="cpp" label="C++"></el-option>
+                <el-option value="java" label="Java"></el-option>
+                <el-option value="python" label="Python"></el-option>
+                <el-option value="javascript" label="JavaScript"></el-option>
+                <el-option value="go" label="Go"></el-option>
+                <el-option value="rust" label="Rust"></el-option>
+                <el-option value="php" label="PHP"></el-option>
+                <el-option value="csharp" label="C#"></el-option>
+                <el-option value="kotlin" label="Kotlin"></el-option>
+                <el-option value="swift" label="Swift"></el-option>
+                <el-option value="ruby" label="Ruby"></el-option>
+                <el-option value="scala" label="Scala"></el-option>
+                <el-option value="perl" label="Perl"></el-option>
+                <el-option value="lua" label="Lua"></el-option>
+                <el-option value="bash" label="Bash"></el-option>
+                <el-option value="sql" label="SQL"></el-option>
+                <el-option value="html" label="HTML"></el-option>
+                <el-option value="css" label="CSS"></el-option>
+                <el-option value="xml" label="XML"></el-option>
+                <el-option value="json" label="JSON"></el-option>
+                <el-option value="yaml" label="YAML"></el-option>
+                <el-option value="markdown" label="Markdown"></el-option>
+              </el-select>
+            </el-col>
+            <el-col :span="16">
+              <div style="padding-top: 28px; color: #666; font-size: 14px;">
+                <i class="el-icon-info"></i>
+                {{$t('m.Language_Selection_Help')}}
+              </div>
+            </el-col>
+          </el-row>
+        </div>
+        
+        <el-tabs v-model="activeTab" type="border-card">
+          <!-- JSON文件上传 -->
+          <el-tab-pane :label="$t('m.Upload_JSON_File')" name="file">
+            <div class="upload-section">
+              <el-upload
+                class="upload-demo"
+                drag
+                action=""
+                :auto-upload="false"
+                :on-change="handleFileChange"
+                :file-list="fileList"
+                accept=".json">
+                <i class="el-icon-upload"></i>
+                <div class="el-upload__text">{{$t('m.Drop_JSON_File_Here_Or_Click_To_Upload')}}</div>
+                <div class="el-upload__tip" slot="tip">{{$t('m.Only_JSON_Files_Are_Supported')}}</div>
+              </el-upload>
+            </div>
+          </el-tab-pane>
+          
+          <!-- JSON文本输入 -->
+          <el-tab-pane :label="$t('m.Paste_JSON_Text')" name="text">
+            <div class="json-input-section">
+              <el-input
+                type="textarea"
+                :rows="15"
+                v-model="jsonText"
+                :placeholder="$t('m.Paste_JSON_Content_Here')"
+                class="json-textarea">
+              </el-input>
+            </div>
+          </el-tab-pane>
+          
+          <!-- JSON格式说明 -->
+          <el-tab-pane :label="$t('m.JSON_Format_Guide')" name="guide">
+            <div class="format-guide">
+              <h4>{{$t('m.JSON_Format_Example')}}</h4>
+              <pre class="json-example">{{ jsonFormatExample }}</pre>
+              <div class="field-descriptions">
+                <h4>{{$t('m.Field_Descriptions')}}</h4>
+                <ul>
+                  <li><strong>title:</strong> {{$t('m.Question_Title_Required')}}</li>
+                  <li><strong>description:</strong> {{$t('m.Question_Description_Optional')}}</li>
+                  <li><strong>question_type:</strong> {{$t('m.Question_Type_Single_Or_Multiple')}}</li>
+                  <li><strong>options:</strong> {{$t('m.Options_Array_With_Key_And_Text')}}</li>
+                  <li><strong>correct_answer:</strong> {{$t('m.Correct_Answer_Format')}}</li>
+                  <li><strong>difficulty:</strong> {{$t('m.Difficulty_Easy_Medium_Hard')}}</li>
+                  <li><strong>score:</strong> {{$t('m.Question_Score_1_To_100')}}</li>
+                  <li><strong>explanation:</strong> {{$t('m.Answer_Explanation_Optional')}}</li>
+                  <li><strong>category_name:</strong> {{$t('m.Category_Name_Optional')}}</li>
+                  <li><strong>tags:</strong> {{$t('m.Tags_Array_Optional')}}</li>
+                </ul>
+              </div>
+            </div>
+          </el-tab-pane>
+        </el-tabs>
+        
+        <!-- 预览区域 -->
+        <div v-if="previewData.length > 0" class="preview-section">
+          <h4>{{$t('m.Import_Preview')}} ({{previewData.length}} {{$t('m.Questions')}})</h4>
+          <el-table :data="previewData.slice(0, 5)" size="small" max-height="300">
+            <el-table-column prop="title" :label="$t('m.Title')" width="200" show-overflow-tooltip></el-table-column>
+            <el-table-column prop="question_type" :label="$t('m.Type')" width="80"></el-table-column>
+            <el-table-column prop="difficulty" :label="$t('m.Difficulty')" width="80"></el-table-column>
+            <el-table-column prop="score" :label="$t('m.Score')" width="60"></el-table-column>
+            <el-table-column :label="$t('m.Options')" width="150">
+              <template slot-scope="scope">
+                {{ scope.row.options ? scope.row.options.length : 0 }} {{$t('m.Options')}}
+              </template>
+            </el-table-column>
+          </el-table>
+          <div v-if="previewData.length > 5" class="more-info">
+            {{$t('m.And_More_Questions', {count: previewData.length - 5})}}
+          </div>
+        </div>
+        
+        <!-- 错误信息 -->
+        <div v-if="importErrors.length > 0" class="error-section">
+          <h4>{{$t('m.Import_Errors')}}</h4>
+          <el-alert
+            v-for="(error, index) in importErrors"
+            :key="index"
+            :title="error"
+            type="error"
+            :closable="false"
+            class="error-item">
+          </el-alert>
+        </div>
+      </div>
+      
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="importDialogVisible = false">{{$t('m.Cancel')}}</el-button>
+        <el-button @click="validateJSON" type="primary" :disabled="!canValidate">{{$t('m.Validate')}}</el-button>
+        <el-button @click="importQuestions" type="success" :disabled="!canImport" :loading="importing">{{$t('m.Import')}}</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -76,11 +222,48 @@
         choiceQuestionList: [],
         keyword: '',
         loadingTable: false,
-        currentPage: 1
+        currentPage: 1,
+        // 导入相关数据
+        importDialogVisible: false,
+        activeTab: 'file',
+        fileList: [],
+        jsonText: '',
+        previewData: [],
+        importErrors: [],
+        importing: false,
+        selectedLanguage: 'cpp', // 默认选择C++
+        jsonFormatExample: `[
+  {
+    "title": "1+1等于多少？",
+    "description": "请选择正确答案",
+    "question_type": "single",
+    "options": [
+      {"key": "A", "text": "1"},
+      {"key": "B", "text": "2"},
+      {"key": "C", "text": "3"},
+      {"key": "D", "text": "4"}
+    ],
+    "correct_answer": "B",
+    "difficulty": "easy",
+    "score": 10,
+    "explanation": "1+1=2，这是基础数学运算",
+    "category_name": "数学",
+    "tags": ["基础运算", "数学"]
+  }
+]`
       }
     },
     mounted () {
       this.getChoiceQuestionList(1)
+    },
+    computed: {
+      canValidate () {
+        return (this.activeTab === 'file' && this.fileList.length > 0) || 
+               (this.activeTab === 'text' && this.jsonText.trim())
+      },
+      canImport () {
+        return this.previewData.length > 0 && this.importErrors.length === 0
+      }
     },
     methods: {
       // 切换页码回调
@@ -104,6 +287,7 @@
       goCreateChoiceQuestion () {
         this.$router.push({name: 'create-choice-question'})
       },
+
       deleteChoiceQuestion (id) {
         this.$confirm('Sure to delete this choice question? The associated submissions will be deleted as well.', 'Delete Choice Question', {
           type: 'warning'
@@ -124,6 +308,131 @@
           this.$success('Updated successfully')
         }).catch(() => {
         })
+      },
+      // 导入相关方法
+      showImportDialog () {
+        this.importDialogVisible = true
+        this.resetImportData()
+      },
+      resetImportData () {
+        this.activeTab = 'file'
+        this.fileList = []
+        this.jsonText = ''
+        this.previewData = []
+        this.importErrors = []
+        this.importing = false
+      },
+      handleFileChange (file, fileList) {
+        this.fileList = fileList
+        if (file.raw) {
+          const reader = new FileReader()
+          reader.onload = (e) => {
+            this.jsonText = e.target.result
+          }
+          reader.readAsText(file.raw)
+        }
+      },
+      validateJSON () {
+        this.importErrors = []
+        this.previewData = []
+        
+        let jsonData
+        try {
+          jsonData = JSON.parse(this.jsonText)
+        } catch (error) {
+          this.importErrors.push(this.$t('m.Invalid_JSON_Format') + ': ' + error.message)
+          return
+        }
+        
+        if (!Array.isArray(jsonData)) {
+          this.importErrors.push(this.$t('m.JSON_Must_Be_Array'))
+          return
+        }
+        
+        // 验证每个题目的格式
+        const validatedData = []
+        jsonData.forEach((item, index) => {
+          const errors = this.validateQuestionItem(item, index + 1)
+          if (errors.length > 0) {
+            this.importErrors.push(...errors)
+          } else {
+            validatedData.push(item)
+          }
+        })
+        
+        if (this.importErrors.length === 0) {
+          this.previewData = validatedData
+          this.$message.success(this.$t('m.Validation_Successful', {count: validatedData.length}))
+        }
+      },
+      validateQuestionItem (item, index) {
+        const errors = []
+        const prefix = `${this.$t('m.Question')} ${index}: `
+        
+        // 必填字段验证
+        if (!item.title || !item.title.trim()) {
+          errors.push(prefix + this.$t('m.Title_Is_Required'))
+        }
+        
+        if (!item.question_type || !['single', 'multiple'].includes(item.question_type)) {
+          errors.push(prefix + this.$t('m.Question_Type_Must_Be_Single_Or_Multiple'))
+        }
+        
+        if (!item.options || !Array.isArray(item.options) || item.options.length < 2) {
+          errors.push(prefix + this.$t('m.At_Least_Two_Options_Required'))
+        } else {
+          // 验证选项格式
+          item.options.forEach((option, optIndex) => {
+            if (!option.key || !option.text) {
+              errors.push(prefix + this.$t('m.Option_Must_Have_Key_And_Text', {index: optIndex + 1}))
+            }
+          })
+        }
+        
+        if (!item.correct_answer) {
+          errors.push(prefix + this.$t('m.Correct_Answer_Is_Required'))
+        }
+        
+        if (item.difficulty && !['easy', 'medium', 'hard'].includes(item.difficulty)) {
+          errors.push(prefix + this.$t('m.Difficulty_Must_Be_Easy_Medium_Or_Hard'))
+        }
+        
+        if (item.score && (item.score < 1 || item.score > 100)) {
+          errors.push(prefix + this.$t('m.Score_Must_Be_Between_1_And_100'))
+        }
+        
+        return errors
+      },
+      async importQuestions () {
+        if (!this.canImport) return
+        
+        this.importing = true
+        try {
+          // 为每个题目添加选择的编程语言
+          const questionsWithLanguage = this.previewData.map(question => ({
+            ...question,
+            language: this.selectedLanguage
+          }))
+          
+          // 调用后端API进行导入
+          const response = await this.$http.post('/api/admin/choice_question/import', {
+            questions: questionsWithLanguage
+          })
+          
+          if (response.data.error) {
+            throw new Error(response.data.data || this.$t('m.Import_Failed'))
+          }
+          
+          this.$message.success(this.$t('m.Import_Successful', {count: this.previewData.length}))
+          this.importDialogVisible = false
+          this.getChoiceQuestionList(1) // 刷新列表
+        } catch (error) {
+          console.error('Import error:', error)
+          const errorMessage = (error.response && error.response.data && error.response.data.data) || error.message || this.$t('m.Import_Failed')
+          this.$message.error(this.$t('m.Import_Failed') + ': ' + errorMessage)
+        } finally {
+          this.importing = false
+        }
       }
     }
   }
@@ -135,6 +444,84 @@
     &:hover {
       color: #2d8cf0;
       border-bottom: 1px solid #2d8cf0;
+    }
+  }
+  
+  // 导入对话框样式
+  .import-container {
+    .upload-section {
+      padding: 20px;
+      text-align: center;
+    }
+    
+    .json-input-section {
+      padding: 20px;
+      
+      .json-textarea {
+        font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+        font-size: 12px;
+      }
+    }
+    
+    .format-guide {
+      padding: 20px;
+      
+      .json-example {
+        background: #f5f5f5;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 15px;
+        font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+        font-size: 12px;
+        overflow-x: auto;
+        white-space: pre;
+      }
+      
+      .field-descriptions {
+        margin-top: 20px;
+        
+        ul {
+          list-style-type: disc;
+          padding-left: 20px;
+          
+          li {
+            margin-bottom: 8px;
+            line-height: 1.5;
+          }
+        }
+      }
+    }
+    
+    .preview-section {
+      margin-top: 20px;
+      padding: 15px;
+      background: #f9f9f9;
+      border-radius: 4px;
+      
+      h4 {
+        margin-bottom: 15px;
+        color: #333;
+      }
+      
+      .more-info {
+        margin-top: 10px;
+        color: #666;
+        font-size: 14px;
+        text-align: center;
+      }
+    }
+    
+    .error-section {
+      margin-top: 20px;
+      
+      h4 {
+        margin-bottom: 15px;
+        color: #f56c6c;
+      }
+      
+      .error-item {
+        margin-bottom: 10px;
+      }
     }
   }
 </style>

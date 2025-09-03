@@ -15,9 +15,10 @@ import ChoiceQuestion from './choice-question/ChoiceQuestion.vue'
 import ChoiceQuestionList from './choice-question/ChoiceQuestionList.vue'
 import CategoryManagement from './choice-question/CategoryManagement.vue'
 import TagManagement from './choice-question/TagManagement.vue'
+import ImportChoiceQuestion from './choice-question/ImportChoiceQuestion.vue'
 
 export {
   Announcement, User, Conf, JudgeServer, Problem, ProblemList, Contest,
   ContestList, Login, Home, PruneTestCase, Dashboard, ProblemImportOrExport,
-  ChoiceQuestion, ChoiceQuestionList, CategoryManagement, TagManagement
+  ChoiceQuestion, ChoiceQuestionList, CategoryManagement, TagManagement, ImportChoiceQuestion
 }

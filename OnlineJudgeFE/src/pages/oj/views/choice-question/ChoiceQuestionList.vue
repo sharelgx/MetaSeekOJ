@@ -64,6 +64,28 @@
             <Button @click="resetFilter" style="margin-left: 8px">重置</Button>
           </Col>
         </Row>
+        
+        <!-- 做题模式选择 -->
+        <Row style="margin-top: 16px;" v-if="selectedCategory">
+          <Col :span="24">
+            <Alert show-icon>
+              <span slot="desc">
+                <strong>选择做题模式：</strong>
+                <Button type="primary" size="small" @click="startPracticeMode" style="margin-left: 8px; margin-right: 8px;">
+                  <Icon type="ios-book" />
+                  练习模式
+                </Button>
+                <Button type="warning" size="small" @click="showExamModeDialog">
+                  <Icon type="ios-timer" />
+                  考试模式
+                </Button>
+                <span style="margin-left: 16px; color: #666;">
+                  练习模式：逐题练习，可查看解析；考试模式：试卷形式，限时答题
+                </span>
+              </span>
+            </Alert>
+          </Col>
+        </Row>
       </div>
       
       <!-- 题目列表 -->
@@ -71,7 +93,6 @@
         :columns="columns"
         :data="questions"
         :loading="loading"
-        @on-row-click="goToQuestion"
       />
       
       <!-- 分页 -->
@@ -92,7 +113,7 @@
 </template>
 
 <script>
-import api from './api/index'
+import api from '../../api'
 import { DIFFICULTY_CHOICES, QUESTION_TYPE_CHOICES } from './constants'
 
 export default {
@@ -219,12 +240,12 @@ export default {
         {
           title: '操作',
           key: 'action',
-          width: 100,
+          width: 120,
           align: 'center',
           render: (h, params) => {
             return h('Button', {
               props: {
-                type: 'success',
+                type: 'primary',
                 size: 'small'
               },
               on: {
@@ -233,7 +254,7 @@ export default {
                   this.goToQuestion(params.row)
                 }
               }
-            }, '查看')
+            }, '练习')
           }
         }
       ]
@@ -276,18 +297,25 @@ export default {
     async getQuestionList() {
       this.loading = true
       try {
-        const params = {
-          offset: (this.currentPage - 1) * this.pageSize,
-          limit: this.pageSize
-        }
+        const offset = (this.currentPage - 1) * this.pageSize
+        const limit = this.pageSize
+        const params = {}
         
         if (this.keyword) params.keyword = this.keyword
         if (this.selectedCategory) params.category = this.selectedCategory
-        if (this.selectedTag) params.tag = this.selectedTag
-        if (this.selectedDifficulty) params.difficulty = this.selectedDifficulty
-        if (this.selectedType) params.type = this.selectedType
+        if (this.selectedTag) params.tags = this.selectedTag
+        if (this.selectedDifficulty) {
+          // 转换难度值：1->easy, 2->medium, 3->hard
+          const difficultyMap = {
+            '1': 'easy',
+            '2': 'medium', 
+            '3': 'hard'
+          }
+          params.difficulty = difficultyMap[this.selectedDifficulty] || this.selectedDifficulty
+        }
+        if (this.selectedType) params.question_type = this.selectedType
         
-        const res = await api.getQuestionList(params)
+        const res = await api.getChoiceQuestionList(offset, limit, params)
         this.questions = res.data.data.results || []
         this.total = res.data.data.total || 0
       } catch (err) {
@@ -340,27 +368,97 @@ export default {
       this.getQuestionList()
     },
     
-    goToQuestion(row) {
-      console.log('=== 题目列表跳转调试 ===')
-      console.log('当前筛选条件:')
-      console.log('- selectedCategory:', this.selectedCategory)
-      console.log('- selectedTag:', this.selectedTag)
-      console.log('- selectedDifficulty:', this.selectedDifficulty)
-      console.log('- selectedType:', this.selectedType)
-      console.log('- keyword:', this.keyword)
-      console.log('点击的题目信息:', row)
+    // 开始练习模式
+    startPracticeMode() {
+      // 检查是否有题目
+      if (!this.questions || this.questions.length === 0) {
+        this.$Message.warning('当前筛选条件下没有题目，请调整筛选条件')
+        return
+      }
+      
+      // 获取第一道题
+      const firstQuestion = this.questions[0]
       
       // 构建查询参数，传递当前的筛选条件
       const query = {}
       
       if (this.selectedCategory) {
         query.category = this.selectedCategory
-        console.log('添加 category 参数:', query.category)
+      }
+      
+      if (this.selectedTag) {
+        query.tags = this.selectedTag
+      }
+      
+      if (this.selectedDifficulty) {
+        query.difficulty = this.selectedDifficulty
+      }
+      
+      if (this.selectedType) {
+        query.question_type = this.selectedType
+      }
+      
+      if (this.keyword) {
+        query.keyword = this.keyword
+      }
+      
+      // 直接跳转到第一道题的详情页
+      this.$router.push({
+        name: 'choice-question-detail',
+        params: { id: firstQuestion.id },
+        query: query
+      })
+    },
+    
+    // 显示考试模式对话框
+    async showExamModeDialog() {
+      
+      try {
+        // 创建默认的考试配置
+        const examConfig = {
+          title: '选择题考试',
+          description: '基于当前筛选条件的考试',
+          duration: 30, // 30分钟
+          question_count: 10, // 默认10题
+          total_score: 100, // 总分100分
+          categories: this.selectedCategory ? [this.selectedCategory] : [],
+          tags: this.selectedTag ? [this.selectedTag] : [],
+          difficulty_distribution: {
+            easy: 5,
+            medium: 3,
+            hard: 2
+          }
+        }
+        
+        // 通过API创建考试试卷
+        const response = await api.createExamPaper(examConfig)
+        const paper = response.data.data || response.data
+        
+        this.$Message.success('试卷创建成功！')
+        
+        // 跳转到考试页面
+        this.$router.push({
+          name: 'exam-paper',
+          params: { paperId: paper.id }
+        })
+        
+      } catch (error) {
+        console.error('创建考试试卷失败:', error)
+        this.$Message.error('创建考试试卷失败，请稍后重试')
+      }
+    },
+    
+    goToQuestion(row) {
+      
+      // 构建查询参数，传递当前的筛选条件
+      const query = {}
+      
+      if (this.selectedCategory) {
+        query.category = this.selectedCategory
       }
       
       if (this.selectedTag) {
         query.tags = this.selectedTag // 修正字段名：tag -> tags
-        console.log('添加 tags 参数:', query.tags)
       }
       
       if (this.selectedDifficulty) {
@@ -389,6 +487,7 @@ export default {
       console.log('题目列表跳转完成，传递的查询参数:', query)
     },
     
+
 
   }
 }
