@@ -287,7 +287,7 @@ export default {
     async getTagList() {
       try {
         const res = await api.getTagList()
-        this.tags = res.data.data.results || []
+        this.tags = res.data.results || []
       } catch (err) {
         console.error('获取标签列表失败:', err)
         this.tags = []
