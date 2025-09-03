@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>测试登录状态</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <h1>测试登录状态和API调用</h1>
+    <div id="results"></div>
+    
+    <script>
+        const results = document.getElementById('results');
+        
+        // 设置axios默认配置
+        axios.defaults.baseURL = 'http://localhost:8000/api';
+        axios.defaults.withCredentials = true;
+        
+        async function testAPIs() {
+            try {
+                // 1. 测试获取用户信息
+                results.innerHTML += '<h3>1. 测试获取用户信息</h3>';
+                const userResponse = await axios.get('/profile/');
+                results.innerHTML += `<p>用户信息: ${JSON.stringify(userResponse.data, null, 2)}</p>`;
+                
+                // 2. 测试获取试卷列表
+                results.innerHTML += '<h3>2. 测试获取试卷列表</h3>';
+                const papersResponse = await axios.get('/plugin/choice/exam-papers/');
+                results.innerHTML += `<p>试卷列表: ${JSON.stringify(papersResponse.data, null, 2)}</p>`;
+                
+                // 3. 测试创建考试会话
+                results.innerHTML += '<h3>3. 测试创建考试会话</h3>';
+                const sessionResponse = await axios.post('/plugin/choice/exam-sessions/create/', {
+                    paper_id: 7
+                });
+                results.innerHTML += `<p>考试会话: ${JSON.stringify(sessionResponse.data, null, 2)}</p>`;
+                
+            } catch (error) {
+                results.innerHTML += `<p style="color: red;">错误: ${error.message}</p>`;
+                if (error.response) {
+                    results.innerHTML += `<p style="color: red;">响应数据: ${JSON.stringify(error.response.data, null, 2)}</p>`;
+                }
+            }
+        }
+        
+        // 页面加载后执行测试
+        testAPIs();
+    </script>
+</body>
+</html>

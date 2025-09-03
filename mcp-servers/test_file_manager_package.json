@@ -1,0 +1,31 @@
+{
+  "name": "test-file-manager-mcp-server",
+  "version": "1.0.0",
+  "description": "MCP服务器用于管理测试文件，自动检测和移动测试文件到TestCode目录",
+  "main": "test_file_manager_mcp_server.js",
+  "scripts": {
+    "start": "node test_file_manager_mcp_server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "mcp",
+    "test-files",
+    "file-management",
+    "automation"
+  ],
+  "author": "MetaSeekOJ Project",
+  "license": "MIT",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "dependencies": {},
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "local"
+  },
+  "bugs": {
+    "url": "local"
+  },
+  "homepage": "local"
+}

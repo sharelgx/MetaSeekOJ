@@ -338,16 +338,16 @@
       },
       // 监听描述变化，自动生成标题
       'choiceQuestion.description' (newVal) {
-        if (newVal && (!this.choiceQuestion.title || this.choiceQuestion.title.trim() === '')) {
+        if (newVal && newVal.trim()) {
           // 从HTML内容中提取纯文本
           const tempDiv = document.createElement('div')
           tempDiv.innerHTML = newVal
           const plainText = tempDiv.textContent || tempDiv.innerText || ''
           
-          // 截取前50个字符作为标题
-          const autoTitle = plainText.trim().substring(0, 50)
+          // 截取前12个字符作为标题
+          const autoTitle = plainText.trim().substring(0, 12)
           if (autoTitle) {
-            this.choiceQuestion.title = autoTitle + (plainText.length > 50 ? '...' : '')
+            this.choiceQuestion.title = autoTitle + (plainText.trim().length > 12 ? '...' : '')
           }
         }
       }

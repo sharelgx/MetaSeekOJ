@@ -351,7 +351,15 @@ export default {
     })
   },
   deleteChoiceQuestionCategory (id) {
-    return ajax(`admin/choice_question/categories/${id}`, 'delete')
+    return ajax('admin/choice_question/categories', 'delete', {
+      params: { id }
+    })
+  },
+  updateChoiceQuestionCategory (id, data) {
+    return ajax('admin/choice_question/categories', 'put', {
+      params: { id },
+      data
+    })
   },
   // Choice Question Tags
   getChoiceQuestionTags () {

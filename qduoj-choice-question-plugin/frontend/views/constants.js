@@ -2,9 +2,9 @@
 
 // 难度选择
 export const DIFFICULTY_CHOICES = [
-  { value: 1, label: '简单', color: 'success' },
-  { value: 2, label: '中等', color: 'warning' },
-  { value: 3, label: '困难', color: 'error' }
+  { value: 'easy', label: '简单', color: 'success' },
+  { value: 'medium', label: '中等', color: 'warning' },
+  { value: 'hard', label: '困难', color: 'error' }
 ]
 
 // 题型选择

@@ -44,9 +44,9 @@
           </Col>
           <Col :span="3">
             <Select v-model="selectedDifficulty" placeholder="难度" clearable>
-              <Option value="1">简单</Option>
-              <Option value="2">中等</Option>
-              <Option value="3">困难</Option>
+              <Option value="easy">简单</Option>
+              <Option value="medium">中等</Option>
+              <Option value="hard">困难</Option>
             </Select>
           </Col>
           <Col :span="3">

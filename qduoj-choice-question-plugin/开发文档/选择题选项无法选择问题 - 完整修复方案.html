@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>选择题选项无法选择问题修复</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+        }
+        h2 {
+            color: #555;
+            margin-top: 30px;
+            border-left: 4px solid #764ba2;
+            padding-left: 10px;
+        }
+        .problem-section {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .solution-section {
+            background: #d4edda;
+            border: 2px solid #28a745;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .code-block {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 15px 0;
+            overflow-x: auto;
+            position: relative;
+        }
+        .code-block pre {
+            margin: 0;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .file-path {
+            background: #007bff;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px 4px 0 0;
+            display: inline-block;
+            margin-bottom: -1px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .important {
+            background: #ffebee;
+            border-left: 4px solid #f44336;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .step {
+            background: #f5f5f5;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+            border-left: 5px solid #667eea;
+        }
+        .step-number {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            width: 30px;
+            height: 30px;
+            line-height: 30px;
+            text-align: center;
+            border-radius: 50%;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+        ul {
+            line-height: 1.8;
+        }
+        .highlight {
+            background: yellow;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 选择题选项无法选择问题 - 完整修复方案</h1>
+        
+        <div class="problem-section">
+            <h2>🚨 问题描述</h2>
+            <p><strong>用户反馈：</strong>在题目12中，当选项包含数学公式和C++代码时，无法点击选择选项，导致无法答题。</p>
+            <p><strong>问题URL：</strong> http://localhost:8080/choice-question/12</p>
+            <p><strong>症状：</strong></p>
+            <ul>
+                <li>点击选项时，Radio/Checkbox组件不响应</li>
+                <li>选项内容（特别是KaTeX公式和代码块）阻止了点击事件</li>
+                <li>用户无法选择答案，无法提交</li>
+            </ul>
+        </div>
+
+        <div class="important">
+            <h3>⚠️ 根本原因分析</h3>
+            <p>KaTeX渲染的数学公式和代码高亮组件会创建复杂的DOM结构，这些元素可能：</p>
+            <ol>
+                <li>覆盖了Radio/Checkbox的点击区域</li>
+                <li>拦截了点击事件，阻止事件冒泡到父元素</li>
+                <li>z-index层级问题导致选项不可点击</li>
+            </ol>
+        </div>
+
+        <div class="solution-section">
+            <h2>✅ 完整修复方案</h2>
+            
+            <div class="step">
+                <span class="step-number">1</span>
+                <strong>修改 ChoiceQuestionDetail.vue - 模板部分</strong>
+            </div>
+            
+            <div class="file-path">OnlineJudgeFE/src/pages/oj/views/choice-question/ChoiceQuestionDetail.vue</div>
+            <div class="code-block">
+                <pre>&lt;!-- 修改选项区域的模板 --&gt;
+&lt;!-- 单选题 --&gt;
+&lt;el-radio-group v-if="!problem.multiple_choice" 
+                v-model="result.answer"
+                class="choice-options"&gt;
+  &lt;el-radio v-for="option in problem.options" 
+            :key="option.key"
+            :label="option.key"
+            class="option-item"
+            @click.native="handleOptionClick(option.key, false)"&gt;
+    &lt;div class="option-wrapper"&gt;
+      &lt;span class="option-key"&gt;{{ option.key }}.&lt;/span&gt;
+      &lt;div class="option-content" 
+           v-html="option.content"
+           @click.stop.prevent="handleContentClick(option.key, false)"&gt;&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/el-radio&gt;
+&lt;/el-radio-group&gt;
+
+&lt;!-- 多选题 --&gt;
+&lt;el-checkbox-group v-else 
+                   v-model="result.answer"
+                   class="choice-options"&gt;
+  &lt;el-checkbox v-for="option in problem.options" 
+               :key="option.key"
+               :label="option.key"
+               class="option-item"
+               @click.native="handleOptionClick(option.key, true)"&gt;
+    &lt;div class="option-wrapper"&gt;
+      &lt;span class="option-key"&gt;{{ option.key }}.&lt;/span&gt;
+      &lt;div class="option-content" 
+           v-html="option.content"
+           @click.stop.prevent="handleContentClick(option.key, true)"&gt;&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/el-checkbox&gt;
+&lt;/el-checkbox-group&gt;</pre>
+            </div>
+
+            <div class="step">
+                <span class="step-number">2</span>
+                <strong>添加事件处理方法</strong>
+            </div>
+            
+            <div class="code-block">
+                <pre>// 在 methods 中添加以下方法
+methods: {
+  // 处理选项点击（包括Radio/Checkbox本身）
+  handleOptionClick(key, isMultiple) {
+    if (this.submissionId || this.result.result) {
+      return; // 已提交，不允许修改
+    }
+    
+    // 使用 nextTick 确保 DOM 更新后再处理
+    this.$nextTick(() => {
+      if (!isMultiple) {
+        // 单选题：直接设置答案
+        if (this.result.answer !== key) {
+          this.result.answer = key;
+        }
+      } else {
+        // 多选题：切换选中状态
+        const index = this.result.answer.indexOf(key);
+        if (index === -1) {
+          this.result.answer.push(key);
+        } else {
+          this.result.answer.splice(index, 1);
+        }
+      }
+    });
+  },
+  
+  // 处理选项内容区域点击
+  handleContentClick(key, isMultiple) {
+    if (this.submissionId || this.result.result) {
+      return; // 已提交，不允许修改
+    }
+    
+    // 阻止事件冒泡，然后手动触发选择
+    if (!isMultiple) {
+      // 单选题
+      this.result.answer = key;
+    } else {
+      // 多选题
+      const index = this.result.answer.indexOf(key);
+      if (index === -1) {
+        this.result.answer.push(key);
+      } else {
+        this.result.answer.splice(index, 1);
+      }
+    }
+    
+    // 强制更新视图
+    this.$forceUpdate();
+  },
+  
+  // ... 其他现有方法
+}</pre>
+            </div>
+
+            <div class="step">
+                <span class="step-number">3</span>
+                <strong>关键CSS样式修复</strong>
+            </div>
+            
+            <div class="code-block">
+                <pre>&lt;style scoped&gt;
+/* 选项容器样式 */
+.choice-options {
+  width: 100%;
+}
+
+.option-item {
+  display: block;
+  margin-bottom: 15px;
+  width: 100%;
+  position: relative;
+}
+
+/* 选项包装器 - 确保可点击 */
+.option-wrapper {
+  display: flex;
+  align-items: flex-start;
+  cursor: pointer;
+  padding: 12px 15px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  position: relative;
+  /* 确保整个区域可点击 */
+  pointer-events: auto !important;
+}
+
+.option-wrapper:hover {
+  background: #e9ecef;
+  transform: translateX(5px);
+}
+
+/* 选项键样式 */
+.option-key {
+  font-weight: bold;
+  margin-right: 10px;
+  color: #007bff;
+  flex-shrink: 0;
+}
+
+/* 选项内容样式 - 关键修复 */
+.option-content {
+  flex: 1;
+  line-height: 1.6;
+  /* 让内容区域也可点击，但阻止内部元素干扰 */
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+  z-index: 1;
+}
+
+/* 关键修复：让KaTeX和代码块不阻止点击 */
+.option-content ::v-deep * {
+  pointer-events: none !important;
+  user-select: none !important;
+}
+
+/* 特别处理 KaTeX 元素 */
+.option-content ::v-deep .katex,
+.option-content ::v-deep .katex-display,
+.option-content ::v-deep .katex-html {
+  pointer-events: none !important;
+  position: relative !important;
+  z-index: 0 !important;
+}
+
+/* 特别处理代码块 */
+.option-content ::v-deep pre,
+.option-content ::v-deep code,
+.option-content ::v-deep .hljs {
+  pointer-events: none !important;
+  user-select: none !important;
+  position: relative !important;
+  z-index: 0 !important;
+}
+
+/* 确保 Radio 和 Checkbox 的样式正确 */
+::v-deep .el-radio__input,
+::v-deep .el-checkbox__input {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  pointer-events: auto !important;
+}
+
+::v-deep .el-radio__label,
+::v-deep .el-checkbox__label {
+  width: 100%;
+  padding-left: 30px;
+}
+
+/* 选中状态样式 */
+::v-deep .el-radio__input.is-checked + .el-radio__label .option-wrapper,
+::v-deep .el-checkbox__input.is-checked + .el-checkbox__label .option-wrapper {
+  background: #e7f3ff;
+  border: 2px solid #409eff;
+}
+&lt;/style&gt;</pre>
+            </div>
+
+            <div class="step">
+                <span class="step-number">4</span>
+                <strong>额外的JavaScript增强（可选）</strong>
+            </div>
+            
+            <div class="code-block">
+                <pre>// 在 mounted 钩子中添加全局点击事件监听
+mounted() {
+  this.init();
+  
+  // 添加全局事件委托，确保选项可点击
+  this.$nextTick(() => {
+    this.setupOptionClickHandlers();
+  });
+},
+
+methods: {
+  setupOptionClickHandlers() {
+    // 使用事件委托处理动态渲染的内容
+    const container = this.$el.querySelector('.choice-options');
+    if (container) {
+      container.addEventListener('click', (e) => {
+        // 查找最近的选项元素
+        const optionEl = e.target.closest('.option-wrapper');
+        if (optionEl) {
+          // 获取选项的key
+          const radioEl = optionEl.closest('.el-radio') || optionEl.closest('.el-checkbox');
+          if (radioEl) {
+            const key = radioEl.querySelector('input').value;
+            if (key) {
+              // 模拟点击事件
+              radioEl.querySelector('input').click();
+            }
+          }
+        }
+      }, true); // 使用捕获阶段
+    }
+  },
+  
+  // ... 其他方法
+}</pre>
+            </div>
+
+            <div class="step">
+                <span class="step-number">5</span>
+                <strong>构建和部署</strong>
+            </div>
+            
+            <div class="code-block">
+                <pre># 重新构建项目
+NODE_OPTIONS="--openssl-legacy-provider" npm run build
+
+# 或者在开发模式下测试
+NODE_OPTIONS="--openssl-legacy-provider" npm run serve
+
+# 清除缓存（如果需要）
+rm -rf node_modules/.cache
+npm cache clean --force</pre>
+            </div>
+        </div>
+
+        <div class="important">
+            <h3>🎯 测试要点</h3>
+            <ol>
+                <li><strong>单选题测试：</strong>点击选项的任何位置都应该能选中</li>
+                <li><strong>多选题测试：</strong>能够多选和取消选择</li>
+                <li><strong>数学公式选项：</strong>点击KaTeX渲染的公式应该能选中选项</li>
+                <li><strong>代码块选项：</strong>点击代码块应该能选中选项</li>
+                <li><strong>混合内容：</strong>包含文字、公式和代码的选项都应该可点击</li>
+            </ol>
+        </div>
+
+        <div class="solution-section">
+            <h2>🔍 调试技巧</h2>
+            <p>如果问题仍然存在，可以使用以下方法调试：</p>
+            <div class="code-block">
+                <pre>// 在浏览器控制台运行
+// 1. 检查选项元素
+document.querySelectorAll('.option-wrapper').forEach(el => {
+  el.style.border = '2px solid red';
+  el.addEventListener('click', () => console.log('Option clicked!'));
+});
+
+// 2. 检查是否有元素遮挡
+document.querySelectorAll('.option-content *').forEach(el => {
+  console.log(el.tagName, window.getComputedStyle(el).pointerEvents);
+});
+
+// 3. 强制修复pointer-events
+document.querySelectorAll('.option-content *').forEach(el => {
+  el.style.pointerEvents = 'none';
+});</pre>
+            </div>
+        </div>
+
+        <div class="important">
+            <h3>💡 核心解决方案总结</h3>
+            <p>这个修复方案的核心是：</p>
+            <ol>
+                <li><span class="highlight">使用 pointer-events: none</span> 让选项内容的子元素不拦截点击</li>
+                <li><span class="highlight">添加显式的点击事件处理</span>，确保点击任何位置都能选中</li>
+                <li><span class="highlight">使用事件委托</span>处理动态渲染的内容</li>
+                <li><span class="highlight">正确的z-index层级</span>确保Radio/Checkbox始终可点击</li>
+                <li><span class="highlight">@click.native 和 @click.stop.prevent</span> 的组合使用</li>
+            </ol>
+        </div>
+    </div>
+</body>
+</html>

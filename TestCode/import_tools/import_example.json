@@ -1,0 +1,43 @@
+{
+  "questions": [
+    {
+      "id": "Q001",
+      "question": "Python中哪个关键字用于定义函数？",
+      "type": "single",
+      "options": [
+        "def",
+        "function",
+        "func",
+        "define"
+      ],
+      "correct": "A",
+      "explanation": "在Python中，使用def关键字来定义函数。"
+    },
+    {
+      "id": "Q002",
+      "question": "以下哪些是Python的内置数据类型？",
+      "type": "multiple",
+      "options": [
+        "list",
+        "dict",
+        "array",
+        "tuple"
+      ],
+      "correct": "A,B,D",
+      "explanation": "list、dict和tuple是Python的内置数据类型，而array需要导入numpy模块。"
+    },
+    {
+      "question": "什么是变量？",
+      "type": "single",
+      "options": [
+        "存储数据的容器",
+        "一种数据类型",
+        "一个函数",
+        "一个类"
+      ],
+      "correct": "A",
+      "explanation": "变量是用来存储数据的容器，可以存储不同类型的数据。"
+    }
+  ],
+  "category_id": 1
+}

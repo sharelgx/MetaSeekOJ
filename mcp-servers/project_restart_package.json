@@ -1,0 +1,27 @@
+{
+  "name": "project-restart-mcp-server",
+  "version": "1.0.0",
+  "description": "MetaSeekOJ项目重启MCP服务器 - 提供全面的项目重启功能",
+  "main": "project_restart_mcp_server.js",
+  "scripts": {
+    "start": "node project_restart_mcp_server.js",
+    "install-deps": "npm install @modelcontextprotocol/sdk"
+  },
+  "keywords": [
+    "mcp",
+    "project-restart",
+    "metaseek",
+    "onlinejudge",
+    "redis",
+    "django",
+    "vue"
+  ],
+  "author": "MetaSeekOJ Team",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^0.5.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}

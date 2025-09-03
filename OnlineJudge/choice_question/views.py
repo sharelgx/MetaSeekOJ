@@ -3,8 +3,11 @@ from django.utils import timezone
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from rest_framework.decorators import action
 from rest_framework import status
+from rest_framework.response import Response
 from utils.api import CSRFExemptAPIView, validate_serializer
 from account.decorators import login_required, super_admin_required
+import json
+from django.db import transaction
 from .models import (
     Category,
     QuestionTag,
@@ -22,6 +25,7 @@ from .serializers import (
     ChoiceQuestionSubmissionCreateSerializer,
     WrongQuestionSerializer
 )
+from .import_serializers import ChoiceQuestionImportSerializer
 
 
 class ChoiceQuestionCategoryAPI(CSRFExemptAPIView):
@@ -236,66 +240,63 @@ class ChoiceQuestionDetailAPI(CSRFExemptAPIView):
         # 优先使用URL中的pk参数，其次使用查询参数中的id
         question_id = pk or request.GET.get('id')
         if not question_id:
-            return Response({"error": "题目ID不能为空"}, status=status.HTTP_400_BAD_REQUEST)
+            return self.error(msg="题目ID不能为空")
         
         try:
             question = ChoiceQuestion.objects.select_related(
                 'category', 'created_by'
             ).prefetch_related('tags').get(id=question_id)
         except ChoiceQuestion.DoesNotExist:
-            return Response({"error": "题目不存在"}, status=status.HTTP_404_NOT_FOUND)
+            return self.error(msg="题目不存在")
         
         # 如果用户已登录，获取用户的提交状态
         user_submission = None
         if request.user.is_authenticated:
-            try:
-                user_submission = ChoiceQuestionSubmission.objects.get(
-                    user=request.user, question=question
-                )
-            except ChoiceQuestionSubmission.DoesNotExist:
-                pass
+            user_submission = ChoiceQuestionSubmission.objects.filter(
+                user=request.user, question=question
+            ).order_by('-create_time').first()
         
         data = ChoiceQuestionDetailSerializer(question).data
         if user_submission:
             data['user_submission'] = {
                 'is_correct': user_submission.is_correct,
                 'selected_answer': user_submission.selected_answer,
-                'submit_time': user_submission.create_time
+                'submit_time': user_submission.create_time.isoformat() if user_submission.create_time else None
             }
         
-        return Response(data)
+        return self.success(data)
     
     @super_admin_required
     def put(self, request, pk=None):
         """更新选择题"""
         question_id = pk or request.data.get('id')
         if not question_id:
-            return Response({"error": "题目ID不能为空"}, status=status.HTTP_400_BAD_REQUEST)
+            return self.error(msg="题目ID不能为空")
         
         try:
             question = ChoiceQuestion.objects.get(id=question_id)
         except ChoiceQuestion.DoesNotExist:
-            return Response({"error": "题目不存在"}, status=status.HTTP_404_NOT_FOUND)
+            return self.error(msg="题目不存在")
         
         serializer = ChoiceQuestionCreateSerializer(question, data=request.data, partial=True)
         if serializer.is_valid():
             question = serializer.save()
-            return Response(ChoiceQuestionDetailSerializer(question).data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return self.success(ChoiceQuestionDetailSerializer(question).data)
+        return self.error(msg="数据验证失败", err=serializer.errors)
     
     @super_admin_required
     def delete(self, request, pk=None):
         """删除选择题"""
         question_id = pk or request.data.get('id')
         if not question_id:
-            return Response({"error": "题目ID不能为空"}, status=status.HTTP_400_BAD_REQUEST)
+            return self.error(msg="题目ID不能为空")
         
         try:
             question = ChoiceQuestion.objects.get(id=question_id)
             question.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
+            return self.success(msg="删除成功")
         except ChoiceQuestion.DoesNotExist:
-            return Response({"error": "题目不存在"}, status=status.HTTP_404_NOT_FOUND)
+            return self.error(msg="题目不存在")
 
 
 class ChoiceQuestionSubmissionAPI(CSRFExemptAPIView):
@@ -536,3 +537,38 @@ class ChoiceQuestionStatsAPI(CSRFExemptAPIView):
             'accuracy': round(total_correct / total_submitted * 100, 2) if total_submitted > 0 else 0,
             'category_stats': category_stats
         })
+
+
+class ChoiceQuestionImportAPI(CSRFExemptAPIView):
+    """选择题导入API"""
+    
+    @super_admin_required
+    def post(self, request):
+        """批量导入选择题"""
+        try:
+            # 准备数据
+            import_data = {
+                'questions': request.data.get('questions', []),
+                'category_id': request.data.get('category_id'),
+                'created_by': request.user
+            }
+            
+            if not import_data['questions']:
+                return self.error(msg="导入数据不能为空")
+            
+            # 使用导入序列化器验证和创建
+            serializer = ChoiceQuestionImportSerializer(data=import_data)
+            if serializer.is_valid():
+                with transaction.atomic():
+                    result = serializer.create(serializer.validated_data)
+                    
+                return self.success({
+                    'success_count': result['success_count'],
+                    'total_count': result['total_count'],
+                    'error_list': result['errors']
+                })
+            else:
+                return self.error(msg=f"数据验证失败: {serializer.errors}")
+            
+        except Exception as e:
+            return self.error(msg=f"导入失败: {str(e)}")

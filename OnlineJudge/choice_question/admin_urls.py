@@ -9,6 +9,7 @@ from .admin_views import (
     ChoiceQuestionCategoryAdminAPI,
     ChoiceQuestionTagAdminAPI
 )
+from .views import ChoiceQuestionImportAPI
 
 app_name = 'choice_question_admin'
 
@@ -16,9 +17,12 @@ urlpatterns = [
     # 选择题管理
     re_path(r"^choice_question/?$", ChoiceQuestionAdminAPI.as_view(), name="choice_question_admin"),
     
+    # 选择题导入
+    re_path(r"^choice_question/import/?$", ChoiceQuestionImportAPI.as_view(), name="choice_question_import"),
+    
     # 分类管理
-    re_path(r"^choice_question/category/?$", ChoiceQuestionCategoryAdminAPI.as_view(), name="choice_question_category_admin"),
+    re_path(r"^choice_question/categories/?$", ChoiceQuestionCategoryAdminAPI.as_view(), name="choice_question_categories_admin"),
     
     # 标签管理
-    re_path(r"^choice_question/tag/?$", ChoiceQuestionTagAdminAPI.as_view(), name="choice_question_tag_admin"),
+    re_path(r"^choice_question/tags/?$", ChoiceQuestionTagAdminAPI.as_view(), name="choice_question_tags_admin"),
 ]

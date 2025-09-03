@@ -1,0 +1,203 @@
+{
+  "name": "restart_metaseek_project",
+  "description": "MetaSeekOJ项目管理工具集 - 提供多种重启方式和项目管理功能",
+  "version": "2.0.0",
+  "author": "MetaSeekOJ Team",
+  "tools": [
+    {
+      "name": "quick_restart",
+      "description": "快速重启（推荐）- 使用优化的shell脚本快速重启项目",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "verbose": {
+            "type": "boolean",
+            "description": "是否显示详细输出",
+            "default": true
+          }
+        }
+      },
+      "handler": {
+        "type": "script",
+        "path": "/home/metaspeekoj/restart.sh",
+        "interpreter": "bash"
+      }
+    },
+    {
+      "name": "python_restart",
+      "description": "Python版本重启 - 使用Python脚本进行详细的进程管理和重启",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "force": {
+            "type": "boolean",
+            "description": "是否强制重启，即使服务正在运行",
+            "default": true
+          },
+          "wait_time": {
+            "type": "integer",
+            "description": "服务启动后的等待时间（秒）",
+            "default": 10,
+            "minimum": 5,
+            "maximum": 30
+          }
+        }
+      },
+      "handler": {
+        "type": "script",
+        "path": "/home/metaspeekoj/restart_project.py",
+        "interpreter": "python3"
+      }
+    },
+    {
+      "name": "alias_restart",
+      "description": "别名重启 - 加载项目管理别名并使用restart-project命令",
+      "inputSchema": {
+        "type": "object",
+        "properties": {}
+      },
+      "handler": {
+        "type": "command",
+        "command": "source /home/metaspeekoj/restart_alias.sh && restart-project"
+      }
+    },
+    {
+      "name": "load_aliases",
+      "description": "加载项目管理别名 - 为当前会话加载所有项目管理别名",
+      "inputSchema": {
+        "type": "object",
+        "properties": {}
+      },
+      "handler": {
+        "type": "script",
+        "path": "/home/metaspeekoj/restart_alias.sh",
+        "interpreter": "bash"
+      }
+    },
+    {
+      "name": "check_project_status",
+      "description": "检查项目状态 - 详细检查前端、后端和Redis服务状态",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "detailed": {
+            "type": "boolean",
+            "description": "是否显示详细的进程信息",
+            "default": false
+          }
+        }
+      },
+      "handler": {
+        "type": "command",
+        "command": "echo '=== MetaSeekOJ 服务状态检查 ===' && echo '前端服务 (8080):' && (netstat -tuln | grep ':8080 ' && echo '✓ 运行中' || echo '✗ 未运行') && echo '后端服务 (8086):' && (netstat -tuln | grep ':8086 ' && echo '✓ 运行中' || echo '✗ 未运行') && echo 'Redis服务:' && (redis-cli ping 2>/dev/null && echo '✓ 运行中' || echo '✗ 未运行')"
+      }
+    },
+    {
+      "name": "project_logs",
+      "description": "查看项目日志 - 显示前端和后端服务的最新日志",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "lines": {
+            "type": "integer",
+            "description": "显示的日志行数",
+            "default": 20,
+            "minimum": 10,
+            "maximum": 100
+          },
+          "service": {
+            "type": "string",
+            "description": "指定查看的服务日志",
+            "enum": ["backend", "frontend", "both"],
+            "default": "both"
+          }
+        }
+      },
+      "handler": {
+        "type": "command",
+        "command": "echo '=== 后端日志 ===' && tail -n 20 /tmp/backend.log 2>/dev/null || echo '后端日志文件不存在' && echo '\n=== 前端日志 ===' && tail -n 20 /tmp/frontend.log 2>/dev/null || echo '前端日志文件不存在'"
+      }
+    },
+    {
+      "name": "start_redis",
+      "description": "启动Redis服务 - 启动Redis缓存服务",
+      "inputSchema": {
+        "type": "object",
+        "properties": {}
+      },
+      "handler": {
+        "type": "command",
+        "command": "redis-server --daemonize yes && echo 'Redis服务已启动' && redis-cli ping"
+      }
+    }
+  ],
+  "shortcuts": {
+    "快速重启": "quick_restart",
+    "Python重启": "python_restart",
+    "别名重启": "alias_restart",
+    "加载别名": "load_aliases",
+    "检查状态": "check_project_status",
+    "查看日志": "project_logs",
+    "启动Redis": "start_redis"
+  },
+  "usage": {
+    "description": "MetaSeekOJ项目管理工具提供多种重启方式和管理功能",
+    "recommended_workflow": [
+      "1. 使用 quick_restart 进行日常重启（推荐）",
+      "2. 使用 python_restart 进行详细的进程管理",
+      "3. 使用 load_aliases 加载别名后可使用 alias_restart",
+      "4. 使用 check_project_status 检查服务状态",
+      "5. 使用 project_logs 查看服务日志"
+    ],
+    "examples": [
+      {
+        "description": "快速重启项目（推荐）",
+        "command": "quick_restart",
+        "parameters": {"verbose": true}
+      },
+      {
+        "description": "Python版本重启",
+        "command": "python_restart",
+        "parameters": {"force": true, "wait_time": 10}
+      },
+      {
+        "description": "使用别名重启",
+        "command": "alias_restart"
+      },
+      {
+        "description": "检查服务状态",
+        "command": "check_project_status",
+        "parameters": {"detailed": true}
+      },
+      {
+        "description": "查看项目日志",
+        "command": "project_logs",
+        "parameters": {"lines": 30, "service": "both"}
+      },
+      {
+        "description": "启动Redis服务",
+        "command": "start_redis"
+      }
+    ]
+  },
+  "commands_reference": {
+    "shell_commands": [
+      "# 快速重启（推荐）",
+      "./restart.sh",
+      "",
+      "# Python版本重启",
+      "python3 restart_project.py",
+      "",
+      "# 使用别名（需先加载）",
+      "source restart_alias.sh",
+      "restart-project",
+      "",
+      "# 检查服务状态",
+      "netstat -tuln | grep -E ':(8080|8086)'",
+      "",
+      "# 查看日志",
+      "tail -f /tmp/backend.log",
+      "tail -f /tmp/frontend.log"
+    ]
+  }
+}

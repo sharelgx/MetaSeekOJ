@@ -1,0 +1,28 @@
+[
+  {
+    "id": "GESP_2_2024_3_1",
+    "type": "single",
+    "question": "下列关于C++语言变量的叙述，正确的是( )｡E=mc²;∫(a到b) [f(x)·g'(x)]dx = f(b)g(b) - f(a)g(a) - ∫(a到b) [f'(x)·g(x)]dx",
+    "options": [
+      "A. 变量可以没有定义",
+      "B. 对一个没有定义的变量赋值，相当于定义了一个新变量", 
+      "C. 执行赋值语句后，变量的类型可能会变化",
+      "D. 执行赋值语句后，变量的值可能不会变化"
+    ],
+    "correct": "D",
+    "explanation": "变量需先定义后使用（排除A、B），赋值不改变类型（排除C）。若赋值前后值相同，值不变（如a=5; a=5;），故D正确。"
+  },
+  {
+    "id": "GESP_2_2024_3_2",
+    "type": "single",
+    "question": "代码执行完结果是：<pre>\n#include<bits/stdc++.h>\nusing namespace std;\nint main() {\n    int n;\n    cin >> n;\n    for (int i = 1; i * i * i <= n; i++) {\n        if (i * i * i == n) {\n            cout << \"Yes\" << endl;\n            return 0;\n        }\n    }\n    cout << \"No\" << endl;\n    return 0;\n}\n</pre>",
+    "options": [
+      "A. array[min] > array[j]",
+      "B. array[min] > array[i]",
+      "C. min > array[j]",
+      "D. min > array[i]"
+    ],
+    "correct": "A",
+    "explanation": "本题属于考察选择排序算法；选择排序每次会从待排序的数据元素中选出最小的一个元素，存放在序列的起始位置，也就是对于所有的i+1<=j<n，找到最小的array[j]。"
+  }
+]

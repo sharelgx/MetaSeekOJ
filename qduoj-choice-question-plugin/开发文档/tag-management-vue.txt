@@ -1,0 +1,199 @@
+<!-- OnlineJudgeFE/src/pages/admin/views/choice_question/TagManagement.vue -->
+
+<template>
+  <div class="tag-management">
+    <Panel title="选择题标签管理">
+      <div slot="header">
+        <el-button type="primary" size="small" @click="showCreateDialog" icon="el-icon-plus">
+          添加标签
+        </el-button>
+        <el-button 
+          type="danger" 
+          size="small" 
+          @click="batchDelete" 
+          :disabled="selectedTags.length === 0"
+          icon="el-icon-delete">
+          批量删除 ({{ selectedTags.length }})
+        </el-button>
+      </div>
+      
+      <!-- 标签类型筛选 -->
+      <div class="filter-section">
+        <el-radio-group v-model="filterType" @change="getTags">
+          <el-radio-button label="">全部</el-radio-button>
+          <el-radio-button label="difficulty">难度</el-radio-button>
+          <el-radio-button label="subject">学科</el-radio-button>
+          <el-radio-button label="knowledge">知识点</el-radio-button>
+          <el-radio-button label="custom">自定义</el-radio-button>
+        </el-radio-group>
+        
+        <el-input
+          v-model="searchKeyword"
+          placeholder="搜索标签名称"
+          style="width: 200px; margin-left: 20px"
+          @keyup.enter="getTags"
+          clearable
+          @clear="getTags">
+          <el-button slot="append" icon="el-icon-search" @click="getTags"></el-button>
+        </el-input>
+      </div>
+      
+      <!-- 标签列表 -->
+      <el-table
+        :data="tagList"
+        @selection-change="handleSelectionChange"
+        v-loading="loading"
+        style="width: 100%">
+        
+        <el-table-column type="selection" width="55"></el-table-column>
+        
+        <el-table-column prop="name" label="标签名称" min-width="150">
+          <template slot-scope="scope">
+            <el-tag 
+              :style="{ backgroundColor: scope.row.color + '20', color: scope.row.color, border: `1px solid ${scope.row.color}` }"
+              size="medium">
+              {{ scope.row.name }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        
+        <el-table-column prop="type" label="类型" width="120">
+          <template slot-scope="scope">
+            <el-tag :type="getTypeTagType(scope.row.type)" size="small">
+              {{ getTypeLabel(scope.row.type) }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        
+        <el-table-column prop="description" label="描述" min-width="200">
+          <template slot-scope="scope">
+            {{ scope.row.description || '-' }}
+          </template>
+        </el-table-column>
+        
+        <el-table-column prop="color" label="颜色" width="100" align="center">
+          <template slot-scope="scope">
+            <div 
+              class="color-block" 
+              :style="{ backgroundColor: scope.row.color }"
+              @click="showColorPicker(scope.row)">
+            </div>
+          </template>
+        </el-table-column>
+        
+        <el-table-column prop="question_count" label="题目数" width="100" align="center">
+          <template slot-scope="scope">
+            <el-button type="text" @click="showRelatedQuestions(scope.row)">
+              {{ scope.row.question_count || 0 }}
+            </el-button>
+          </template>
+        </el-table-column>
+        
+        <el-table-column prop="is_enabled" label="状态" width="100" align="center">
+          <template slot-scope="scope">
+            <el-switch
+              v-model="scope.row.is_enabled"
+              @change="toggleEnabled(scope.row)">
+            </el-switch>
+          </template>
+        </el-table-column>
+        
+        <el-table-column prop="created_time" label="创建时间" width="160">
+          <template slot-scope="scope">
+            {{ scope.row.created_time | localtime }}
+          </template>
+        </el-table-column>
+        
+        <el-table-column label="操作" width="150" fixed="right">
+          <template slot-scope="scope">
+            <el-button type="text" size="small" @click="showEditDialog(scope.row)">
+              编辑
+            </el-button>
+            <el-button type="text" size="small" style="color: #F56C6C" @click="deleteTag(scope.row)">
+              删除
+            </el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+      
+      <!-- 分页 -->
+      <div class="pagination">
+        <el-pagination
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+          :current-page="currentPage"
+          :page-sizes="[10, 20, 50, 100]"
+          :page-size="pageSize"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="total">
+        </el-pagination>
+      </div>
+    </Panel>
+    
+    <!-- 创建/编辑对话框 -->
+    <el-dialog 
+      :title="dialogTitle" 
+      :visible.sync="dialogVisible"
+      width="500px"
+      @close="resetForm">
+      <el-form :model="tagForm" :rules="rules" ref="tagForm" label-width="100px">
+        <el-form-item label="标签名称" prop="name">
+          <el-input v-model="tagForm.name" placeholder="请输入标签名称"></el-input>
+        </el-form-item>
+        
+        <el-form-item label="标签类型" prop="type">
+          <el-select v-model="tagForm.type" placeholder="请选择标签类型" style="width: 100%">
+            <el-option label="难度" value="difficulty"></el-option>
+            <el-option label="学科" value="subject"></el-option>
+            <el-option label="知识点" value="knowledge"></el-option>
+            <el-option label="自定义" value="custom"></el-option>
+          </el-select>
+        </el-form-item>
+        
+        <el-form-item label="标签颜色" prop="color">
+          <el-color-picker v-model="tagForm.color"></el-color-picker>
+          <span style="margin-left: 10px; color: #909399">{{ tagForm.color }}</span>
+        </el-form-item>
+        
+        <el-form-item label="标签描述">
+          <el-input 
+            type="textarea" 
+            v-model="tagForm.description" 
+            :rows="3"
+            placeholder="请输入标签描述">
+          </el-input>
+        </el-form-item>
+        
+        <el-form-item label="是否启用">
+          <el-switch v-model="tagForm.is_enabled"></el-switch>
+        </el-form-item>
+      </el-form>
+      
+      <span slot="footer">
+        <el-button @click="dialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="submitTag" :loading="submitLoading">
+          {{ isEdit ? '更新' : '创建' }}
+        </el-button>
+      </span>
+    </el-dialog>
+    
+    <!-- 颜色选择器弹窗 -->
+    <el-dialog 
+      title="修改标签颜色" 
+      :visible.sync="colorPickerVisible"
+      width="300px">
+      <el-color-picker 
+        v-model="tempColor" 
+        show-alpha
+        :predefine="predefineColors">
+      </el-color-picker>
+      <span slot="footer">
+        <el-button @click="colorPickerVisible = false">取消</el-button>
+        <el-button type="primary" @click="updateTagColor">确定</el-button>
+      </span>
+    </el-dialog>
+  </div>
+</template>
+
+<script>
+import api from '@/admin

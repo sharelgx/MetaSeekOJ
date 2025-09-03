@@ -169,7 +169,15 @@ class ChoiceQuestionCategoryAdminAPI(APIView):
     
     @problem_permission_required
     def get(self, request):
-        """获取分类列表"""
+        """获取分类列表或详情"""
+        category_id = request.GET.get("id")
+        if category_id:
+            try:
+                category = Category.objects.get(id=category_id)
+                return self.success(ChoiceQuestionCategorySerializer(category).data)
+            except Category.DoesNotExist:
+                return self.error("Category does not exist")
+        
         categories = Category.objects.all().order_by('name')
         return self.success(ChoiceQuestionCategorySerializer(categories, many=True).data)
     
@@ -181,6 +189,38 @@ class ChoiceQuestionCategoryAdminAPI(APIView):
             category = serializer.save()
             return self.success(ChoiceQuestionCategorySerializer(category).data)
         return self.error(serializer.errors)
+    
+    @problem_permission_required
+    def put(self, request):
+        """更新分类"""
+        category_id = request.GET.get("id")
+        if not category_id:
+            return self.error("Category ID required")
+        
+        try:
+            category = Category.objects.get(id=category_id)
+        except Category.DoesNotExist:
+            return self.error("Category does not exist")
+        
+        serializer = ChoiceQuestionCategorySerializer(category, data=request.data, partial=True)
+        if serializer.is_valid():
+            category = serializer.save()
+            return self.success(ChoiceQuestionCategorySerializer(category).data)
+        return self.error(serializer.errors)
+    
+    @super_admin_required
+    def delete(self, request):
+        """删除分类"""
+        category_id = request.GET.get("id")
+        if not category_id:
+            return self.error("Category ID required")
+        
+        try:
+            category = Category.objects.get(id=category_id)
+            category.delete()
+            return self.success("删除成功")
+        except Category.DoesNotExist:
+            return self.error("Category does not exist")
 
 
 class ChoiceQuestionTagAdminAPI(APIView):
@@ -188,7 +228,15 @@ class ChoiceQuestionTagAdminAPI(APIView):
     
     @problem_permission_required
     def get(self, request):
-        """获取标签列表"""
+        """获取标签列表或详情"""
+        tag_id = request.GET.get("id")
+        if tag_id:
+            try:
+                tag = QuestionTag.objects.get(id=tag_id)
+                return self.success(ChoiceQuestionTagSerializer(tag).data)
+            except QuestionTag.DoesNotExist:
+                return self.error("Tag does not exist")
+        
         tags = QuestionTag.objects.all().order_by('name')
         return self.success(ChoiceQuestionTagSerializer(tags, many=True).data)
     
@@ -200,3 +248,35 @@ class ChoiceQuestionTagAdminAPI(APIView):
             tag = serializer.save()
             return self.success(ChoiceQuestionTagSerializer(tag).data)
         return self.error(serializer.errors)
+    
+    @problem_permission_required
+    def put(self, request):
+        """更新标签"""
+        tag_id = request.GET.get("id")
+        if not tag_id:
+            return self.error("Tag ID required")
+        
+        try:
+            tag = QuestionTag.objects.get(id=tag_id)
+        except QuestionTag.DoesNotExist:
+            return self.error("Tag does not exist")
+        
+        serializer = ChoiceQuestionTagSerializer(tag, data=request.data, partial=True)
+        if serializer.is_valid():
+            tag = serializer.save()
+            return self.success(ChoiceQuestionTagSerializer(tag).data)
+        return self.error(serializer.errors)
+    
+    @super_admin_required
+    def delete(self, request):
+        """删除标签"""
+        tag_id = request.GET.get("id")
+        if not tag_id:
+            return self.error("Tag ID required")
+        
+        try:
+            tag = QuestionTag.objects.get(id=tag_id)
+            tag.delete()
+            return self.success("删除成功")
+        except QuestionTag.DoesNotExist:
+            return self.error("Tag does not exist")
