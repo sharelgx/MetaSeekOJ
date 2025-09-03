@@ -36,13 +36,13 @@
             </Select>
           </Col>
           <Col :span="4">
-            <Select v-model="selectedTag" placeholder="选择标签" clearable @on-change="handleTagChange">
+            <Select v-model="selectedTag" placeholder="标签" clearable @on-change="handleTagChange" @on-open="onTagSelectOpen" ref="tagSelect">
               <Option 
                 v-for="tag in tags" 
                 :key="tag.id"
                 :value="tag.id"
               >
-                <Tag :color="tag.color">{{ tag.name }}</Tag>
+                <Tag :color="tag.color" @click="selectTag(tag.id)" style="cursor: pointer; display: block; width: 100%; padding: 4px 8px; margin: 0;">{{ tag.name }}</Tag>
               </Option>
             </Select>
           </Col>
@@ -261,8 +261,11 @@ export default {
     }
   },
   
-  mounted() {
-    this.init()
+  async mounted() {
+    // 初始化数据
+    await this.getCategoryList()
+    await this.getTagList()
+    await this.getQuestionList()
   },
   
   methods: {
@@ -287,7 +290,7 @@ export default {
     async getTagList() {
       try {
         const res = await api.getTagList()
-        this.tags = res.data.results || []
+        this.tags = res.data.data.results || []
       } catch (err) {
         console.error('获取标签列表失败:', err)
         this.tags = []
@@ -359,8 +362,30 @@ export default {
     },
     
     handleTagChange() {
+      console.log('标签选择变化事件触发')
+      console.log('选中的标签ID:', this.selectedTag)
+      console.log('当前标签列表:', this.tags)
       this.currentPage = 1
       this.getQuestionList()
+    },
+    
+    onTagSelectOpen() {
+      console.log('标签下拉框打开')
+      console.log('tags数组:', this.tags)
+      console.log('tags长度:', this.tags.length)
+    },
+    
+    selectTag(tagId) {
+      console.log('Tag被点击，标签ID:', tagId)
+      this.selectedTag = tagId
+      this.handleTagChange()
+      // 关闭下拉框
+      this.$nextTick(() => {
+        const selectComponent = this.$refs.tagSelect
+        if (selectComponent) {
+          selectComponent.hideMenu()
+        }
+      })
     },
     
     handleDifficultyChange() {
