@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图片尺寸控制测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            line-height: 1.6;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .test-section h2 {
+            color: #333;
+            margin-top: 0;
+        }
+        
+        /* 模拟前台选择题详情页面的样式 */
+        .content img {
+            max-width: 400px;
+            width: auto;
+            height: auto;
+        }
+        
+        .option-content img {
+            max-width: 400px;
+            width: auto;
+            height: auto;
+        }
+        
+        /* 原始图片样式（用于对比） */
+        .original img {
+            /* 不设置任何限制 */
+        }
+        
+        .comparison {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .comparison > div {
+            flex: 1;
+            border: 1px solid #ccc;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>图片尺寸控制测试</h1>
+    
+    <div class="test-section">
+        <h2>1. 应用CSS控制后的图片（max-width: 400px）</h2>
+        <div class="content">
+            <p><img alt="推荐养生茶饮.png" src="http://localhost:8086/public/upload/46f6bf6dad.png" width="1328" height="1328"><br></p>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>2. 原始图片（无CSS控制）</h2>
+        <div class="original">
+            <p><img alt="推荐养生茶饮.png" src="http://localhost:8086/public/upload/46f6bf6dad.png" width="1328" height="1328"><br></p>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>3. 对比效果</h2>
+        <div class="comparison">
+            <div>
+                <h3>控制后（400px限制）</h3>
+                <div class="content">
+                    <img alt="推荐养生茶饮.png" src="http://localhost:8086/public/upload/46f6bf6dad.png" width="1328" height="1328">
+                </div>
+            </div>
+            <div>
+                <h3>原始尺寸</h3>
+                <div class="original">
+                    <img alt="推荐养生茶饮.png" src="http://localhost:8086/public/upload/46f6bf6dad.png" width="1328" height="1328">
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>4. 选项内容中的图片测试</h2>
+        <div class="option-content">
+            <p>这是一个选项内容示例：</p>
+            <p><img alt="推荐养生茶饮.png" src="http://localhost:8086/public/upload/46f6bf6dad.png" width="1328" height="1328"></p>
+        </div>
+    </div>
+    
+    <script>
+        // 检查图片加载状态
+        document.addEventListener('DOMContentLoaded', function() {
+            const images = document.querySelectorAll('img');
+            images.forEach((img, index) => {
+                img.onload = function() {
+                    console.log(`图片 ${index + 1} 加载完成，实际显示尺寸: ${this.offsetWidth}x${this.offsetHeight}`);
+                };
+                img.onerror = function() {
+                    console.error(`图片 ${index + 1} 加载失败`);
+                };
+            });
+        });
+    </script>
+</body>
+</html>

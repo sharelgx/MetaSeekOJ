@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>选择题列表测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .table th, .table td {
+            border: 1px solid #e8eaec;
+            padding: 12px 8px;
+            text-align: left;
+            vertical-align: middle;
+        }
+        .table th {
+            background-color: #f8f8f9;
+            font-weight: bold;
+        }
+        .table tr:hover {
+            background-color: #f5f7fa;
+        }
+        .title-cell {
+            width: 300px;
+        }
+        .title-main {
+            font-weight: bold;
+            margin-bottom: 4px;
+            font-size: 14px;
+        }
+        .title-sub {
+            font-size: 12px;
+            color: #999;
+        }
+        .tag {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 12px;
+            margin-right: 4px;
+        }
+        .tag-success { background: #f0f9ff; color: #19be6b; }
+        .tag-warning { background: #fff7e6; color: #ff9900; }
+        .tag-error { background: #fff2f0; color: #ed4014; }
+        .tag-blue { background: #e6f7ff; color: #2d8cf0; }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>选择题列表布局测试</h1>
+        <p>这是修复后的表格布局预览：</p>
+        
+        <table class="table">
+            <thead>
+                <tr>
+                    <th style="width: 80px; text-align: center;">ID</th>
+                    <th class="title-cell">题目</th>
+                    <th style="width: 120px;">分类</th>
+                    <th style="width: 150px;">标签</th>
+                    <th style="width: 80px; text-align: center;">难度</th>
+                    <th style="width: 80px; text-align: center;">题型</th>
+                    <th style="width: 80px; text-align: center;">分值</th>
+                    <th style="width: 150px;">创建时间</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="text-align: center;">1007</td>
+                    <td class="title-cell">
+                        <div class="title-main">dasfasf</div>
+                        <div class="title-sub">多选题 | 难度: easy | 分数: 10</div>
+                    </td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td style="text-align: center;">
+                        <span class="tag tag-success">简单</span>
+                    </td>
+                    <td style="text-align: center;">多选</td>
+                    <td style="text-align: center;">10</td>
+                    <td>2025/08/30 17:43</td>
+                </tr>
+                <tr>
+                    <td style="text-align: center;">1006</td>
+                    <td class="title-cell">
+                        <div class="title-main">fasdffsa</div>
+                        <div class="title-sub">多选题 | 难度: easy | 分数: 10</div>
+                    </td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td style="text-align: center;">
+                        <span class="tag tag-success">简单</span>
+                    </td>
+                    <td style="text-align: center;">多选</td>
+                    <td style="text-align: center;">10</td>
+                    <td>2025/08/30 15:05</td>
+                </tr>
+                <tr>
+                    <td style="text-align: center;">1005</td>
+                    <td class="title-cell">
+                        <div class="title-main">dsafasdf</div>
+                        <div class="title-sub">多选题 | 难度: easy | 分数: 10</div>
+                    </td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td style="text-align: center;">
+                        <span class="tag tag-success">简单</span>
+                    </td>
+                    <td style="text-align: center;">多选</td>
+                    <td style="text-align: center;">10</td>
+                    <td>2025/08/30 14:55</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <h2>修复内容总结</h2>
+        <ul>
+            <li>✅ 修复了题目列宽度问题，从 minWidth: 200 改为 width: 300</li>
+            <li>✅ 添加了题目标题的空值处理，避免显示空白</li>
+            <li>✅ 优化了表格行高和内边距，提升可读性</li>
+            <li>✅ 添加了鼠标悬停效果，改善用户体验</li>
+            <li>✅ 确保了所有列的对齐方式正确</li>
+        </ul>
+    </div>
+</body>
+</html>

@@ -1,0 +1,33 @@
+{
+  "questions": [
+    {
+      "question": "这是一个正确的题目",
+      "type": "single",
+      "options": ["选项A", "选项B", "选项C"],
+      "correct": "A"
+    },
+    {
+      "question": "这个题目缺少type字段",
+      "options": ["选项A", "选项B"],
+      "correct": "A"
+    },
+    {
+      "question": "这个题目答案超出范围",
+      "type": "single",
+      "options": ["选项A", "选项B"],
+      "correct": "C"
+    },
+    {
+      "question": "这个单选题有多个答案",
+      "type": "single",
+      "options": ["选项A", "选项B", "选项C"],
+      "correct": "A,B"
+    },
+    {
+      "question": "",
+      "type": "single",
+      "options": ["选项A", "选项B"],
+      "correct": "A"
+    }
+  ]
+}

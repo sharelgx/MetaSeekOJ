@@ -8,6 +8,17 @@ from .views import (
     WrongQuestionAPI,
     ChoiceQuestionStatsAPI
 )
+from .api.exam import (
+    exam_paper_list,
+    exam_paper_detail,
+    exam_paper_generate_preview,
+    exam_session_create,
+    exam_session_start,
+    exam_session_detail,
+    exam_session_answer,
+    exam_session_submit,
+    exam_session_list
+)
 
 app_name = 'choice_question'
 
@@ -37,4 +48,17 @@ urlpatterns = [
     re_path(r"^statistics/?$", ChoiceQuestionStatsAPI.as_view(), name="statistics"),
     re_path(r"^statistics/user/?$", ChoiceQuestionStatsAPI.as_view(), name="user-statistics"),
     re_path(r"^statistics/admin/?$", ChoiceQuestionStatsAPI.as_view(), name="admin-statistics"),
+    
+    # 试卷管理
+    re_path(r"^exam-papers/?$", exam_paper_list, name="exam-paper-list"),
+    re_path(r"^exam-papers/(?P<paper_id>\d+)/?$", exam_paper_detail, name="exam-paper-detail"),
+    re_path(r"^exam-papers/generate-preview/?$", exam_paper_generate_preview, name="exam-paper-generate-preview"),
+    
+    # 考试会话管理
+    re_path(r"^exam-sessions/?$", exam_session_list, name="exam-session-list"),
+    re_path(r"^exam-sessions/create/?$", exam_session_create, name="exam-session-create"),
+    re_path(r"^exam-sessions/(?P<session_id>\d+)/?$", exam_session_detail, name="exam-session-detail"),
+    re_path(r"^exam-sessions/(?P<session_id>\d+)/start/?$", exam_session_start, name="exam-session-start"),
+    re_path(r"^exam-sessions/(?P<session_id>\d+)/answer/?$", exam_session_answer, name="exam-session-answer"),
+    re_path(r"^exam-sessions/(?P<session_id>\d+)/submit/?$", exam_session_submit, name="exam-session-submit"),
 ]

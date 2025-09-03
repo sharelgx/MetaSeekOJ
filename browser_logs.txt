@@ -1,0 +1,758 @@
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T14:25:49.876Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/PracticeMode.vue
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T14:26:09.865Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/PracticeMode.vue
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T14:25:49.805Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/PracticeMode.vue
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T14:26:10.763Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/PracticeMode.vue
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T14:25:49.409Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/PracticeMode.vue
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T14:29:24.247Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/PracticeMode.vue
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T14:29:39.795Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/PracticeMode.vue
+Target URL: http://localhost:8080
+[STDERR] node:internal/modules/cjs/loader:1143
+  throw err;
+  ^
+
+Error: Cannot find module '/tmp/capture_logs.js'
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1140:15)
+    at Module._load (node:internal/modules/cjs/loader:981:27)
+    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:128:12)
+    at node:internal/main/run_main_module:28:49 {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: []
+}
+[STDERR] 
+Node.js v18.20.8
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T14:29:23.270Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/PracticeMode.vue
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T14:29:38.832Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/PracticeMode.vue
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T14:31:49.888Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/PracticeMode.vue
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T14:31:49.720Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/PracticeMode.vue
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T14:32:44.146Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/PracticeMode.vue
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T14:32:43.277Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/PracticeMode.vue
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T14:34:52.593Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/PracticeMode.vue
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T14:34:52.753Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/PracticeMode.vue
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T14:35:44.834Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/PracticeMode.vue
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T14:35:45.077Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/PracticeMode.vue
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T14:35:54.849Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/PracticeMode.vue
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T14:35:54.670Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/PracticeMode.vue
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T14:36:33.544Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/PracticeMode.vue
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T14:36:32.334Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/PracticeMode.vue
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T14:36:44.423Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/PracticeMode.vue
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T14:36:45.152Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/PracticeMode.vue
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T14:45:22.830Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/router/routes.js
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T14:45:23.153Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/router/routes.js
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T14:47:23.733Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/ChoiceQuestionList.vue
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T14:47:23.913Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/ChoiceQuestionList.vue
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T14:53:24.472Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/ChoiceQuestionDetail.vue
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T14:53:24.814Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/ChoiceQuestionDetail.vue
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T14:54:05.853Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/ChoiceQuestionDetail.vue
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T14:54:04.104Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/ChoiceQuestionDetail.vue
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T14:58:57.775Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/api.js
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T14:58:58.064Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/api.js
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T14:59:21.707Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/ChoiceQuestionDetail.vue
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T14:59:21.909Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/ChoiceQuestionDetail.vue
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T15:02:20.940Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/ExamPaper.vue
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T15:02:20.496Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/ExamPaper.vue
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T15:02:31.787Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/ExamPaper.vue
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T15:02:31.381Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/ExamPaper.vue
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T15:02:49.850Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/ExamPaper.vue
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T15:02:49.401Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/ExamPaper.vue
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T15:08:11.952Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/ExamPaper.vue
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T15:08:11.218Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/ExamPaper.vue
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T15:08:23.781Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/ExamPaper.vue
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T15:08:24.029Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/ExamPaper.vue
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T15:08:52.468Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/ExamPaper.vue
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T15:08:51.976Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/ExamPaper.vue
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T15:09:17.615Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/ExamPaper.vue
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T15:09:18.100Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/ExamPaper.vue
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T15:15:18.435Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/ChoiceQuestionDetail.vue
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T15:15:23.151Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/ChoiceQuestionDetail.vue
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T15:15:37.837Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/ChoiceQuestionDetail.vue
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T15:15:36.005Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/ChoiceQuestionDetail.vue
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T15:16:19.337Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/ChoiceQuestionDetail.vue
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T15:16:18.737Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/ChoiceQuestionDetail.vue
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T15:17:00.460Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/ChoiceQuestionDetail.vue
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T15:17:01.869Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/ChoiceQuestionDetail.vue
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T15:17:26.133Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/ChoiceQuestionDetail.vue
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T15:17:26.923Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/ChoiceQuestionDetail.vue
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T15:19:02.672Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/ChoiceQuestionDetail.vue
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+[startGroup] %c[HMR] bundle has 1 errors color: #ff0000;
+[log] %c./node_modules/babel-loader/lib!./node_modules/vue-loader/lib/selector.js?type=script&index=0!./src/pages/oj/views/choice-question/ChoiceQuestionDetail.vue
+Module build failed: SyntaxError: Unexpected token (472:41)
+
+  470 |       console.log('是否多选:', isMultiple)
+  471 |       console.log('是否已提交:', this.hasSubmitted)
+> 472 |       console.log('题目类型:', this.question?.question_type)
+      |                                          ^
+  473 |       
+  474 |       if (this.hasSubmitted) {
+  475 |         console.log('已提交，忽略点击')
+ color: #ff0000;
+[endGroup] console.groupEnd
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T15:19:05.506Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/ChoiceQuestionDetail.vue
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+[startGroup] %c[HMR] bundle has 1 errors color: #ff0000;
+[log] %c./node_modules/babel-loader/lib!./node_modules/vue-loader/lib/selector.js?type=script&index=0!./src/pages/oj/views/choice-question/ChoiceQuestionDetail.vue
+Module build failed: SyntaxError: Unexpected token (472:41)
+
+  470 |       console.log('是否多选:', isMultiple)
+  471 |       console.log('是否已提交:', this.hasSubmitted)
+> 472 |       console.log('题目类型:', this.question?.question_type)
+      |                                          ^
+  473 |       
+  474 |       if (this.hasSubmitted) {
+  475 |         console.log('已提交，忽略点击')
+ color: #ff0000;
+[endGroup] console.groupEnd
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T15:19:32.973Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/ChoiceQuestionDetail.vue
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T15:19:32.354Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/ChoiceQuestionDetail.vue
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T15:20:36.414Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/ChoiceQuestionDetail.vue
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T15:20:36.243Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/ChoiceQuestionDetail.vue
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T15:21:04.808Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/ChoiceQuestionDetail.vue
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T15:21:06.071Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/ChoiceQuestionDetail.vue
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T15:24:47.170Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/ChoiceQuestionDetail.vue
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T15:24:47.013Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/ChoiceQuestionDetail.vue
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T15:25:01.278Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/ChoiceQuestionDetail.vue
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T15:25:01.344Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/ChoiceQuestionDetail.vue
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T15:25:00.603Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/ChoiceQuestionDetail.vue
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T15:29:36.814Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/ChoiceQuestionDetail.vue
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T15:29:36.504Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/ChoiceQuestionDetail.vue
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T15:29:47.065Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/ChoiceQuestionDetail.vue
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T15:29:47.436Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/ChoiceQuestionDetail.vue
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T15:40:47.297Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/ChoiceQuestionDetail.vue
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T15:40:46.873Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/ChoiceQuestionDetail.vue
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T15:41:04.468Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/ChoiceQuestionDetail.vue
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-02T15:41:04.194Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/ChoiceQuestionDetail.vue
+Target URL: http://localhost:8080
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===

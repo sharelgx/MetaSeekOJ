@@ -202,12 +202,14 @@ export default {
   
   methods: {
     async getQuestionDetail() {
+      console.log('开始加载题目详情...');
       try {
         const res = await api.getQuestionDetail(this.questionId)
+        console.log('题目数据:', res.data.data);
         this.question = res.data.data
       } catch (err) {
+        console.error('获取题目详情失败:', err);
         this.$Message.error('获取题目详情失败')
-        console.error(err)
       }
     },
     
@@ -300,6 +302,21 @@ export default {
   margin: 20px;
 }
 
+/* 更强制的图片样式重置 */
+.choice-question-detail .content img,
+.choice-question-detail .option-content img,
+.choice-question-detail .explanation .content img {
+  max-width: 400px !important;
+  max-height: 400px !important;
+  width: auto !important;
+  height: auto !important;
+  object-fit: contain;
+  display: block;
+  margin: 10px auto;
+  border: 1px solid #e8eaec;
+  border-radius: 4px;
+}
+
 .loading-container {
   text-align: center;
   padding: 100px 0;
@@ -378,6 +395,8 @@ export default {
   line-height: 1.5;
 }
 
+
+
 .submit-section {
   margin: 32px 0;
   text-align: center;
@@ -416,4 +435,6 @@ export default {
   border-radius: 4px;
   line-height: 1.6;
 }
+
+
 </style>

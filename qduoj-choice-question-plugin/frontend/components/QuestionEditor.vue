@@ -17,8 +17,8 @@
           <Col :span="12">
             <FormItem label="题目类型" prop="question_type">
               <Select v-model="form.question_type" @on-change="onQuestionTypeChange">
-                <Option value="single_choice">单选题</Option>
-                <Option value="multiple_choice">多选题</Option>
+                <Option value="single">单选题</Option>
+                <Option value="multiple">多选题</Option>
               </Select>
             </FormItem>
           </Col>
@@ -38,9 +38,9 @@
           <Col :span="8">
             <FormItem label="难度" prop="difficulty">
               <Select v-model="form.difficulty">
-                <Option value="简单">简单</Option>
-                <Option value="中等">中等</Option>
-                <Option value="困难">困难</Option>
+                <Option value="easy">简单</Option>
+                <Option value="medium">中等</Option>
+                <Option value="hard">困难</Option>
               </Select>
             </FormItem>
           </Col>
@@ -115,7 +115,11 @@
         <FormItem prop="content">
           <!-- 富文本编辑器 -->
           <div v-if="contentMode === 'rich'" class="rich-editor">
-            <div ref="richEditor" class="editor-container"></div>
+            <Simditor 
+              ref="simditor"
+              v-model="form.content"
+              :height="300"
+            />
           </div>
           
           <!-- Markdown编辑器 -->
@@ -293,7 +297,7 @@
           <h3>{{ form.title }}</h3>
           <div class="preview-meta">
             <Tag color="blue">{{ form.difficulty }}</Tag>
-            <Tag color="green">{{ form.question_type === 'single_choice' ? '单选题' : '多选题' }}</Tag>
+            <Tag color="green">{{ form.question_type === 'single' ? '单选题' : '多选题' }}</Tag>
             <Tag color="orange">{{ form.score }}分</Tag>
           </div>
         </div>
@@ -325,9 +329,13 @@
 <script>
 import api from '../api'
 import { marked } from 'marked'
+import Simditor from './Simditor.vue'
 
 export default {
   name: 'QuestionEditor',
+  components: {
+    Simditor
+  },
   props: {
     question: {
       type: Object,
@@ -343,8 +351,8 @@ export default {
       form: {
         title: '',
         content: '',
-        question_type: 'single_choice',
-        difficulty: '简单',
+        question_type: 'single',
+        difficulty: 'easy',
         score: 5,
         category: null,
         tags: [],
@@ -369,9 +377,6 @@ export default {
       // 选项数据
       categoryOptions: [],
       tagOptions: [],
-      
-      // 富文本编辑器实例
-      richEditor: null,
       
       // 表单验证规则
       rules: {
@@ -418,9 +423,7 @@ export default {
     this.init()
   },
   beforeDestroy() {
-    if (this.richEditor) {
-      this.richEditor.destroy()
-    }
+    // Simditor组件会自动处理销毁
   },
   methods: {
     async init() {
@@ -484,9 +487,7 @@ export default {
         ]
       }
       
-      if (this.richEditor && question.content) {
-        this.richEditor.setContents(question.content)
-      }
+      // Simditor组件通过v-model自动同步内容
       
       this.updateMarkdownPreview()
     },
@@ -495,8 +496,8 @@ export default {
       this.form = {
         title: '',
         content: '',
-        question_type: 'single_choice',
-        difficulty: '简单',
+        question_type: 'single',
+        difficulty: 'easy',
         score: 5,
         category: null,
         tags: [],
@@ -514,24 +515,18 @@ export default {
         note: ''
       }
       
-      if (this.richEditor) {
-        this.richEditor.setContents('')
-      }
+      // Simditor组件通过v-model自动同步内容
       
       this.markdownPreview = ''
     },
     
     initRichEditor() {
-      if (this.$refs.richEditor && !this.richEditor) {
-        // 这里应该初始化富文本编辑器，比如Quill
-        // 由于没有具体的富文本编辑器库，这里只是示例
-        console.log('初始化富文本编辑器')
-      }
+      // Simditor组件会自动初始化，无需手动处理
     },
     
     onQuestionTypeChange(type) {
       // 单选题只能有一个正确答案，多选题可以有多个
-      if (type === 'single_choice') {
+      if (type === 'single') {
         const correctCount = this.form.options.filter(opt => opt.is_correct).length
         if (correctCount > 1) {
           // 只保留第一个正确答案
@@ -548,7 +543,7 @@ export default {
     },
     
     onCorrectChange(index) {
-      if (this.form.question_type === 'single_choice') {
+      if (this.form.question_type === 'single') {
         // 单选题：取消其他选项的正确状态
         this.form.options.forEach((opt, i) => {
           if (i !== index) {
@@ -629,9 +624,19 @@ export default {
     getData() {
       const data = { ...this.form }
       
-      // 处理富文本内容
-      if (this.contentMode === 'rich' && this.richEditor) {
-        data.content = this.richEditor.getContents()
+      // 富文本内容已通过v-model同步到form.content中
+      
+      // 提取正确答案
+      const correctAnswers = []
+      data.options.forEach((option, index) => {
+        if (option.is_correct) {
+          correctAnswers.push(String.fromCharCode(65 + index)) // A, B, C, D...
+        }
+      })
+      
+      // 设置正确答案字段
+      if (correctAnswers.length > 0) {
+        data.correct_answer = correctAnswers.join(',')
       }
       
       return data
@@ -743,6 +748,13 @@ export default {
   line-height: 1.6;
 }
 
+/* 富文本内容中的图片尺寸控制 */
+.preview-content img {
+  max-width: 400px;
+  width: auto;
+  height: auto;
+}
+
 .preview-options {
   margin-bottom: 20px;
 }
@@ -772,6 +784,13 @@ export default {
   flex: 1;
 }
 
+/* 选项预览中的图片尺寸控制 */
+.option-text img {
+  max-width: 400px;
+  width: auto;
+  height: auto;
+}
+
 .preview-explanation {
   padding: 16px;
   background: #f0f9ff;
@@ -788,5 +807,12 @@ export default {
   margin: 0;
   line-height: 1.6;
   color: #666;
+}
+
+/* 解析预览中的图片尺寸控制 */
+.preview-explanation img {
+  max-width: 400px;
+  width: auto;
+  height: auto;
 }
 </style>

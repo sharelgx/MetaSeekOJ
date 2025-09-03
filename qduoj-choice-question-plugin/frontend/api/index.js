@@ -49,6 +49,24 @@ export default {
   deleteCategory(id) {
     return ajax(`plugin/choice/categories/${id}/`, 'delete')
   },
+  getCategoryStatistics(params) {
+    return ajax('plugin/choice/categories/statistics/', 'get', {
+      params
+    })
+  },
+  getCategoryStats(categoryId) {
+    return ajax(`plugin/choice/categories/${categoryId}/stats/`, 'get')
+  },
+  batchUpdateCategories(data) {
+    return ajax('plugin/choice/categories/batch-update/', 'post', {
+      data
+    })
+  },
+  batchDeleteCategories(data) {
+    return ajax('plugin/choice/categories/batch-delete/', 'post', {
+      data
+    })
+  },
 
   // 标签相关API
   getTagList() {
@@ -153,6 +171,33 @@ export default {
     return ajax('plugin/choice/batch/', 'post', {
       data
     })
+  },
+
+  // 批量删除标签
+  batchDeleteTags(data) {
+    return ajax('plugin/choice/tags/batch-delete/', 'post', {
+      data: {
+        action: 'delete',
+        tag_ids: data.tag_ids || data
+      }
+    })
+  },
+  
+  // 标签统计
+  getTagStatistics() {
+    return ajax('plugin/choice/tags/statistics/', 'get')
+  },
+  
+  // 分类移动
+  moveCategory(id, data) {
+    return ajax(`plugin/choice/categories/${id}/move/`, 'post', {
+      data
+    })
+  },
+  
+  // 分类统计
+  getCategoryStatistics(id) {
+    return ajax(`plugin/choice/categories/${id}/statistics/`, 'get')
   },
   getImportHistory(params) {
     return ajax('plugin/choice/import-history/', 'get', {

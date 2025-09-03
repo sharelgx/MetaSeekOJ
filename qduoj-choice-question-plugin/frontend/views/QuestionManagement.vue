@@ -8,6 +8,14 @@
       </div>
       
       <div slot="extra">
+        <Button type="success" @click="goToCategories" style="margin-right: 8px">
+          <Icon type="ios-folder" />
+          分类管理
+        </Button>
+        <Button type="warning" @click="goToTags" style="margin-right: 8px">
+          <Icon type="ios-pricetags" />
+          标签管理
+        </Button>
         <Button type="primary" @click="showCreateModal">
           <Icon type="ios-add" />
           新建题目
@@ -27,26 +35,37 @@
               <Icon type="ios-search" slot="prefix" />
             </Input>
           </Col>
-          <Col :span="3">
-            <Select v-model="selectedCategory" placeholder="选择分类" clearable>
-              <Option 
-                v-for="category in categories" 
-                :key="category.id"
-                :value="category.id"
-              >
-                {{ category.name }}
-              </Option>
-            </Select>
+          <Col :span="4">
+            <Cascader
+              v-model="selectedCategory"
+              :data="categoryOptions"
+              :load-data="loadCategoryData"
+              placeholder="选择分类"
+              clearable
+              @on-change="handleCategoryChange"
+            ></Cascader>
           </Col>
-          <Col :span="3">
-            <Select v-model="selectedTag" placeholder="选择标签" clearable>
-              <Option 
-                v-for="tag in tags" 
-                :key="tag.id"
-                :value="tag.id"
+          <Col :span="4">
+            <Select 
+              v-model="selectedTags" 
+              multiple 
+              placeholder="选择标签" 
+              clearable
+              @on-change="handleTagChange"
+            >
+              <OptionGroup 
+                v-for="group in tagGroups" 
+                :key="group.label"
+                :label="group.label"
               >
-                <Tag :color="tag.color">{{ tag.name }}</Tag>
-              </Option>
+                <Option 
+                  v-for="tag in group.tags" 
+                  :key="tag.id"
+                  :value="tag.id"
+                >
+                  <span :style="{ color: tag.color }">{{ tag.name }}</span>
+                </Option>
+              </OptionGroup>
             </Select>
           </Col>
           <Col :span="3">
@@ -199,11 +218,15 @@ export default {
       
       // 筛选条件
       keyword: '',
-      selectedCategory: null,
-      selectedTag: null,
+      selectedCategory: [],
+      selectedTags: [],
       selectedDifficulty: null,
       selectedType: null,
       selectedStatus: null,
+      
+      // 分类和标签选项
+      categoryOptions: [],
+      tagGroups: [],
       
       // 分页
       total: 0,
@@ -449,8 +472,12 @@ export default {
         }
         
         if (this.keyword) params.keyword = this.keyword
-        if (this.selectedCategory) params.category = this.selectedCategory
-        if (this.selectedTag) params.tag = this.selectedTag
+        if (this.selectedCategory && this.selectedCategory.length > 0) {
+          params.category = this.selectedCategory[this.selectedCategory.length - 1]
+        }
+        if (this.selectedTags && this.selectedTags.length > 0) {
+          params.tags = this.selectedTags.join(',')
+        }
         if (this.selectedDifficulty) params.difficulty = this.selectedDifficulty
         if (this.selectedType) params.question_type = this.selectedType
         if (this.selectedStatus) {
@@ -473,7 +500,8 @@ export default {
     async getCategories() {
       try {
         const res = await api.getCategoryList()
-        this.categories = res.data.results
+        this.categories = res.data.results || []
+        this.buildCategoryOptions()
       } catch (error) {
         console.error('获取分类列表失败:', error)
       }
@@ -482,16 +510,96 @@ export default {
     async getTags() {
       try {
         const res = await api.getTagList()
-        this.tags = res.data.results
+        this.tags = res.data.results || []
+        this.buildTagGroups()
       } catch (error) {
         console.error('获取标签列表失败:', error)
       }
     },
     
+    // 构建分类级联选择器选项
+    buildCategoryOptions() {
+      const categoryMap = {}
+      const rootCategories = []
+      
+      // 构建分类映射
+      this.categories.forEach(category => {
+        categoryMap[category.id] = {
+          ...category,
+          value: category.id,
+          label: category.name,
+          children: []
+        }
+      })
+      
+      // 构建树形结构
+      this.categories.forEach(category => {
+        if (category.parent_id) {
+          const parent = categoryMap[category.parent_id]
+          if (parent) {
+            parent.children.push(categoryMap[category.id])
+          }
+        } else {
+          rootCategories.push(categoryMap[category.id])
+        }
+      })
+      
+      this.categoryOptions = rootCategories
+    },
+    
+    // 构建标签分组选项
+    buildTagGroups() {
+      const groups = {
+        difficulty: { label: '难度标签', tags: [] },
+        subject: { label: '学科标签', tags: [] },
+        knowledge: { label: '知识点标签', tags: [] },
+        custom: { label: '自定义标签', tags: [] }
+      }
+      
+      this.tags.forEach(tag => {
+        const type = tag.type || 'custom'
+        if (groups[type]) {
+          groups[type].tags.push(tag)
+        }
+      })
+      
+      this.tagGroups = Object.values(groups).filter(group => group.tags.length > 0)
+    },
+    
+    // 处理分类变化
+    handleCategoryChange(value) {
+      this.selectedCategory = value
+      this.currentPage = 1
+      this.getQuestionList()
+    },
+    
+    // 处理标签变化
+    handleTagChange(value) {
+      this.selectedTags = value
+      this.currentPage = 1
+      this.getQuestionList()
+    },
+    
+    // 动态加载分类数据（如果需要）
+    loadCategoryData(item, callback) {
+      // 这里可以实现动态加载子分类的逻辑
+      callback()
+    },
+    
+    // 导航到分类管理
+    goToCategories() {
+      this.$router.push({ name: 'category-management' })
+    },
+    
+    // 导航到标签管理
+    goToTags() {
+      this.$router.push({ name: 'tag-management' })
+    },
+    
     resetFilter() {
       this.keyword = ''
-      this.selectedCategory = null
-      this.selectedTag = null
+      this.selectedCategory = []
+      this.selectedTags = []
       this.selectedDifficulty = null
       this.selectedType = null
       this.selectedStatus = null
@@ -528,7 +636,7 @@ export default {
     
     async saveQuestion() {
       try {
-        const questionData = this.$refs.questionEditor.getQuestionData()
+        const questionData = this.$refs.questionEditor.getData()
         if (!questionData) {
           return false
         }

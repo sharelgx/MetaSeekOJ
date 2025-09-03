@@ -2,18 +2,19 @@
   <div class="view">
     <Panel title="导入选择题">
       <div class="import-container">
-        <!-- 分类选择 -->
-        <el-row style="margin-bottom: 20px;">
-          <el-col :span="24">
-            <el-card shadow="hover">
-              <div slot="header">
-                <i class="el-icon-folder"></i>
-                <span>选择分类</span>
-              </div>
-              <div class="card-content">
+        <!-- 选择器区域 - 扁平化布局 -->
+        <div class="selector-section">
+          <el-row :gutter="16" style="margin-bottom: 20px;">
+            <!-- 分类选择 -->
+            <el-col :span="8">
+              <div class="form-group">
+                <label class="form-label">
+                  <i class="el-icon-folder"></i>
+                  选择分类
+                </label>
                 <el-select 
                   v-model="selectedCategory" 
-                  placeholder="请选择题目分类（可选）" 
+                  placeholder="请选择分类" 
                   clearable 
                   style="width: 100%;"
                 >
@@ -26,9 +27,119 @@
                   </el-option>
                 </el-select>
               </div>
-            </el-card>
-          </el-col>
-        </el-row>
+            </el-col>
+            
+            <!-- 标签选择和添加 -->
+            <el-col :span="8">
+              <div class="form-group">
+                <label class="form-label">
+                  <i class="el-icon-price-tag"></i>
+                  标签管理
+                </label>
+                <div class="tag-management">
+                  <el-select 
+                    v-model="selectedTags" 
+                    multiple
+                    filterable
+                    placeholder="选择或搜索标签" 
+                    style="width: 100%; margin-bottom: 8px;"
+                    @change="handleTagChange"
+                  >
+                    <el-option
+                      v-for="tag in tags"
+                      :key="tag.id"
+                      :label="tag.name"
+                      :value="tag.id"
+                    >
+                      <span style="float: left">{{ tag.name }}</span>
+                      <span style="float: right; color: #8492a6; font-size: 12px">{{ tag.tag_type }}</span>
+                    </el-option>
+                  </el-select>
+                  
+                  <!-- 添加新标签 -->
+                  <div class="add-tag-section">
+                    <el-input
+                      v-model="newTagName"
+                      placeholder="新标签名称"
+                      size="small"
+                      style="margin-bottom: 4px;"
+                      @keyup.enter.native="addNewTag"
+                    ></el-input>
+                    <div style="display: flex; gap: 8px;">
+                      <el-select v-model="newTagType" placeholder="类型" size="small" style="flex: 1;">
+                        <el-option label="知识点" value="knowledge"></el-option>
+                        <el-option label="难度" value="difficulty"></el-option>
+                        <el-option label="学科" value="subject"></el-option>
+                        <el-option label="自定义" value="custom"></el-option>
+                      </el-select>
+                      <el-button type="primary" size="small" @click="addNewTag" :disabled="!newTagName.trim()">添加</el-button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </el-col>
+            
+            <!-- 编程语言选择 -->
+            <el-col :span="8">
+              <div class="form-group">
+                <label class="form-label">
+                  <i class="el-icon-cpu"></i>
+                  编程语言
+                </label>
+                <el-select 
+                  v-model="selectedLanguage" 
+                  placeholder="请选择语言" 
+                  clearable 
+                  style="width: 100%;"
+                >
+                  <el-option label="C" value="C"></el-option>
+                  <el-option label="C++" value="C++"></el-option>
+                  <el-option label="Java" value="Java"></el-option>
+                  <el-option label="Python" value="Python"></el-option>
+                  <el-option label="Python3" value="Python3"></el-option>
+                  <el-option label="JavaScript" value="JavaScript"></el-option>
+                  <el-option label="Go" value="Go"></el-option>
+                  <el-option label="C#" value="C#"></el-option>
+                  <el-option label="PHP" value="PHP"></el-option>
+                  <el-option label="Ruby" value="Ruby"></el-option>
+                  <el-option label="Kotlin" value="Kotlin"></el-option>
+                  <el-option label="Swift" value="Swift"></el-option>
+                  <el-option label="Rust" value="Rust"></el-option>
+                  <el-option label="Scala" value="Scala"></el-option>
+                </el-select>
+              </div>
+            </el-col>
+          </el-row>
+        </div>
+        
+        <!-- 已选项显示 -->
+        <div class="selection-summary" v-if="selectedTags.length > 0 || selectedLanguage || selectedCategory" style="margin-bottom: 12px;">
+          <div class="summary-header" style="margin-bottom: 8px; color: #606266; font-size: 14px; font-weight: 500;">
+            <i class="el-icon-check"></i> 当前选择
+          </div>
+          <div class="summary-content" style="display: flex; flex-wrap: wrap; gap: 8px;">
+            <!-- 已选分类 -->
+            <el-tag v-if="selectedCategory" type="success" size="small">
+              分类: {{ getCategoryDisplayName(categories.find(c => c.id === selectedCategory)) }}
+            </el-tag>
+            
+            <!-- 已选标签 -->
+            <el-tag
+              v-for="tagId in selectedTags"
+              :key="'tag-' + tagId"
+              closable
+              size="small"
+              @close="removeTag(tagId)"
+            >
+              {{ getTagName(tagId) }}
+            </el-tag>
+            
+            <!-- 已选编程语言 -->
+            <el-tag v-if="selectedLanguage" type="info" size="small">
+              语言: {{ selectedLanguage }}
+            </el-tag>
+          </div>
+        </div>
 
         <!-- 导入方式选择 -->
         <el-tabs v-model="activeTab" @tab-click="handleTabClick">
@@ -55,7 +166,7 @@
             <div class="json-input-section">
               <el-input
                 type="textarea"
-                :rows="15"
+                :rows="10"
                 placeholder="在此粘贴JSON内容"
                 v-model="jsonText"
                 class="json-textarea">
@@ -87,56 +198,27 @@
         <!-- 预览区域 -->
         <div v-if="previewData.length > 0" class="preview-section">
           <h4>导入预览</h4>
-          <p>将导入 {{ previewData.length }} 道题目到分类：{{ getCategoryName(selectedCategory) }}</p>
-          <el-table :data="previewData.slice(0, 5)" style="width: 100%" size="small">
-            <el-table-column prop="title" label="标题" width="200" show-overflow-tooltip></el-table-column>
-            <el-table-column prop="question_type" label="题型" width="80">
-              <template slot-scope="scope">
-                {{ scope.row.question_type === 0 ? '单选' : '多选' }}
-              </template>
-            </el-table-column>
-            <el-table-column prop="options" label="选项数量" width="80">
-              <template slot-scope="scope">
-                {{ scope.row.options.length }}
-              </template>
-            </el-table-column>
-            <el-table-column prop="difficulty" label="难度" width="80"></el-table-column>
-            <el-table-column prop="score" label="分数" width="80"></el-table-column>
-          </el-table>
-          <div v-if="previewData.length > 5" class="more-info">
-            还有 {{ previewData.length - 5 }} 道题目...
+          <div class="question-preview" v-for="(question, index) in previewData" :key="index">
+            <h5>{{ index + 1 }}. {{ question.title }}</h5>
+            <div class="question-content" v-html="question.description"></div>
+            <div class="options">
+              <div class="option" v-for="(option, optIndex) in question.options" :key="optIndex">
+                {{ String.fromCharCode(65 + optIndex) }}. {{ option.content }}
+                <span v-if="option.is_correct" class="correct-mark">✓</span>
+              </div>
+            </div>
+            <div class="correct-answer">
+              <strong>正确答案:</strong> {{ question.correct_answer }}
+              <span v-if="question.explanation"> | <strong>解释:</strong> {{ question.explanation }}</span>
+            </div>
           </div>
         </div>
 
-        <!-- 错误信息 -->
-        <div v-if="importErrors.length > 0" class="error-section">
-          <h4>导入错误</h4>
-          <el-alert
-            v-for="(error, index) in importErrors"
-            :key="index"
-            :title="error"
-            type="error"
-            class="error-item"
-            show-icon>
-          </el-alert>
-        </div>
-
         <!-- 操作按钮 -->
-        <div style="margin-top: 20px; text-align: center;">
-          <el-button @click="goBack">返回</el-button>
-          <el-button 
-            type="primary" 
-            @click="validateJSON" 
-            :disabled="!canValidate">
-            验证JSON
-          </el-button>
-          <el-button 
-            type="success" 
-            @click="importQuestions" 
-            :disabled="!canImport"
-            :loading="importing">
-            {{ importing ? '导入中...' : '导入' }}
-          </el-button>
+        <div style="text-align: center; margin-top: 20px;">
+          <el-button @click="parseJSON" :disabled="!canParse" type="primary">解析JSON</el-button>
+          <el-button @click="importQuestions" :disabled="previewData.length === 0" type="success">确认导入</el-button>
+          <el-button @click="clearAll">清空</el-button>
         </div>
       </div>
     </Panel>
@@ -144,390 +226,481 @@
 </template>
 
 <script>
-import api from '../../api.js'
+import Panel from '@admin/components/Panel.vue'
+import api from '@admin/api'
 
 export default {
   name: 'ImportChoiceQuestion',
+  components: {
+    Panel
+  },
   data() {
     return {
+      categories: [],
+      tags: [],
+      selectedCategory: null,
+      selectedTags: [],
+      selectedLanguage: null,
+      newTagName: '',
+      newTagType: 'knowledge',
       activeTab: 'file',
       fileList: [],
       jsonText: '',
       previewData: [],
-      importErrors: [],
-      importing: false,
-      selectedCategory: null,
-      categories: [],
-      selectedCategoryId: null,
-
       formatGuide: {
         example: [
           {
-            "id": "GESP_2_2024_3_1",
+            "id": 1,
             "type": "single",
-            "question": "下列关于C++语言变量的叙述，正确的是( )。",
-            "options": [
-              "A. 变量可以没有定义",
-              "B. 对一个没有定义的变量赋值，相当于定义了一个新变量", 
-              "C. 执行赋值语句后，变量的类型可能会变化",
-              "D. 执行赋值语句后，变量的值可能不会变化"
-            ],
-            "correct": "D",
-            "explanation": "变量需先定义后使用（排除A、B），赋值不改变类型（排除C）。若赋值前后值相同，值不变（如a=5; a=5;），故D正确。"
+            "question": "以下哪个是JavaScript的数据类型？",
+            "options": ["String", "Integer", "Float", "Character"],
+            "correct": "A",
+            "explanation": "JavaScript中有String类型，但没有Integer、Float、Character类型"
+          },
+          {
+            "id": 2,
+            "type": "multiple",
+            "question": "以下哪些是前端框架？",
+            "options": ["Vue.js", "React", "Django", "Angular"],
+            "correct": ["A", "B", "D"],
+            "explanation": "Vue.js、React、Angular都是前端框架，Django是后端框架"
           }
-        ],
-        fields: [
-          { name: 'id', desc: '题目ID（可选）', required: false },
-          { name: 'question', desc: '题目内容', required: true },
-          { name: 'type', desc: '题目类型 (single/multiple)', required: true },
-          { name: 'options', desc: '选项数组', required: true },
-          { name: 'correct', desc: '正确答案', required: true },
-          { name: 'explanation', desc: '题目解析（可选）', required: false }
         ]
       }
     }
   },
   computed: {
-    canValidate() {
-      if (this.activeTab === 'file') {
-        return this.fileList.length > 0
-      } else if (this.activeTab === 'text') {
-        return this.jsonText.trim() !== ''
-      }
-      return false
-    },
-    canImport() {
-      return this.previewData.length > 0 && this.importErrors.length === 0
+    canParse() {
+      return (this.activeTab === 'file' && this.fileList.length > 0) || 
+             (this.activeTab === 'text' && this.jsonText.trim())
     }
   },
   mounted() {
     this.getCategories()
+    this.getTags()
   },
   methods: {
     async getCategories() {
-       try {
-         const res = await api.getChoiceQuestionCategories()
-         this.categories = res.data.data || []
-       } catch (err) {
-         this.$error('获取分类失败')
-       }
-     },
-    getCategoryName(categoryId) {
-      const category = this.categories.find(c => c.id === categoryId)
-      return category ? this.getCategoryDisplayName(category) : ''
+      try {
+        const res = await api.getChoiceQuestionCategories()
+        this.categories = res.data.data || []
+      } catch (err) {
+        console.error('获取分类失败:', err)
+        this.categories = []
+      }
+    },
+    async getTags() {
+      try {
+        const res = await api.getChoiceQuestionTags()
+        this.tags = res.data.data || []
+      } catch (err) {
+        console.error('获取标签失败:', err)
+        this.tags = []
+      }
     },
     getCategoryDisplayName(category) {
       if (!category) return ''
-      
-      // 如果有父分类，显示 "父分类 > 子分类" 的格式
-      if (category.parent) {
-        const parentCategory = this.categories.find(c => c.id === category.parent)
-        if (parentCategory) {
-          return `${parentCategory.name} > ${category.name}`
-        }
-      }
-      
-      return category.name
+      return category.parent ? `${category.parent.name} > ${category.name}` : category.name
     },
-    handleTabClick() {
-      this.resetImportState()
+    getCategoryById(id) {
+      return this.categories.find(c => c.id === id)
     },
-    handleFileChange(file) {
-      this.resetImportState()
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        this.jsonText = e.target.result
-      }
-      reader.readAsText(file.raw)
+    getTagById(id) {
+      return this.tags.find(t => t.id === id)
     },
-    resetImportState() {
-      this.previewData = []
-      this.importErrors = []
+    getTagName(id) {
+      const tag = this.getTagById(id)
+      return tag ? tag.name : ''
     },
-    validateJSON() {
-      this.resetImportState()
+    handleTagChange(value) {
+      this.selectedTags = value
+    },
+    removeTag(tagId) {
+      this.selectedTags = this.selectedTags.filter(id => id !== tagId)
+    },
+    async addNewTag() {
+      if (!this.newTagName.trim()) return
       
       try {
-        const data = JSON.parse(this.jsonText)
-        
-        let questionsArray = []
-        let categoryId = null
-        
-        // 支持两种格式：数组格式和对象格式
-        if (Array.isArray(data)) {
-          // 数组格式：直接是题目数组
-          questionsArray = data
-        } else if (data && typeof data === 'object') {
-          // 对象格式：包含questions数组和category_id
-          if (Array.isArray(data.questions)) {
-            questionsArray = data.questions
-            categoryId = data.category_id
-          } else {
-            this.importErrors.push('JSON数据格式错误：对象格式必须包含questions数组')
-            return
-          }
-        } else {
-          this.importErrors.push('JSON数据必须是数组格式或包含questions数组的对象格式')
-          return
-        }
-        
-        // 如果JSON中指定了分类，自动选择该分类
-        if (categoryId && this.categories.length > 0) {
-          const category = this.categories.find(cat => cat.id === categoryId)
-          if (category) {
-            this.selectedCategory = categoryId
-          }
-        }
-        
-        const validatedData = []
-        questionsArray.forEach((item, index) => {
-          const errors = this.validateQuestionItem(item, index)
-          if (errors.length === 0) {
-            // 转换为系统格式
-            const convertedItem = this.convertToSystemFormat(item)
-            validatedData.push(convertedItem)
-          } else {
-            this.importErrors.push(...errors)
-          }
+        const res = await api.createChoiceQuestionTag({
+          name: this.newTagName.trim(),
+          tag_type: this.newTagType
         })
         
-        this.previewData = validatedData
-        
-        if (this.importErrors.length === 0) {
-          if (!this.selectedCategory) {
-            this.$success(`JSON验证成功！共 ${validatedData.length} 道题目。请选择分类后即可导入。`)
-          } else {
-            this.$success(`验证成功！共 ${validatedData.length} 道题目`)
+        if (res.data.error === null) {
+          this.$message.success('标签添加成功')
+          this.tags.push(res.data.data)
+          this.selectedTags.push(res.data.data.id)
+          this.newTagName = ''
+          this.newTagType = 'knowledge'
+        } else {
+          this.$message.error(res.data.data || '添加标签失败')
+        }
+      } catch (err) {
+        this.$message.error('添加标签失败')
+        console.error('添加标签失败:', err)
+      }
+    },
+    handleTabClick(tab) {
+      this.activeTab = tab.name
+    },
+    handleFileChange(file, fileList) {
+      this.fileList = fileList
+    },
+    parseJSON() {
+      let jsonData = ''
+      
+      if (this.activeTab === 'file' && this.fileList.length > 0) {
+        const file = this.fileList[0].raw
+        const reader = new FileReader()
+        reader.onload = (e) => {
+          try {
+            jsonData = JSON.parse(e.target.result)
+            this.processJSONData(jsonData)
+          } catch (err) {
+            this.$message.error('JSON文件格式错误')
+            console.error('JSON解析错误:', err)
           }
         }
-      } catch (error) {
-        this.importErrors.push('JSON格式错误：' + error.message)
+        reader.readAsText(file)
+      } else if (this.activeTab === 'text' && this.jsonText.trim()) {
+        try {
+          jsonData = JSON.parse(this.jsonText)
+          this.processJSONData(jsonData)
+        } catch (err) {
+          this.$message.error('JSON格式错误')
+          console.error('JSON解析错误:', err)
+        }
       }
     },
-    validateQuestionItem(item, index) {
-      const errors = []
-      
-      // 验证必填字段
-      if (!item.question || typeof item.question !== 'string') {
-        errors.push(`第${index + 1}题: question字段必填且必须为字符串`)
-      }
-      
-      if (!item.type || !['single', 'multiple'].includes(item.type)) {
-        errors.push(`第${index + 1}题: type字段必须为'single'或'multiple'`)
-      }
-      
-      if (!Array.isArray(item.options) || item.options.length === 0) {
-        errors.push(`第${index + 1}题: options字段必须为非空数组`)
-      }
-      
-      if (!item.correct || typeof item.correct !== 'string') {
-        errors.push(`第${index + 1}题: correct字段必填且必须为字符串`)
-      }
-      
-      return errors
-    },
-    convertToSystemFormat(item) {
-      // 从question字段提取标题（前50个字符）
-      const tempDiv = document.createElement('div')
-      tempDiv.innerHTML = item.question
-      const plainText = tempDiv.textContent || tempDiv.innerText || ''
-      const title = plainText.trim().substring(0, 50) + (plainText.length > 50 ? '...' : '')
-      
-      return {
-        title: title,
-        description: item.question,
-        question_type: item.type === 'single' ? 0 : 1, // 0-单选，1-多选
-        difficulty: 'Mid', // 默认中等难度
-        score: 2, // 默认2分
-        options: item.options.map((option, index) => {
-          const optionLetter = String.fromCharCode(65 + index) // A, B, C, D...
-          return {
-            content: option,
-            is_correct: item.type === 'single' 
-              ? item.correct === optionLetter
-              : item.correct.includes(optionLetter)
-          }
-        }),
-        categories: this.selectedCategory ? [this.selectedCategory] : [],
-        tags: [],
-        explanation: item.explanation || '' // 添加解析字段
-      }
-    },
-    async importQuestions() {
-      if (!this.selectedCategory) {
-        this.$error('请先选择分类')
+    processJSONData(data) {
+      if (!Array.isArray(data)) {
+        this.$message.error('JSON数据必须是数组格式')
         return
       }
       
-      if (!this.canImport) return
+      // 验证数据格式并转换为后端期望的格式
+      const validData = data.filter(item => {
+        return item.question && item.options && Array.isArray(item.options) && item.correct
+      }).map(item => {
+        // 自动生成标题：从题目内容中提取前12个字符
+        let title = item.title
+        if (!title) {
+          // 从HTML内容中提取纯文本
+          const tempDiv = document.createElement('div')
+          tempDiv.innerHTML = item.question
+          const plainText = tempDiv.textContent || tempDiv.innerText || ''
+          
+          // 截取前12个字符作为标题
+          const autoTitle = plainText.trim().substring(0, 12)
+          if (autoTitle) {
+            title = autoTitle + (plainText.trim().length > 12 ? '...' : '')
+          } else {
+            title = '未命名题目'
+          }
+        }
+        
+        // 转换选项格式：从字符串数组转换为对象数组
+        const options = item.options.map((optionText, index) => {
+          const isCorrect = Array.isArray(item.correct) 
+            ? item.correct.includes(String.fromCharCode(65 + index))
+            : item.correct === String.fromCharCode(65 + index)
+          
+          return {
+            content: optionText, // 使用content字段而不是text
+            is_correct: isCorrect
+          }
+        })
+        
+        // 转换题目类型为整数
+        let questionType = 0 // 默认单选
+        if (item.type === 'multiple') {
+          questionType = 1 // 多选
+        }
+        
+        // 转换为后端期望的格式
+        return {
+          title: title,
+          description: item.question, // question 字段映射为 description
+          question_type: questionType, // 转换为整数类型
+          options: options,
+          correct_answer: item.correct,
+          explanation: item.explanation || '',
+          difficulty: 'Easy', // 默认难度
+          visible: true // 默认可见
+        }
+      })
       
-      this.importing = true
+      if (validData.length === 0) {
+        this.$message.error('没有找到有效的题目数据')
+        return
+      }
+      
+      this.previewData = validData
+      this.$message.success(`成功解析 ${validData.length} 道题目`)
+    },
+    async importQuestions() {
+      if (this.previewData.length === 0) {
+        this.$message.error('没有可导入的题目')
+        return
+      }
+      
       try {
         const importData = {
           questions: this.previewData,
-          category_id: this.selectedCategory
+          category_id: this.selectedCategory,
+          tag_ids: this.selectedTags,
+          language: this.selectedLanguage
         }
         
-        // 添加调试信息
-        console.log('=== 导入调试信息 ===')
-        console.log('发送的数据:', JSON.stringify(importData, null, 2))
-        console.log('预览数据长度:', this.previewData.length)
-        console.log('选择的分类ID:', this.selectedCategory)
+        const res = await api.importChoiceQuestions(importData)
         
-        const res = await this.$http.post('/plugin/choice/questions/import/', importData)
-        
-        console.log('服务器响应:', res)
-        console.log('响应状态:', res.status)
-        console.log('响应数据:', JSON.stringify(res.data, null, 2))
-        
-        const result = res.data.data
-        
-        if (result && result.success_count > 0) {
-          this.$success(`成功导入 ${result.success_count} 道题目`)
-          
-          if (result.error_list && result.error_list.length > 0) {
-            let errorMsg = '部分题目导入失败：\n'
-            result.error_list.forEach(error => {
-              errorMsg += `第${error.index}题: ${JSON.stringify(error.errors)}\n`
-            })
-            this.$error(errorMsg)
-          }
-          
-          // 重置表单状态
-          this.resetImportState()
-          this.jsonText = ''
-          this.selectedCategory = null
-          
+        if (res.data.error === null) {
+          this.$message.success(`成功导入 ${this.previewData.length} 道题目`)
+          this.clearAll()
         } else {
-          console.error('导入失败，服务器返回:', result)
-          this.$error('导入失败，请检查数据格式。详细信息请查看浏览器控制台。')
+          this.$message.error(res.data.data || '导入失败')
         }
-        
-        // 移除自动跳转，让用户留在当前页面
-        // this.$router.push({ name: 'choice-question-list' })
-        
       } catch (err) {
-        console.error('=== 导入错误详情 ===')
-        console.error('错误对象:', err)
-        console.error('错误消息:', err.message)
-        
-        if (err.response) {
-          console.error('响应状态:', err.response.status)
-          console.error('响应头:', err.response.headers)
-          console.error('响应数据:', err.response.data)
-          
-          let errorMsg = '导入失败: '
-          if (err.response.data) {
-            if (err.response.data.data) {
-              errorMsg += err.response.data.data
-            } else if (err.response.data.error) {
-              errorMsg += err.response.data.error
-            } else if (err.response.data.message) {
-              errorMsg += err.response.data.message
-            } else {
-              errorMsg += JSON.stringify(err.response.data)
-            }
-          } else {
-            errorMsg += `HTTP ${err.response.status} 错误`
-          }
-          
-          this.$error(errorMsg + '。详细信息请查看浏览器控制台。')
-        } else {
-          this.$error('网络错误: ' + err.message + '。详细信息请查看浏览器控制台。')
-        }
-      } finally {
-        this.importing = false
+        this.$message.error('导入失败')
+        console.error('导入失败:', err)
       }
     },
-    simulateImport() {
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          resolve()
-        }, 2000)
-      })
-    },
-    goBack() {
-      this.$router.push({ name: 'choice-question-list' })
+    clearAll() {
+      this.selectedCategory = null
+      this.selectedTags = []
+      this.selectedLanguage = null
+      this.fileList = []
+      this.jsonText = ''
+      this.previewData = []
+      this.activeTab = 'file'
     }
   }
 }
 </script>
 
 <style scoped lang="less">
+/* 整体页面样式 */
+.view {
+  padding: 20px;
+  background: #f5f7fa;
+  min-height: 100vh;
+}
+
 .import-container {
-  .upload-section {
-    padding: 20px;
-    text-align: center;
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+  border: 1px solid #ebeef5;
+}
+
+/* 选择器区域样式 */
+.selector-section {
+  background: #ffffff;
+  border-radius: 6px;
+  padding: 16px;
+  margin-bottom: 20px;
+  border: 1px solid #ebeef5;
+}
+
+.form-group {
+  margin-bottom: 0;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #606266;
+  line-height: 1.4;
+}
+
+.form-label i {
+  margin-right: 6px;
+  color: #409eff;
+}
+
+/* 标签管理区域 */
+.tag-management {
+  width: 100%;
+}
+
+.add-tag-section {
+  padding: 8px;
+  background: #f8f9fa;
+  border-radius: 4px;
+  border: 1px dashed #dcdfe6;
+}
+
+/* 已选项显示样式 */
+.selection-summary {
+  background: #f8f9fa;
+  border: 1px solid #ebeef5;
+  border-radius: 6px;
+  padding: 16px;
+}
+
+.summary-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #606266;
+}
+
+.summary-header i {
+  margin-right: 6px;
+  color: #67c23a;
+}
+
+.summary-content {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* 上传区域样式 */
+.upload-section {
+  padding: 20px;
+  background: #fafbfc;
+  border-radius: 6px;
+  border: 1px solid #ebeef5;
+}
+
+/* JSON输入区域样式 */
+.json-input-section {
+  padding: 20px;
+}
+
+.json-textarea .el-textarea__inner {
+  border-radius: 6px;
+  border: 1px solid #dcdfe6;
+  background: #ffffff;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* 格式说明区域样式 */
+.format-guide {
+  padding: 20px;
+  background: #fafbfc;
+  border-radius: 6px;
+  border: 1px solid #ebeef5;
+}
+
+.json-example {
+  background: #f5f7fa;
+  border: 1px solid #e4e7ed;
+  border-radius: 4px;
+  padding: 16px;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-x: auto;
+  margin: 12px 0;
+}
+
+.field-descriptions {
+  margin-top: 20px;
+}
+
+.field-descriptions ul {
+  padding-left: 20px;
+}
+
+.field-descriptions li {
+  margin-bottom: 8px;
+  line-height: 1.6;
+}
+
+/* 预览区域样式 */
+.preview-section {
+  margin-top: 20px;
+  padding: 20px;
+  background: #ffffff;
+  border: 1px solid #ebeef5;
+  border-radius: 6px;
+}
+
+.question-preview {
+  border: 1px solid #ebeef5;
+  border-radius: 6px;
+  padding: 16px;
+  margin-bottom: 16px;
+  background: #fafbfc;
+}
+
+.question-preview h5 {
+  margin: 0 0 12px 0;
+  color: #303133;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.question-preview .question-content {
+  margin: 12px 0;
+  padding: 12px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 4px;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.question-preview .options {
+  margin: 12px 0;
+}
+
+.question-preview .option {
+  margin: 6px 0;
+  padding: 8px 12px;
+  font-size: 13px;
+  line-height: 1.5;
+  background: #ffffff;
+  border: 1px solid #e4e7ed;
+  border-radius: 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.question-preview .correct-mark {
+  color: #67c23a;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.question-preview .correct-answer {
+  margin-top: 12px;
+  padding: 8px;
+  background: #f0f9ff;
+  border: 1px solid #e1f5fe;
+  border-radius: 4px;
+  font-size: 12px;
+  color: #0277bd;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .view {
+    padding: 12px;
   }
   
-  .json-input-section {
-    padding: 20px;
-    
-    .json-textarea {
-      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-      font-size: 12px;
-    }
+  .import-container {
+    padding: 16px;
   }
   
-  .format-guide {
-    padding: 20px;
-    
-    .json-example {
-      background: #f5f5f5;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      padding: 15px;
-      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-      font-size: 12px;
-      overflow-x: auto;
-      white-space: pre;
-    }
-    
-    .field-descriptions {
-      margin-top: 20px;
-      
-      ul {
-        list-style-type: disc;
-        padding-left: 20px;
-        
-        li {
-          margin-bottom: 8px;
-          line-height: 1.5;
-        }
-      }
-    }
+  .selector-section {
+    padding: 12px;
   }
   
-  .preview-section {
-    margin-top: 20px;
-    padding: 15px;
-    background: #f9f9f9;
-    border-radius: 4px;
-    
-    h4 {
-      margin-bottom: 15px;
-      color: #333;
-    }
-    
-    .more-info {
-      margin-top: 10px;
-      color: #666;
-      font-size: 14px;
-      text-align: center;
-    }
-  }
-  
-  .error-section {
-    margin-top: 20px;
-    
-    h4 {
-      margin-bottom: 15px;
-      color: #f56c6c;
-    }
-    
-    .error-item {
-      margin-bottom: 10px;
-    }
+  .el-col {
+    margin-bottom: 16px;
   }
 }
 </style>

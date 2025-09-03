@@ -9,6 +9,7 @@ from .tag import QuestionTag
 from .question import ChoiceQuestion
 from .submission import ChoiceQuestionSubmission
 from .wrong_question import WrongQuestion
+from .exam import ExamPaper, ExamPaperQuestion, ExamSession
 
 __all__ = [
     'PluginBaseModel',
@@ -17,4 +18,7 @@ __all__ = [
     'ChoiceQuestion',
     'ChoiceQuestionSubmission',
     'WrongQuestion',
+    'ExamPaper',
+    'ExamPaperQuestion',
+    'ExamSession',
 ]

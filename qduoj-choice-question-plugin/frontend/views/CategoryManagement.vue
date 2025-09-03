@@ -426,7 +426,7 @@ export default {
     async loadCategories() {
       this.loading = true
       try {
-        const res = await api.getCategories()
+        const res = await api.getCategoryList()
         const categories = res.data.results || res.data
         
         // 构建树形结构
@@ -468,6 +468,34 @@ export default {
       })
       
       return rootCategories
+    },
+
+    buildCascaderOptions(categories) {
+      const categoryMap = {}
+      const rootOptions = []
+      
+      // 创建分类映射
+      categories.forEach(category => {
+        categoryMap[category.id] = {
+          value: category.id,
+          label: category.name,
+          children: []
+        }
+      })
+      
+      // 构建树形结构
+      categories.forEach(category => {
+        if (category.parent) {
+          const parent = categoryMap[category.parent]
+          if (parent) {
+            parent.children.push(categoryMap[category.id])
+          }
+        } else {
+          rootOptions.push(categoryMap[category.id])
+        }
+      })
+      
+      return rootOptions
     },
     
     buildCategoryList(categories) {
@@ -512,11 +540,10 @@ export default {
     },
     
     async loadParentCategoryOptions() {
+      // 加载父分类选项，用于级联选择器
       try {
-        const res = await api.getCategories()
-        const categories = res.data.results || res.data
-        
-        this.parentCategoryOptions = this.buildCascaderOptions(categories)
+        const res = await api.getCategoryList()
+        this.parentCategoryOptions = this.buildCascaderOptions(res.data.results || res.data)
       } catch (error) {
         console.error('加载父分类选项失败:', error)
       }
@@ -610,7 +637,7 @@ export default {
     
     async loadCategoryStats(categoryId) {
       try {
-        const res = await api.getCategoryStatistics({ category_id: categoryId })
+        const res = await api.getCategoryStats(categoryId)
         this.categoryStats = res.data
       } catch (error) {
         console.error('加载分类统计失败:', error)
@@ -684,7 +711,7 @@ export default {
     
     async submitMove() {
       try {
-        await api.moveCategory(this.moveForm.category_id, {
+        await api.updateCategory(this.moveForm.category_id, {
           parent: this.moveForm.target_parent,
           sort_order: this.moveForm.new_sort_order
         })
@@ -787,8 +814,26 @@ export default {
       this.categoryStats = null
       this.loadCategories()
     },
-    
-    formatDate
+
+    loadParentCategories(item, callback) {
+      // 动态加载父分类选项
+      setTimeout(() => {
+        const children = this.categoryTree
+          .filter(cat => cat.parent === item.value)
+          .map(cat => ({
+            value: cat.id,
+            label: cat.name,
+            loading: false
+          }))
+        callback(children)
+      }, 100)
+    },
+
+    formatDate(dateString) {
+      if (!dateString) return '-'
+      const date = new Date(dateString)
+      return date.toLocaleString('zh-CN')
+    }
   }
 }
 </script>
