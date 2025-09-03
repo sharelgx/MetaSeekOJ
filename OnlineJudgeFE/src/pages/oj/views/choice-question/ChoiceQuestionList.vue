@@ -66,7 +66,7 @@
         </Row>
         
         <!-- 做题模式选择 -->
-        <Row style="margin-top: 16px;" v-if="selectedCategory">
+        <Row style="margin-top: 16px;" v-if="selectedCategory || selectedTag">
           <Col :span="24">
             <Alert show-icon>
               <span slot="desc">
