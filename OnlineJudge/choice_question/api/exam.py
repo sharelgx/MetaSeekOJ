@@ -302,8 +302,31 @@ class ExamSessionAPI(CSRFExemptAPIView):
             else:
                 # 获取用户的考试会话列表
                 sessions = ExamSession.objects.filter(user=request.user).order_by('-create_time')
+                
+                # 应用筛选条件
+                status_filter = request.GET.get('status')
+                if status_filter:
+                    sessions = sessions.filter(status=status_filter)
+                
+                start_date = request.GET.get('start_date')
+                end_date = request.GET.get('end_date')
+                if start_date:
+                    sessions = sessions.filter(create_time__date__gte=start_date)
+                if end_date:
+                    sessions = sessions.filter(create_time__date__lte=end_date)
+                
+                # 分页处理
+                offset = int(request.GET.get('offset', 0))
+                limit = int(request.GET.get('limit', 20))
+                total = sessions.count()
+                
+                sessions = sessions[offset:offset + limit]
                 serializer = ExamSessionSerializer(sessions, many=True)
-                return self.success(serializer.data)
+                
+                return self.success({
+                    'results': serializer.data,
+                    'total': total
+                })
                 
         except Exception as e:
             logger.exception(f"获取考试会话失败: {e}")
