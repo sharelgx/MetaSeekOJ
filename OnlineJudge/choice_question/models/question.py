@@ -99,6 +99,36 @@ class ChoiceQuestion(PluginBaseModel):
         verbose_name="题目分值"
     )
     
+    # 编程语言
+    LANGUAGE_CHOICES = [
+        ('cpp', 'C++'),
+        ('c', 'C'),
+        ('java', 'Java'),
+        ('python', 'Python'),
+        ('javascript', 'JavaScript'),
+        ('go', 'Go'),
+        ('rust', 'Rust'),
+        ('php', 'PHP'),
+        ('csharp', 'C#'),
+        ('ruby', 'Ruby'),
+        ('swift', 'Swift'),
+        ('kotlin', 'Kotlin'),
+        ('typescript', 'TypeScript'),
+        ('scala', 'Scala'),
+        ('perl', 'Perl'),
+        ('r', 'R'),
+        ('matlab', 'MATLAB'),
+    ]
+    
+    language = models.CharField(
+        max_length=20,
+        choices=LANGUAGE_CHOICES,
+        blank=True,
+        null=True,
+        verbose_name="编程语言",
+        help_text="题目涉及的编程语言，用于代码高亮"
+    )
+    
     # 统计信息
     total_submit = models.IntegerField(
         default=0, 
