@@ -161,6 +161,12 @@ class ChoiceQuestion(PluginBaseModel):
         help_text="是否对所有用户公开"
     )
     
+    import_order = models.IntegerField(
+        default=0,
+        verbose_name="导入顺序",
+        help_text="题目导入时的顺序，用于考试模式按导入顺序显示题目"
+    )
+
     class Meta:
         db_table = "choice_question"
         verbose_name = "选择题"

@@ -184,7 +184,7 @@ class ChoiceQuestionAPI(CSRFExemptAPIView):
     
     def get(self, request):
         """获取选择题列表"""
-        questions = ChoiceQuestion.objects.select_related('category', 'created_by').prefetch_related('tags')
+        questions = ChoiceQuestion.objects.filter(visible=True).select_related('category', 'created_by').prefetch_related('tags')
         
         # 筛选条件
         keyword = request.GET.get('keyword')
