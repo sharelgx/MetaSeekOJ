@@ -138,7 +138,7 @@ export default {
       columns: [
         {
           title: 'ID',
-          key: '_id',
+          key: 'id',
           width: 80,
           align: 'center'
         },

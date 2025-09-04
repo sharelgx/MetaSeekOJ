@@ -126,7 +126,7 @@ class ChoiceQuestionCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = ChoiceQuestion
         exclude = ['_id', 'create_time', 'last_update_time', 'created_by',
-                  'total_submit', 'total_accepted', 'tags']
+                  'total_submit', 'total_accepted']
         
     def validate_options(self, value):
         """验证选项格式"""

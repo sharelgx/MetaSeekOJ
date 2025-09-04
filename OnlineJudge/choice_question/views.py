@@ -550,6 +550,8 @@ class ChoiceQuestionImportAPI(CSRFExemptAPIView):
             import_data = {
                 'questions': request.data.get('questions', []),
                 'category_id': request.data.get('category_id'),
+                'tag_ids': request.data.get('tag_ids', []),
+                'language': request.data.get('language'),
                 'created_by': request.user
             }
             
