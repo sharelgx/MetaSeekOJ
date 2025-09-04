@@ -1157,16 +1157,31 @@ export default {
             
             const hlLanguage = questionLanguage ? languageMap[questionLanguage] : null
             
+            // 获取现有的class属性
+            const existingClasses = block.className || ''
+            const hasLangClass = /lang-\w+/.test(existingClasses)
+            const hasHljsClass = existingClasses.includes('hljs')
+            
             // 兼容不同版本的 highlight.js
             if (typeof hljs.highlightElement === 'function') {
-              // 如果指定了语言，先设置语言类
+              // 如果指定了语言，设置或更新语言类
               if (hlLanguage) {
-                block.className = `language-${hlLanguage}`
+                if (!hasLangClass) {
+                  block.className = `${existingClasses} lang-${questionLanguage}`.trim()
+                }
+                if (!hasHljsClass) {
+                  block.className = `${block.className} hljs ${hlLanguage}`.trim()
+                }
               }
               hljs.highlightElement(block)
             } else if (typeof hljs.highlightBlock === 'function') {
               if (hlLanguage) {
-                block.className = `language-${hlLanguage}`
+                if (!hasLangClass) {
+                  block.className = `${existingClasses} lang-${questionLanguage}`.trim()
+                }
+                if (!hasHljsClass) {
+                  block.className = `${block.className} hljs ${hlLanguage}`.trim()
+                }
               }
               hljs.highlightBlock(block)
             } else {
@@ -1175,12 +1190,21 @@ export default {
               if (hlLanguage && hljs.getLanguage(hlLanguage)) {
                 // 使用指定语言高亮
                 result = hljs.highlight(hlLanguage, block.textContent)
+                block.innerHTML = result.value
+                if (!hasLangClass) {
+                  block.className = `${existingClasses} lang-${questionLanguage}`.trim()
+                }
+                if (!hasHljsClass) {
+                  block.className = `${block.className} hljs ${hlLanguage}`.trim()
+                }
               } else {
                 // 自动检测语言
                 result = hljs.highlightAuto(block.textContent)
+                block.innerHTML = result.value
+                if (!hasHljsClass) {
+                  block.className = `${existingClasses} hljs ${result.language || ''}`.trim()
+                }
               }
-              block.innerHTML = result.value
-              block.className = `hljs ${result.language || hlLanguage || ''}`
             }
           } catch (e) {
             console.warn('代码高亮失败:', e)
