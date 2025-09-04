@@ -410,9 +410,24 @@ class ExamSessionAPI(CSRFExemptAPIView):
             # 构建查询条件
             query = ChoiceQuestion.objects.filter(visible=True)
             
-            # 按分类筛选
+            # 按分类筛选（包含子分类）
             if hasattr(paper, 'categories') and paper.categories.exists():
-                query = query.filter(category__in=paper.categories.all())
+                # 获取所有分类及其子分类的ID
+                category_ids = []
+                for category in paper.categories.all():
+                    category_ids.append(category.id)
+                    
+                    # 递归获取子分类
+                    def get_child_categories(parent):
+                        from ..models import Category
+                        children = Category.objects.filter(parent=parent)
+                        for child in children:
+                            category_ids.append(child.id)
+                            get_child_categories(child)
+                    
+                    get_child_categories(category)
+                
+                query = query.filter(category_id__in=category_ids)
             
             # 按标签筛选
             if hasattr(paper, 'tags') and paper.tags.exists():

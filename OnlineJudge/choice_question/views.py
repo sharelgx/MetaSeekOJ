@@ -195,7 +195,23 @@ class ChoiceQuestionAPI(CSRFExemptAPIView):
         
         category_id = request.GET.get('category')
         if category_id:
-            questions = questions.filter(category_id=category_id)
+            # 获取当前分类及其所有子分类的ID
+            try:
+                parent_category = Category.objects.get(id=category_id)
+                # 获取所有子分类（包括当前分类）
+                category_ids = [parent_category.id]
+                
+                def get_child_categories(parent):
+                    children = Category.objects.filter(parent=parent)
+                    for child in children:
+                        category_ids.append(child.id)
+                        get_child_categories(child)  # 递归获取子分类
+                
+                get_child_categories(parent_category)
+                questions = questions.filter(category_id__in=category_ids)
+            except Category.DoesNotExist:
+                # 如果分类不存在，返回空结果
+                questions = questions.none()
         
         tag_id = request.GET.get('tag')
         if tag_id:
