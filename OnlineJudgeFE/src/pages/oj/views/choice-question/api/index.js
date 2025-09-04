@@ -189,5 +189,12 @@ export default {
     return ajax(`plugin/choice/exam-sessions/${sessionId}/submit/`, 'post', {
       data
     })
+  },
+
+  // 考试历史记录
+  getExamHistoryList(params) {
+    return ajax('plugin/choice/exam-sessions/', 'get', {
+      params
+    })
   }
 }

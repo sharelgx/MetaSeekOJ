@@ -582,6 +582,49 @@ export default {
           throw new Error('题目数据为空')
         }
         
+        // 验证和修复options数据格式
+        if (this.question.options) {
+          console.log('原始options数据:', this.question.options, '类型:', typeof this.question.options)
+          
+          // 如果options是字符串，尝试解析为JSON
+          if (typeof this.question.options === 'string') {
+            try {
+              this.question.options = JSON.parse(this.question.options)
+              console.log('解析后的options:', this.question.options)
+            } catch (parseErr) {
+              console.error('解析options JSON失败:', parseErr)
+              this.$Message.error('题目选项数据格式错误')
+              return
+            }
+          }
+          
+          // 确保options是数组
+          if (!Array.isArray(this.question.options)) {
+            console.error('options不是数组:', this.question.options)
+            this.$Message.error('题目选项数据格式错误')
+            return
+          }
+          
+          // 验证每个选项的格式
+          for (let i = 0; i < this.question.options.length; i++) {
+            const option = this.question.options[i]
+            if (!option || typeof option !== 'object') {
+              console.error(`选项${i}格式错误:`, option)
+              this.$Message.error('题目选项数据格式错误')
+              return
+            }
+            
+            // 确保选项有key和text字段
+            if (!option.key || !option.text) {
+              console.error(`选项${i}缺少必要字段:`, option)
+              this.$Message.error('题目选项数据格式错误')
+              return
+            }
+          }
+          
+          console.log('验证通过的options:', this.question.options)
+        }
+        
         // 数据加载完成后处理图片、代码高亮和数学公式渲染
         this.$nextTick(() => {
           this.handleImageResize()
@@ -590,6 +633,7 @@ export default {
         })
         
       } catch (err) {
+        console.error('获取题目详情失败:', err)
         this.$Message.error('获取题目详情失败')
         
         // 如果题目不存在，可能需要跳转回列表页

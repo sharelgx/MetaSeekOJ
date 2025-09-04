@@ -329,11 +329,21 @@ export default {
         this.examSession = sessionResponse.data.data || sessionResponse.data || sessionResponse
         console.log('考试会话:', this.examSession)
         
+        // 验证考试会话是否创建成功
+        if (!this.examSession || !this.examSession.id) {
+          throw new Error('考试会话创建失败，会话ID为空')
+        }
+        
         // 3. 如果会话未开始，则开始考试
         if (this.examSession.status === 'created') {
           console.log('开始考试...')
           const startResponse = await api.startExamSession(this.examSession.id)
           this.examSession = startResponse.data.data || startResponse.data || startResponse
+          
+          // 验证开始考试是否成功
+          if (!this.examSession || !this.examSession.id) {
+            throw new Error('开始考试失败，会话状态异常')
+          }
         }
         
         // 4. 加载题目
@@ -343,6 +353,53 @@ export default {
           // 如果没有详情，根据ID列表加载题目
           await this.loadQuestionsByIds(this.examSession.questions)
         }
+        
+        console.log('加载题目完成:', this.questions.length, '题')
+        
+        // 验证和修复每个题目的options数据格式
+        this.questions.forEach((question, questionIndex) => {
+          if (question.options) {
+            console.log(`题目${questionIndex + 1}原始options数据:`, question.options, '类型:', typeof question.options)
+            
+            // 如果options是字符串，尝试解析为JSON
+            if (typeof question.options === 'string') {
+              try {
+                question.options = JSON.parse(question.options)
+                console.log(`题目${questionIndex + 1}解析后的options:`, question.options)
+              } catch (parseErr) {
+                console.error(`题目${questionIndex + 1}解析options JSON失败:`, parseErr)
+                this.$Message.error(`题目${questionIndex + 1}选项数据格式错误`)
+                return
+              }
+            }
+            
+            // 确保options是数组
+            if (!Array.isArray(question.options)) {
+              console.error(`题目${questionIndex + 1}options不是数组:`, question.options)
+              this.$Message.error(`题目${questionIndex + 1}选项数据格式错误`)
+              return
+            }
+            
+            // 验证每个选项的格式
+            for (let i = 0; i < question.options.length; i++) {
+              const option = question.options[i]
+              if (!option || typeof option !== 'object') {
+                console.error(`题目${questionIndex + 1}选项${i}格式错误:`, option)
+                this.$Message.error(`题目${questionIndex + 1}选项数据格式错误`)
+                return
+              }
+              
+              // 确保选项有key和text字段
+              if (!option.key || !option.text) {
+                console.error(`题目${questionIndex + 1}选项${i}缺少必要字段:`, option)
+                this.$Message.error(`题目${questionIndex + 1}选项数据格式错误`)
+                return
+              }
+            }
+            
+            console.log(`题目${questionIndex + 1}验证通过的options:`, question.options)
+          }
+        })
         
         // 5. 设置剩余时间
         this.remainingTime = this.examSession.remaining_time || (this.examPaper.duration * 60)
@@ -367,10 +424,8 @@ export default {
     async createOrGetSession() {
       try {
         // 尝试创建新的考试会话
-        const sessionRes = await api.createExamSession({
-          exam_paper: this.examPaper.id
-        })
-        this.examSession = sessionRes.data.data
+        const sessionRes = await api.createExamSession(this.examPaper.id)
+        this.examSession = sessionRes.data.data || sessionRes.data || sessionRes
         
         // 如果会话已存在，加载已有答案
         if (this.examSession.answers) {
@@ -584,6 +639,13 @@ export default {
       try {
         this.loading = true
         
+        // 检查考试会话是否存在
+        if (!this.examSession || !this.examSession.id) {
+          console.error('考试会话不存在或ID为空:', this.examSession)
+          this.$Message.error('考试会话异常，无法提交试卷')
+          return
+        }
+        
         // 清除防抖定时器
         if (this.saveTimer) {
           clearTimeout(this.saveTimer)
@@ -612,7 +674,7 @@ export default {
         
       } catch (err) {
         console.error('提交试卷失败:', err)
-        this.$Message.error('提交试卷失败')
+        this.$Message.error('提交试卷失败：' + (err.message || '未知错误'))
       } finally {
         this.loading = false
         this.submitModalVisible = false

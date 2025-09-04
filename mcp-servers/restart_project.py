@@ -55,8 +55,8 @@ def restart_project():
     # 停止前端服务 (端口8080)
     kill_process_by_port(8080)
     
-    # 停止后端服务 (端口8086)
-    kill_process_by_port(8086)
+    # 停止后端服务 (端口8081)
+    kill_process_by_port(8081)
     
     # 停止可能的其他相关进程
     kill_process_by_name('redis-server')
@@ -87,7 +87,7 @@ def restart_project():
     # 3. 启动后端服务
     print("\n3. 启动后端Django服务...")
     backend_dir = "/home/metaspeekoj/OnlineJudge"
-    backend_cmd = ["python3", "manage.py", "runserver", "0.0.0.0:8086"]
+    backend_cmd = ["python3", "manage.py", "runserver", "0.0.0.0:8081"]
     
     try:
         backend_process = subprocess.Popen(
@@ -140,7 +140,7 @@ def restart_project():
             for conn in proc.info['connections']:
                 if conn.laddr.port == 6379:
                     redis_running = True
-                elif conn.laddr.port == 8086:
+                elif conn.laddr.port == 8081:
                     backend_running = True
                 elif conn.laddr.port == 8080:
                     frontend_running = True
@@ -148,13 +148,13 @@ def restart_project():
             pass
     
     print(f"Redis服务 (端口6379): {'✓ 运行中' if redis_running else '✗ 未运行'}")
-    print(f"后端服务 (端口8086): {'✓ 运行中' if backend_running else '✗ 未运行'}")
+    print(f"后端服务 (端口8081): {'✓ 运行中' if backend_running else '✗ 未运行'}")
     print(f"前端服务 (端口8080): {'✓ 运行中' if frontend_running else '✗ 未运行'}")
     
     if redis_running and backend_running and frontend_running:
         print("\n=== 项目重启成功! ===")
         print("前端访问地址: http://localhost:8080")
-        print("后端API地址: http://localhost:8086")
+        print("后端API地址: http://localhost:8081")
         return True
     else:
         print("\n=== 项目重启部分失败，请检查日志 ===")

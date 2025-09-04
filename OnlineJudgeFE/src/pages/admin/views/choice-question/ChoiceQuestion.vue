@@ -46,6 +46,30 @@
               <el-switch v-model="choiceQuestion.visible"></el-switch>
             </el-form-item>
           </el-col>
+          <el-col :span="8">
+            <el-form-item prop="language" :label="$t('m.Programming_Language')">
+              <el-select v-model="choiceQuestion.language" :placeholder="$t('m.Select_Programming_Language')" clearable>
+                <el-option label="Plain Text" value="text"></el-option>
+                <el-option label="C" value="c"></el-option>
+                <el-option label="C++" value="cpp"></el-option>
+                <el-option label="Java" value="java"></el-option>
+                <el-option label="Python" value="python"></el-option>
+                <el-option label="JavaScript" value="javascript"></el-option>
+                <el-option label="TypeScript" value="typescript"></el-option>
+                <el-option label="Go" value="go"></el-option>
+                <el-option label="Rust" value="rust"></el-option>
+                <el-option label="PHP" value="php"></el-option>
+                <el-option label="C#" value="csharp"></el-option>
+                <el-option label="Kotlin" value="kotlin"></el-option>
+                <el-option label="Swift" value="swift"></el-option>
+                <el-option label="Ruby" value="ruby"></el-option>
+                <el-option label="SQL" value="sql"></el-option>
+                <el-option label="HTML" value="html"></el-option>
+                <el-option label="CSS" value="css"></el-option>
+                <el-option label="Bash" value="bash"></el-option>
+              </el-select>
+            </el-form-item>
+          </el-col>
           <el-col :span="24">
             <el-form-item prop="tags" :label="$t('m.Tags')">
               <el-select
@@ -139,6 +163,7 @@
           question_type: 'single',
           category: null,
           tags: [],
+          language: 'text',
           options: [
             { text: '', is_correct: false },
             { text: '', is_correct: false },
