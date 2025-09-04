@@ -45,8 +45,7 @@
               <div class="question-text" v-html="currentQuestion.text"></div>
               
               <!-- 题目描述 -->
-              <div v-if="currentQuestion.description" class="question-description">
-                {{ currentQuestion.description }}
+              <div v-if="currentQuestion.description" class="question-description" v-html="currentQuestion.description">
               </div>
               
               <!-- 选项 -->
@@ -58,7 +57,7 @@
                   :class="getOptionClass(index)"
                 >
                   <span class="option-label">{{ String.fromCharCode(65 + index) }}.</span>
-                  <span class="option-text">{{ option }}</span>
+                  <span class="option-text" v-html="getOptionText(option)"></span>
                   <span v-if="isCorrectOption(index)" class="correct-mark">
                     <Icon type="ios-checkmark-circle" color="#52c41a" size="18" />
                   </span>
@@ -210,9 +209,28 @@ export default {
       return this.userAnswers[questionId] || []
     },
     
+    getOptionText(option) {
+      // 如果option是对象，返回text字段；如果是字符串，直接返回
+      if (typeof option === 'object' && option !== null) {
+        return option.text || option
+      }
+      return option
+    },
+    
+    getCorrectAnswerIndexes() {
+      // 将字符串格式的正确答案转换为索引数组
+      if (!this.currentQuestion.correct_answer) return []
+      
+      const answerStr = this.currentQuestion.correct_answer
+      if (typeof answerStr === 'string') {
+        return answerStr.split(',').map(letter => letter.charCodeAt(0) - 65)
+      }
+      return answerStr
+    },
+    
     isAnswerCorrect() {
       const userAnswer = this.getUserAnswer()
-      const correctAnswer = this.currentQuestion.correct_answer || []
+      const correctAnswer = this.getCorrectAnswerIndexes()
       
       if (userAnswer.length !== correctAnswer.length) {
         return false
@@ -222,7 +240,8 @@ export default {
     },
     
     isCorrectOption(index) {
-      return this.currentQuestion.correct_answer && this.currentQuestion.correct_answer.includes(index)
+      const correctIndexes = this.getCorrectAnswerIndexes()
+      return correctIndexes.includes(index)
     },
     
     isUserSelectedOption(index) {
@@ -267,8 +286,19 @@ export default {
     },
     
     formatAnswer(answer) {
-      if (!answer || answer.length === 0) return ''
-      return answer.map(index => String.fromCharCode(65 + index)).join(', ')
+      if (!answer) return ''
+      
+      // 如果是字符串格式（如"A"或"A,B,C"），直接返回
+      if (typeof answer === 'string') {
+        return answer.split(',').join(', ')
+      }
+      
+      // 如果是数组格式（索引数组），转换为字母
+      if (Array.isArray(answer) && answer.length > 0) {
+        return answer.map(index => String.fromCharCode(65 + index)).join(', ')
+      }
+      
+      return ''
     },
     
     formatDate(dateString) {
