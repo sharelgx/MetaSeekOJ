@@ -1123,24 +1123,43 @@ export default {
     // 代码高亮方法
     highlightCode() {
       try {
-        const codeBlocks = this.$el.querySelectorAll('pre code, code')
+        // 查找所有代码块，包括pre标签和code标签
+        const codeBlocks = this.$el.querySelectorAll('pre code, code, pre')
         codeBlocks.forEach(block => {
           if (block.tagName === 'CODE' && block.parentNode.tagName !== 'PRE') {
             // 行内代码，不需要高亮
             return
           }
           try {
-            // 获取题目的编程语言设置
-            const questionLanguage = this.question && this.question.language ? this.question.language : null
+            // 优先检查pre标签的data-lang属性
+            let targetLanguage = null
+            let preElement = null
+            
+            if (block.tagName === 'PRE') {
+              preElement = block
+              targetLanguage = block.getAttribute('data-lang')
+            } else if (block.parentNode && block.parentNode.tagName === 'PRE') {
+              preElement = block.parentNode
+              targetLanguage = preElement.getAttribute('data-lang')
+            }
+            
+            // 如果没有data-lang属性，则使用题目的编程语言设置
+            if (!targetLanguage) {
+              targetLanguage = this.question && this.question.language ? this.question.language : null
+            }
             
             // 语言映射表，将我们的语言标识映射到highlight.js的语言名称
             const languageMap = {
               'cpp': 'cpp',
+              'c++': 'cpp',
               'c': 'c',
               'java': 'java',
               'python': 'python',
+              'python3': 'python',
               'javascript': 'javascript',
+              'js': 'javascript',
               'typescript': 'typescript',
+              'ts': 'typescript',
               'go': 'go',
               'rust': 'rust',
               'php': 'php',
@@ -1148,14 +1167,16 @@ export default {
               'swift': 'swift',
               'kotlin': 'kotlin',
               'csharp': 'csharp',
+              'c#': 'csharp',
               'sql': 'sql',
               'html': 'html',
               'css': 'css',
               'bash': 'bash',
+              'shell': 'bash',
               'text': null
             }
             
-            const hlLanguage = questionLanguage ? languageMap[questionLanguage] : null
+            const hlLanguage = targetLanguage ? languageMap[targetLanguage.toLowerCase()] : null
             
             // 获取现有的class属性
             const existingClasses = block.className || ''
@@ -1167,7 +1188,7 @@ export default {
               // 如果指定了语言，设置或更新语言类
               if (hlLanguage) {
                 if (!hasLangClass) {
-                  block.className = `${existingClasses} lang-${questionLanguage}`.trim()
+                  block.className = `${existingClasses} lang-${targetLanguage}`.trim()
                 }
                 if (!hasHljsClass) {
                   block.className = `${block.className} hljs ${hlLanguage}`.trim()
@@ -1177,7 +1198,7 @@ export default {
             } else if (typeof hljs.highlightBlock === 'function') {
               if (hlLanguage) {
                 if (!hasLangClass) {
-                  block.className = `${existingClasses} lang-${questionLanguage}`.trim()
+                  block.className = `${existingClasses} lang-${targetLanguage}`.trim()
                 }
                 if (!hasHljsClass) {
                   block.className = `${block.className} hljs ${hlLanguage}`.trim()
@@ -1192,7 +1213,7 @@ export default {
                 result = hljs.highlight(hlLanguage, block.textContent)
                 block.innerHTML = result.value
                 if (!hasLangClass) {
-                  block.className = `${existingClasses} lang-${questionLanguage}`.trim()
+                  block.className = `${existingClasses} lang-${targetLanguage}`.trim()
                 }
                 if (!hasHljsClass) {
                   block.className = `${block.className} hljs ${hlLanguage}`.trim()
