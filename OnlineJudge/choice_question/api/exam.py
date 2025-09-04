@@ -429,9 +429,11 @@ class ExamSessionAPI(CSRFExemptAPIView):
                 
                 query = query.filter(category_id__in=category_ids)
             
-            # 按标签筛选
+            # 按标签筛选 - 只有当试卷明确设置了标签时才进行筛选
             if hasattr(paper, 'tags') and paper.tags.exists():
-                query = query.filter(tags__in=paper.tags.all())
+                tag_ids = list(paper.tags.values_list('id', flat=True))
+                if tag_ids:  # 确保标签列表不为空
+                    query = query.filter(tags__in=tag_ids)
             
             # 按难度分配题目
             questions = []
