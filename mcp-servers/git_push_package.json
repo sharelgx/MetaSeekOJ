@@ -1,0 +1,35 @@
+{
+  "name": "git-push-mcp-server",
+  "version": "1.0.0",
+  "description": "MCP服务器用于Git推送操作，支持自动添加、提交和推送到GitHub",
+  "main": "git_push_mcp_server.js",
+  "scripts": {
+    "start": "node git_push_mcp_server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "mcp",
+    "git",
+    "push",
+    "github",
+    "automation",
+    "version-control"
+  ],
+  "author": "MetaSeekOJ Project",
+  "license": "MIT",
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^0.5.0"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sharelgx/MetaSeekOJ.git"
+  },
+  "bugs": {
+    "url": "https://github.com/sharelgx/MetaSeekOJ/issues"
+  },
+  "homepage": "https://github.com/sharelgx/MetaSeekOJ#readme"
+}

@@ -301,6 +301,9 @@ class ExamSessionAPI(CSRFExemptAPIView):
                         # 前端期望的字段名是questions，不是question_details
                         data['questions'] = question_data
                         data['question_details'] = question_data  # 保持向后兼容
+                        
+                        # 添加用户答案映射，供前端ExamReview使用
+                        data['user_answers'] = session.answers
                     
                     # 添加剩余时间
                     if hasattr(session, 'get_remaining_time'):

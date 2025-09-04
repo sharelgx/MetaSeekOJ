@@ -613,7 +613,7 @@ export default {
           })
           
           // 检查响应是否真的成功
-          if (response.data && response.data.error) {
+          if (response.data && response.data.error !== null) {
             console.error('保存失败:', response.data.data || response.data.error)
             this.$Message.error('保存答案失败：' + (response.data.data || response.data.error))
           } else {

@@ -240,7 +240,39 @@ class ExamSessionSerializer(serializers.ModelSerializer):
     """考试会话序列化器"""
     user = UserSerializer(read_only=True)
     paper = ExamPaperSerializer(read_only=True)
+    score_percentage = serializers.SerializerMethodField()
+    accuracy_rate = serializers.SerializerMethodField()
+    duration = serializers.SerializerMethodField()
+    max_score = serializers.SerializerMethodField()
+    exam_paper_title = serializers.SerializerMethodField()
     
     class Meta:
         model = ExamSession
         fields = '__all__'
+    
+    def get_score_percentage(self, obj):
+        """计算得分率"""
+        if obj.paper and obj.paper.total_score > 0:
+            return round((obj.score or 0) / obj.paper.total_score * 100, 1)
+        return 0
+    
+    def get_accuracy_rate(self, obj):
+        """计算正确率"""
+        if obj.total_count > 0:
+            return round((obj.correct_count or 0) / obj.total_count * 100, 1)
+        return 0
+    
+    def get_duration(self, obj):
+        """计算考试用时（分钟）"""
+        if obj.start_time and obj.end_time:
+            duration_seconds = (obj.end_time - obj.start_time).total_seconds()
+            return int(duration_seconds / 60)
+        return 0
+    
+    def get_max_score(self, obj):
+        """获取满分"""
+        return obj.paper.total_score if obj.paper else 0
+    
+    def get_exam_paper_title(self, obj):
+        """获取试卷标题"""
+        return obj.paper.title if obj.paper else ''
