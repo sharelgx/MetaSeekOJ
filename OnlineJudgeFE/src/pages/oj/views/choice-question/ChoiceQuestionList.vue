@@ -362,21 +362,15 @@ export default {
     },
     
     handleTagChange() {
-      console.log('标签选择变化事件触发')
-      console.log('选中的标签ID:', this.selectedTag)
-      console.log('当前标签列表:', this.tags)
       this.currentPage = 1
       this.getQuestionList()
     },
     
     onTagSelectOpen() {
-      console.log('标签下拉框打开')
-      console.log('tags数组:', this.tags)
-      console.log('tags长度:', this.tags.length)
+      // 标签下拉框打开事件处理
     },
     
     selectTag(tagId) {
-      console.log('Tag被点击，标签ID:', tagId)
       this.selectedTag = tagId
       this.handleTagChange()
       // 关闭下拉框

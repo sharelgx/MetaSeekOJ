@@ -315,14 +315,11 @@ export default {
     },
     
     async viewDetail(sessionId) {
-      try {
-        const res = await api.getExamSessionDetail(sessionId)
-        this.currentExamDetail = res.data.data
-        this.detailModalVisible = true
-      } catch (err) {
-        this.$Message.error('获取考试详情失败')
-        console.error(err)
-      }
+      // 跳转到考试回顾页面，显示完整试卷
+      this.$router.push({
+        name: 'exam-review',
+        params: { sessionId: sessionId }
+      })
     },
     
     getStatusColor(status) {

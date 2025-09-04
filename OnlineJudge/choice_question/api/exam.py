@@ -273,7 +273,7 @@ class ExamSessionAPI(CSRFExemptAPIView):
                     if session.questions:
                         questions = ChoiceQuestion.objects.filter(id__in=session.questions)
                         question_data = []
-                        for q in questions:
+                        for i, q in enumerate(questions):
                             question_info = {
                                 'id': q.id,
                                 'title': getattr(q, 'title', ''),
@@ -282,14 +282,25 @@ class ExamSessionAPI(CSRFExemptAPIView):
                                 'options': q.options,
                                 'question_type': q.question_type,
                                 'difficulty': q.difficulty,
-                                'score': q.score
+                                'score': q.score,
+                                'order': i + 1  # 添加题目序号
                             }
-                            # 如果考试已结束，显示正确答案
+                            
+                            # 获取用户答案
+                            user_answer = session.answers.get(str(q.id), [])
+                            question_info['user_answer'] = user_answer
+                            
+                            # 如果考试已结束，显示正确答案和判题结果
                             if session.status in ['submitted', 'timeout']:
                                 question_info['correct_answer'] = getattr(q, 'correct_answer', None)
                                 question_info['explanation'] = getattr(q, 'explanation', '')
+                                question_info['is_correct'] = session.is_answer_correct(q, user_answer)
+                            
                             question_data.append(question_info)
-                        data['question_details'] = question_data
+                        
+                        # 前端期望的字段名是questions，不是question_details
+                        data['questions'] = question_data
+                        data['question_details'] = question_data  # 保持向后兼容
                     
                     # 添加剩余时间
                     if hasattr(session, 'get_remaining_time'):

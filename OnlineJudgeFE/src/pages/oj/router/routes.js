@@ -120,6 +120,12 @@ export default [
     component: ChoiceQuestion.ExamResult
   },
   {
+    name: 'exam-review',
+    path: '/exam-review/:sessionId',
+    meta: {title: 'Exam Review'},
+    component: ChoiceQuestion.ExamReview
+  },
+  {
     name: 'submission-list',
     path: '/status',
     meta: {title: 'Submission List'},

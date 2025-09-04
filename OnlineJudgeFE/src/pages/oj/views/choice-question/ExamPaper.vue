@@ -40,7 +40,8 @@
               </div>
               
               <div class="question-content">
-                <p class="question-text">{{ currentQuestion.content }}</p>
+                <div class="question-text" v-html="currentQuestion.content"></div>
+                <div v-if="currentQuestion.description" class="question-description" v-html="currentQuestion.description"></div>
                 
                 <div class="options">
                   <div 
@@ -811,6 +812,17 @@ export default {
   line-height: 1.6;
   margin-bottom: 20px;
   color: #333;
+}
+
+.question-description {
+  font-size: 14px;
+  line-height: 1.5;
+  margin-bottom: 20px;
+  color: #666;
+  background: #f8f9fa;
+  padding: 12px 16px;
+  border-radius: 6px;
+  border-left: 4px solid #2d8cf0;
 }
 
 .options {
