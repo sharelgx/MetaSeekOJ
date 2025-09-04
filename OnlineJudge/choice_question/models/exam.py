@@ -40,6 +40,11 @@ class ExamPaper(PluginBaseModel):
     
     # 试卷状态
     is_active = models.BooleanField(default=True, verbose_name="是否启用")
+    use_import_order = models.BooleanField(
+        default=False, 
+        help_text='是否按题目导入顺序显示题目，适用于整套试卷导入的场景', 
+        verbose_name='按导入顺序排序'
+    )
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="创建者")
     
     class Meta:
@@ -60,9 +65,14 @@ class ExamPaper(PluginBaseModel):
         # 获取基础查询集
         queryset = ChoiceQuestion.objects.filter(is_public=True)
         
-        # 按分类筛选
+        # 按分类筛选（包含子分类）
         if self.categories.exists():
-            queryset = queryset.filter(category__in=self.categories.all())
+            all_categories = []
+            for category in self.categories.all():
+                # 获取当前分类及其所有子分类
+                descendant_categories = category.get_descendants(include_self=True)
+                all_categories.extend(descendant_categories)
+            queryset = queryset.filter(category__in=all_categories)
         
         # 按标签筛选
         if self.tags.exists():
