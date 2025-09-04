@@ -185,12 +185,49 @@ class ExamSession(PluginBaseModel):
     def is_answer_correct(self, question, user_answer):
         """
         判断答案是否正确
+        支持前端提交的索引格式和后端存储的字母格式
         """
+        if user_answer is None:
+            return False
+            
+        # 获取选项键值映射
+        option_keys = []
+        if question.options:
+            if isinstance(question.options, str):
+                import json
+                options = json.loads(question.options)
+            else:
+                options = question.options
+            
+            if isinstance(options, list):
+                option_keys = [opt.get('key', chr(65 + i)) for i, opt in enumerate(options)]
+            
         if question.question_type == 'single':
+            # 处理前端提交的索引格式 [0] -> 'A'
+            if isinstance(user_answer, list) and len(user_answer) == 1:
+                index = user_answer[0]
+                if isinstance(index, int) and 0 <= index < len(option_keys):
+                    user_answer = option_keys[index]
+            # 处理直接提交的索引格式 0 -> 'A'
+            elif isinstance(user_answer, int) and 0 <= user_answer < len(option_keys):
+                user_answer = option_keys[user_answer]
+                
             return user_answer == question.correct_answer
+            
         elif question.question_type == 'multiple':
+            # 处理多选题的索引格式
+            if isinstance(user_answer, list):
+                converted_answers = []
+                for ans in user_answer:
+                    if isinstance(ans, int) and 0 <= ans < len(option_keys):
+                        converted_answers.append(option_keys[ans])
+                    else:
+                        converted_answers.append(ans)
+                user_answer = converted_answers
+                
             if isinstance(user_answer, list) and isinstance(question.correct_answer, list):
                 return set(user_answer) == set(question.correct_answer)
+                
         return False
     
     def get_remaining_time(self):

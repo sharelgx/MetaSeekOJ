@@ -17,6 +17,9 @@ urlpatterns = [
     # 选择题管理
     re_path(r"^choice_question/?$", ChoiceQuestionAdminAPI.as_view(), name="choice_question_admin"),
     
+    # 选择题批量操作
+    re_path(r"^choice_question/batch_operation/?$", ChoiceQuestionAdminAPI.as_view(), name="choice_question_batch_operation"),
+    
     # 选择题导入
     re_path(r"^choice_question/import/?$", ChoiceQuestionImportAPI.as_view(), name="choice_question_import"),
     
