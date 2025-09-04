@@ -19,9 +19,19 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class ChoiceQuestionCategorySerializer(serializers.ModelSerializer):
+    children = serializers.SerializerMethodField()
+    
     class Meta:
         model = Category
         fields = '__all__'
+    
+    def get_children(self, obj):
+        """递归获取子分类"""
+        if hasattr(obj, 'get_children'):
+            children = obj.get_children().filter(is_active=True).order_by('order', 'name')
+            if children.exists():
+                return ChoiceQuestionCategorySerializer(children, many=True, context=self.context).data
+        return []
 
 
 class ChoiceQuestionTagSerializer(serializers.ModelSerializer):

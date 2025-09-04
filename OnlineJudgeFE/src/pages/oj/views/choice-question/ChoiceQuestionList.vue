@@ -25,14 +25,30 @@
             </div>
           </Col>
           <Col :span="4">
-            <Select v-model="selectedCategory" placeholder="选择分类" clearable @on-change="handleCategoryChange">
-              <Option 
-                v-for="category in categories" 
-                :key="category.id"
-                :value="category.id"
-              >
-                {{ category.name }}
-              </Option>
+            <Select v-model="selectedCategory" placeholder="分类" clearable @on-change="handleCategoryChange">
+              <template v-for="category in categories">
+                <Option 
+                  :key="category.id"
+                  :value="category.id"
+                >
+                  {{ category.name }}
+                </Option>
+                <template v-for="child in category.children">
+                  <Option 
+                    :key="child.id"
+                    :value="child.id"
+                  >
+                    &nbsp;&nbsp;└ {{ child.name }}
+                  </Option>
+                  <Option 
+                    v-for="grandchild in child.children" 
+                    :key="grandchild.id"
+                    :value="grandchild.id"
+                  >
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└ {{ grandchild.name }}
+                  </Option>
+                </template>
+              </template>
             </Select>
           </Col>
           <Col :span="4">
@@ -320,7 +336,7 @@ export default {
         
         const res = await api.getChoiceQuestionList(offset, limit, params)
         this.questions = res.data.data.results || []
-        this.total = res.data.data.total || 0
+        this.total = res.data.data.total || res.data.data.count || 0
       } catch (err) {
         this.$Message.error('获取题目列表失败')
         console.error(err)
@@ -433,19 +449,39 @@ export default {
     async showExamModeDialog() {
       
       try {
-        // 创建默认的考试配置
+        // 先获取符合条件的题目总数
+        const params = {
+          page_size: 1, // 只需要获取总数，不需要具体题目
+          page: 1
+        }
+        
+        // 添加当前的筛选条件
+        if (this.selectedCategory) params.category = this.selectedCategory
+        if (this.selectedDifficulty) params.difficulty = this.selectedDifficulty
+        if (this.selectedTag) params.tags = this.selectedTag
+        if (this.keyword) params.keyword = this.keyword
+        
+        const countRes = await api.getQuestionList(params)
+        const totalQuestions = countRes.data.data.count || 0
+        
+        if (totalQuestions === 0) {
+          this.$Message.warning('当前筛选条件下没有可用题目，请调整筛选条件')
+          return
+        }
+        
+        // 创建考试配置，使用所有符合条件的题目
         const examConfig = {
           title: '选择题考试',
-          description: '基于当前筛选条件的考试',
-          duration: 30, // 30分钟
-          question_count: 10, // 默认10题
-          total_score: 100, // 总分100分
+          description: `基于当前筛选条件的考试（共${totalQuestions}道题）`,
+          duration: Math.max(30, Math.ceil(totalQuestions * 2)), // 每题2分钟，最少30分钟
+          question_count: totalQuestions, // 使用所有符合条件的题目
+          total_score: totalQuestions * 2, // 每题2分
           categories: this.selectedCategory ? [this.selectedCategory] : [],
           tags: this.selectedTag ? [this.selectedTag] : [],
           difficulty_distribution: {
-            easy: 5,
-            medium: 3,
-            hard: 2
+            easy: Math.ceil(totalQuestions * 0.5),
+            medium: Math.ceil(totalQuestions * 0.3),
+            hard: Math.ceil(totalQuestions * 0.2)
           }
         }
         
@@ -453,7 +489,7 @@ export default {
         const response = await api.createExamPaper(examConfig)
         const paper = response.data.data || response.data
         
-        this.$Message.success('试卷创建成功！')
+        this.$Message.success(`试卷创建成功！共${totalQuestions}道题`)
         
         // 跳转到考试页面
         this.$router.push({

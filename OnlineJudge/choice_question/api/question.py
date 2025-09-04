@@ -49,18 +49,24 @@ class ChoiceQuestionAPI(APIView):
         logger.info(f"ChoiceQuestionAPI GET请求参数: category={category_id}, difficulty={difficulty}, tags={tag_ids}, keyword={keyword}, is_public={is_public}, question_type={question_type}")
         
         # 构建查询条件
+        print(f"[DEBUG] API被调用，category参数: {request.GET.get('category')}")
         queryset = ChoiceQuestion.objects.filter(visible=True)
+        print(f"[DEBUG] 初始查询集数量: {queryset.count()}")
         logger.info(f"初始查询集数量: {queryset.count()}")
         
         # 分类筛选
         if category_id:
+            print(f"[DEBUG] 开始分类筛选，category_id: {category_id}")
             try:
                 category = Category.objects.get(id=category_id)
                 # 包含子分类的题目
                 categories = category.get_descendants(include_self=True)
+                print(f"[DEBUG] 找到分类: {category.name}，子分类数量: {len(categories)}")
                 queryset = queryset.filter(category__in=categories)
+                print(f"[DEBUG] 分类筛选后查询集数量: {queryset.count()}")
                 logger.info(f"分类筛选后查询集数量: {queryset.count()}")
             except Category.DoesNotExist:
+                print(f"[DEBUG] 分类不存在: {category_id}")
                 logger.warning(f"分类不存在: category_id={category_id}")
                 pass
         
@@ -102,9 +108,16 @@ class ChoiceQuestionAPI(APIView):
         # 权限控制
         if not request.user.is_authenticated or not request.user.is_admin():
             queryset = queryset.filter(is_public=True)
+            print(f"[DEBUG] 权限控制后查询集数量: {queryset.count()}")
+            logger.info(f"权限控制后查询集数量: {queryset.count()}")
+        else:
+            print(f"[DEBUG] 管理员权限，跳过公开性筛选，查询集数量: {queryset.count()}")
+            logger.info(f"管理员权限，跳过公开性筛选，查询集数量: {queryset.count()}")
         
         # 排序
         queryset = queryset.select_related('category', 'created_by').prefetch_related('tags')
+        print(f"[DEBUG] 最终查询集数量: {queryset.count()}")
+        logger.info(f"最终查询集数量: {queryset.count()}")
         
         return self.success(self.paginate_data(request, queryset, ChoiceQuestionListSerializer))
     

@@ -7,6 +7,28 @@ from rest_framework import serializers
 from .models import ChoiceQuestion, Category, QuestionTag
 from .serializers import ChoiceQuestionCreateSerializer
 import re
+from bs4 import BeautifulSoup
+
+
+def process_html_with_language(html_content, language):
+    """
+    处理HTML内容，为代码块添加data-lang属性
+    """
+    if not html_content or not language:
+        return html_content
+    
+    # 解析HTML
+    soup = BeautifulSoup(html_content, 'html.parser')
+    
+    # 查找所有的pre标签（代码块）
+    pre_tags = soup.find_all('pre')
+    
+    for pre_tag in pre_tags:
+        # 如果pre标签没有data-lang属性，则添加
+        if not pre_tag.get('data-lang'):
+            pre_tag['data-lang'] = language
+    
+    return str(soup)
 
 
 class QuestionTypeField(serializers.Field):
@@ -105,13 +127,20 @@ class ChoiceQuestionImportItemSerializer(serializers.Serializer):
     
     def convert_to_create_format(self, data):
         """转换为ChoiceQuestionCreateSerializer期望的格式"""
-        # 转换选项格式
+        # 获取编程语言
+        language = data.get('language', '')
+        
+        # 转换选项格式，并处理选项中的代码块
         options = []
         for i, option_data in enumerate(data['options']):
             option_letter = chr(ord('A') + i)
+            option_text = option_data['content']
+            # 处理选项中的代码块
+            if language:
+                option_text = process_html_with_language(option_text, language)
             options.append({
                 'key': option_letter,
-                'text': option_data['content']
+                'text': option_text
             })
         
         # 转换题目类型 - 支持字符串和整数格式
@@ -132,19 +161,29 @@ class ChoiceQuestionImportItemSerializer(serializers.Serializer):
                 correct_answers.append(chr(ord('A') + i))
         correct_answer = ''.join(correct_answers) if correct_answers else 'A'
         
+        # 处理题目描述中的代码块
+        description = data['description']
+        if language:
+            description = process_html_with_language(description, language)
+        
+        # 处理解析中的代码块
+        explanation = data.get('explanation', '')
+        if language and explanation:
+            explanation = process_html_with_language(explanation, language)
+        
         # 过滤掉模型中不存在的字段（如language）
         result = {
             'title': data.get('title', ''),
-            'description': data['description'],
+            'description': description,
             'question_type': question_type,
             'difficulty': difficulty,
             'score': data.get('score', 2),
             'options': options,
             'correct_answer': correct_answer,
-            'explanation': data.get('explanation', ''),
+            'explanation': explanation,
             'visible': data.get('visible', True),
             'is_public': True,
-            'language': data.get('language', '')
+            'language': language
         }
         
         return result

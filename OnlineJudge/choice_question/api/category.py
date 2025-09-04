@@ -34,9 +34,10 @@ class CategoryAPI(APIView):
             categories = queryset.order_by('tree_id', 'lft')
             return self.success(ChoiceQuestionCategorySerializer(categories, many=True).data)
         else:
-            # 树形结构
+            # 树形结构 - 返回根分类及其所有子分类
             root_categories = queryset.filter(parent=None).order_by('order', 'name')
-            return self.success(ChoiceQuestionCategorySerializer(root_categories, many=True).data)
+            serializer = ChoiceQuestionCategorySerializer(root_categories, many=True)
+            return self.success(serializer.data)
     
     @super_admin_required
     @validate_serializer(ChoiceQuestionCategorySerializer)

@@ -231,23 +231,104 @@ export default {
     // 代码高亮方法
     highlightCode() {
       try {
-        const codeBlocks = this.$el.querySelectorAll('pre code, code')
+        // 查找所有代码块，包括pre标签和code标签
+        const codeBlocks = this.$el.querySelectorAll('pre code, code, pre')
         codeBlocks.forEach(block => {
           if (block.tagName === 'CODE' && block.parentNode.tagName !== 'PRE') {
             // 行内代码，不需要高亮
             return
           }
           try {
+            // 优先检查pre标签的data-lang属性
+            let targetLanguage = null
+            let preElement = null
+            
+            if (block.tagName === 'PRE') {
+              preElement = block
+              targetLanguage = block.getAttribute('data-lang')
+            } else if (block.parentNode && block.parentNode.tagName === 'PRE') {
+              preElement = block.parentNode
+              targetLanguage = preElement.getAttribute('data-lang')
+            }
+            
+            // 语言映射表，将我们的语言标识映射到highlight.js的语言名称
+            const languageMap = {
+              'cpp': 'cpp',
+              'c++': 'cpp',
+              'c': 'c',
+              'java': 'java',
+              'python': 'python',
+              'python3': 'python',
+              'javascript': 'javascript',
+              'js': 'javascript',
+              'typescript': 'typescript',
+              'ts': 'typescript',
+              'go': 'go',
+              'rust': 'rust',
+              'php': 'php',
+              'ruby': 'ruby',
+              'swift': 'swift',
+              'kotlin': 'kotlin',
+              'csharp': 'csharp',
+              'c#': 'csharp',
+              'sql': 'sql',
+              'html': 'html',
+              'css': 'css',
+              'bash': 'bash',
+              'shell': 'bash',
+              'text': null
+            }
+            
+            const hlLanguage = targetLanguage ? languageMap[targetLanguage.toLowerCase()] : null
+            
+            // 获取现有的class属性
+            const existingClasses = block.className || ''
+            const hasLangClass = /lang-\w+/.test(existingClasses)
+            const hasHljsClass = existingClasses.includes('hljs')
+            
             // 兼容不同版本的 highlight.js
             if (typeof hljs.highlightElement === 'function') {
+              // 如果指定了语言，设置或更新语言类
+              if (hlLanguage) {
+                if (!hasLangClass) {
+                  block.className = `${existingClasses} lang-${targetLanguage}`.trim()
+                }
+                if (!hasHljsClass) {
+                  block.className = `${block.className} hljs ${hlLanguage}`.trim()
+                }
+              }
               hljs.highlightElement(block)
             } else if (typeof hljs.highlightBlock === 'function') {
+              if (hlLanguage) {
+                if (!hasLangClass) {
+                  block.className = `${existingClasses} lang-${targetLanguage}`.trim()
+                }
+                if (!hasHljsClass) {
+                  block.className = `${block.className} hljs ${hlLanguage}`.trim()
+                }
+              }
               hljs.highlightBlock(block)
             } else {
               // 手动高亮
-              const result = hljs.highlightAuto(block.textContent)
-              block.innerHTML = result.value
-              block.className = `hljs ${result.language || ''}`
+              let result
+              if (hlLanguage && hljs.getLanguage(hlLanguage)) {
+                // 使用指定语言高亮
+                result = hljs.highlight(hlLanguage, block.textContent)
+                block.innerHTML = result.value
+                if (!hasLangClass) {
+                  block.className = `${existingClasses} lang-${targetLanguage}`.trim()
+                }
+                if (!hasHljsClass) {
+                  block.className = `${block.className} hljs ${hlLanguage}`.trim()
+                }
+              } else {
+                // 自动检测语言
+                result = hljs.highlightAuto(block.textContent)
+                block.innerHTML = result.value
+                if (!hasHljsClass) {
+                  block.className = `${existingClasses} hljs ${result.language || ''}`.trim()
+                }
+              }
             }
           } catch (e) {
             console.warn('代码高亮失败:', e)
