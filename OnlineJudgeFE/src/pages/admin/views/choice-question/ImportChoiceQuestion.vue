@@ -183,12 +183,12 @@
               <div class="field-descriptions">
                 <h4>字段说明</h4>
                 <ul>
-                  <li><strong>id</strong>: 题目ID（可选，导入时会自动生成）</li>
                   <li><strong>type</strong>: 题型，"single"（单选）或"multiple"（多选）</li>
                   <li><strong>question</strong>: 题目描述，支持HTML格式</li>
                   <li><strong>options</strong>: 选项数组，每个选项为字符串</li>
                   <li><strong>correct</strong>: 正确答案，单选为字母（如"A"），多选为字母数组（如["A","B"]）</li>
                   <li><strong>explanation</strong>: 答案解释（可选）</li>
+                  <li><strong>language</strong>: 编程语言（如"cpp", "java", "python"等，用于代码高亮）</li>
                 </ul>
               </div>
             </div>
@@ -250,20 +250,20 @@ export default {
       formatGuide: {
         example: [
           {
-            "id": 1,
             "type": "single",
             "question": "以下哪个是JavaScript的数据类型？",
             "options": ["String", "Integer", "Float", "Character"],
             "correct": "A",
-            "explanation": "JavaScript中有String类型，但没有Integer、Float、Character类型"
+            "explanation": "JavaScript中有String类型，但没有Integer、Float、Character类型",
+            "language": "cpp"
           },
           {
-            "id": 2,
             "type": "multiple",
             "question": "以下哪些是前端框架？",
             "options": ["Vue.js", "React", "Django", "Angular"],
             "correct": ["A", "B", "D"],
-            "explanation": "Vue.js、React、Angular都是前端框架，Django是后端框架"
+            "explanation": "Vue.js、React、Angular都是前端框架，Django是后端框架",
+            "language": "javascript"
           }
         ]
       }
