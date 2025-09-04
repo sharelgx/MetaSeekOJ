@@ -235,9 +235,29 @@ class BatchOperationAPI(BaseAPIView):
             elif action == 'set_private':
                 queryset.update(is_public=False)
             elif action == 'set_visible':
-                queryset.update(is_visible=True)
+                queryset.update(visible=True)
             elif action == 'set_hidden':
-                queryset.update(is_visible=False)
+                queryset.update(visible=False)
+            elif action == 'update_difficulty':
+                # 批量更新难度
+                params = request.data.get('params', {})
+                difficulty = params.get('difficulty')
+                if not difficulty or difficulty not in ['Easy', 'Medium', 'Hard']:
+                    return self.error("无效的难度值")
+                queryset.update(difficulty=difficulty)
+            elif action == 'update_language':
+                # 批量更新编程语言
+                params = request.data.get('params', {})
+                language = params.get('language')
+                if not language:
+                    return self.error("编程语言不能为空")
+                queryset.update(language=language)
+            elif action == 'update':
+                # 通用批量更新
+                params = request.data.get('params', {})
+                if not params:
+                    return self.error("更新参数不能为空")
+                queryset.update(**params)
             else:
                 return self.error("不支持的操作类型")
             

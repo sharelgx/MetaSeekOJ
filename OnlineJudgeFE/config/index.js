@@ -5,10 +5,10 @@
 const path = require('path')
 const commonProxy = {
   onProxyReq: (proxyReq, req, res) => {
-    const target = process.env.TARGET || 'http://localhost:8080'
+    const target = process.env.TARGET || 'http://localhost:8086'
     proxyReq.setHeader('Referer', target)
   },
-  target: process.env.TARGET || 'http://localhost:8080',
+  target: process.env.TARGET || 'http://localhost:8081',
   changeOrigin: true
 }
 
@@ -37,7 +37,7 @@ module.exports = {
   },
   dev: {
     env: require('./dev.env'),
-    port: process.env.PORT || 8081,
+    port: process.env.PORT || 8080,
     autoOpenBrowser: true,
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',
