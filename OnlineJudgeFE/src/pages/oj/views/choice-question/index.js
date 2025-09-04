@@ -5,6 +5,7 @@ export {default as WrongQuestionBook} from './WrongQuestionBook.vue'
 export {default as ExamPaper} from './ExamPaper.vue'
 export {default as ExamResult} from './ExamResult.vue'
 export {default as ExamHistory} from './ExamHistory.vue'
+export {default as ExamReview} from './ExamReview.vue'
 export {default as PracticeMode} from './PracticeMode.vue'
 
 // 选择题子组件导出

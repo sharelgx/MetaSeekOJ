@@ -7,6 +7,18 @@
         <Badge :count="total" style="margin-left: 10px" />
       </div>
       
+      <!-- 考试错题提示 -->
+      <div v-if="fromExamSession" class="exam-wrong-tips">
+        <Alert type="info" show-icon>
+          <span slot="desc">
+            正在显示本次考试的错题，共 {{ total }} 道。你可以在这里重做这些错题或查看详细解析。
+            <Button type="text" @click="showAllWrongQuestions" style="margin-left: 10px">
+              查看所有错题
+            </Button>
+          </span>
+        </Alert>
+      </div>
+      
       <!-- 筛选器 -->
       <div class="filter-section">
         <Row :gutter="10">
@@ -113,6 +125,11 @@ export default {
       noteModalVisible: false,
       currentNote: '',
       editingWrongQuestion: null,
+      
+      // 特定考试错题
+      fromExamSession: false,
+      examSessionId: null,
+      specificQuestionIds: [],
       
       columns: [
         {
@@ -282,6 +299,14 @@ export default {
   
   methods: {
     async init() {
+      // 检查是否从考试结果页面跳转过来
+      const { examSessionId, questionIds } = this.$route.query
+      if (examSessionId && questionIds) {
+        this.fromExamSession = true
+        this.examSessionId = examSessionId
+        this.specificQuestionIds = questionIds.split(',')
+      }
+      
       await Promise.all([
         this.getCategoryList(),
         this.getWrongQuestionList()
@@ -308,6 +333,11 @@ export default {
         if (this.selectedCategory) params.category = this.selectedCategory
         if (this.selectedDifficulty) params.difficulty = this.selectedDifficulty
         if (this.selectedType) params.type = this.selectedType
+        
+        // 如果是从考试结果页面跳转过来，只显示特定题目的错题
+        if (this.fromExamSession && this.specificQuestionIds.length > 0) {
+          params.question_ids = this.specificQuestionIds.join(',')
+        }
         
         const res = await api.getWrongQuestionList(params)
         this.wrongQuestions = res.data.data.results
@@ -341,6 +371,20 @@ export default {
     
     handleSelectionChange(selection) {
       this.selectedRows = selection
+    },
+    
+    showAllWrongQuestions() {
+      // 清除特定考试的筛选条件
+      this.fromExamSession = false
+      this.examSessionId = null
+      this.specificQuestionIds = []
+      this.currentPage = 1
+      
+      // 清除URL查询参数
+      this.$router.replace({ name: 'wrong-question-book' })
+      
+      // 重新获取所有错题
+      this.getWrongQuestionList()
     },
     
     goToQuestion(questionId) {
@@ -419,18 +463,22 @@ export default {
 
 <style scoped>
 .wrong-question-book {
-  margin: 20px;
+  padding: 20px;
+}
+
+.exam-wrong-tips {
+  margin-bottom: 16px;
 }
 
 .filter-section {
   margin-bottom: 20px;
   padding: 16px;
-  background: #f8f8f9;
+  background: #f8f9fa;
   border-radius: 4px;
 }
 
 .pagination {
   margin-top: 20px;
-  text-align: right;
+  text-align: center;
 }
 </style>

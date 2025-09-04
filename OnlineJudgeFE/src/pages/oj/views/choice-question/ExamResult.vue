@@ -133,7 +133,7 @@
         <div class="wrong-questions">
           <div v-for="(question, index) in wrongQuestions" :key="question.id" class="wrong-question">
             <div class="question-header">
-              <h4>第 {{ question.order }} 题</h4>
+              <h4>第 {{ question.order || (index + 1) }} 题</h4>
               <Tag color="red">{{ question.question_type === 'single' ? '单选题' : '多选题' }}</Tag>
             </div>
             
@@ -358,11 +358,14 @@ export default {
     },
     
     practiceWrongQuestions() {
-      // 将错题加入练习模式
+      // 跳转到错题本页面进行练习，传递当前考试的错题ID列表
       const wrongQuestionIds = this.wrongQuestions.map(q => q.id)
       this.$router.push({
-        name: 'practice-mode',
-        query: { questions: wrongQuestionIds.join(',') }
+        name: 'wrong-question-book',
+        query: {
+          examSessionId: this.examSession.id,
+          questionIds: wrongQuestionIds.join(',')
+        }
       })
     }
   }
