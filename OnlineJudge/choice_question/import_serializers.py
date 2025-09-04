@@ -5,8 +5,9 @@
 
 from rest_framework import serializers
 from .models import ChoiceQuestion, Category, QuestionTag
-from .serializers import ChoiceQuestionCreateSerializer
+from .api.serializers import ChoiceQuestionCreateSerializer
 import re
+import json
 from bs4 import BeautifulSoup
 
 
@@ -59,42 +60,52 @@ class QuestionTypeField(serializers.Field):
 
 
 class ChoiceQuestionImportItemSerializer(serializers.Serializer):
-    """单个选择题导入项序列化器 - 处理前端发送的格式"""
+    """单个选择题导入项序列化器 - 处理多种格式"""
     
-    # 前端发送的格式
+    # 支持多种字段名格式
+    id = serializers.CharField(required=False, allow_blank=True)
     title = serializers.CharField(required=False, allow_blank=True)
-    description = serializers.CharField(required=True)
-    question_type = QuestionTypeField(required=True)
+    description = serializers.CharField(required=False, allow_blank=True)
+    question = serializers.CharField(required=False, allow_blank=True)  # 兼容字段
+    question_type = QuestionTypeField(required=False)
+    type = serializers.CharField(required=False, allow_blank=True)  # 兼容字段
     difficulty = serializers.CharField(required=False, default='Easy')
     score = serializers.IntegerField(required=False, default=2)
     options = serializers.ListField(
-        child=serializers.DictField(),
+        child=serializers.JSONField(),  # 支持字符串和字典
         min_length=2,
         required=True
     )
     correct_answer = serializers.CharField(required=False, allow_blank=True)
+    correct = serializers.CharField(required=False, allow_blank=True)  # 兼容字段
     explanation = serializers.CharField(required=False, allow_blank=True)
     visible = serializers.BooleanField(required=False, default=True)
     language = serializers.CharField(required=False, allow_blank=True)
     
     def validate_options(self, value):
-        """验证选项格式"""
+        """验证选项格式 - 支持字符串数组和字典数组"""
         if not value or len(value) < 2:
             raise serializers.ValidationError("至少需要2个选项")
         
         for i, option in enumerate(value):
-            if not isinstance(option, dict):
-                raise serializers.ValidationError(f"选项{i+1}格式错误，应为字典")
-            if 'content' not in option:
-                raise serializers.ValidationError(f"选项{i+1}缺少content字段")
-            if 'is_correct' not in option:
-                raise serializers.ValidationError(f"选项{i+1}缺少is_correct字段")
-            # 验证content字段不能为空
-            if not option['content'] or not str(option['content']).strip():
-                raise serializers.ValidationError(f"选项{i+1}的内容不能为空")
-            # 验证is_correct字段必须是布尔值
-            if not isinstance(option['is_correct'], bool):
-                raise serializers.ValidationError(f"选项{i+1}的is_correct字段必须是布尔值")
+            if isinstance(option, str):
+                # 字符串格式，验证不为空
+                if not option.strip():
+                    raise serializers.ValidationError(f"选项{i+1}的内容不能为空")
+            elif isinstance(option, dict):
+                # 字典格式，按原来的逻辑验证
+                if 'content' not in option:
+                    raise serializers.ValidationError(f"选项{i+1}缺少content字段")
+                if 'is_correct' not in option:
+                    raise serializers.ValidationError(f"选项{i+1}缺少is_correct字段")
+                # 验证content字段不能为空
+                if not option['content'] or not str(option['content']).strip():
+                    raise serializers.ValidationError(f"选项{i+1}的内容不能为空")
+                # 验证is_correct字段必须是布尔值
+                if not isinstance(option['is_correct'], bool):
+                    raise serializers.ValidationError(f"选项{i+1}的is_correct字段必须是布尔值")
+            else:
+                raise serializers.ValidationError(f"选项{i+1}格式错误，应为字符串或字典")
         
         return value
     
@@ -102,19 +113,40 @@ class ChoiceQuestionImportItemSerializer(serializers.Serializer):
     
     def validate(self, attrs):
         """交叉验证"""
-        options = attrs.get('options', [])
+        # 确保必要字段存在
+        description = attrs.get('description') or attrs.get('question')
+        if not description:
+            raise serializers.ValidationError("题目描述不能为空（description或question字段）")
+        
+        # 确定题目类型
         question_type = attrs.get('question_type')
+        if question_type is None:
+            type_str = attrs.get('type', 'single')
+            if type_str == 'single':
+                question_type = 0
+            elif type_str == 'multiple':
+                question_type = 1
+            else:
+                question_type = 0  # 默认单选
         
-        # 统计正确答案数量
-        correct_count = sum(1 for option in options if option.get('is_correct', False))
+        options = attrs.get('options', [])
         
-        # 验证正确答案数量
-        if question_type == 0:  # 单选题
-            if correct_count != 1:
-                raise serializers.ValidationError("单选题必须有且仅有一个正确答案")
-        elif question_type == 1:  # 多选题
-            if correct_count < 2:
-                raise serializers.ValidationError("多选题至少需要2个正确答案")
+        # 如果选项是字符串数组，需要根据correct字段确定正确答案
+        if options and isinstance(options[0], str):
+            correct_answer = attrs.get('correct_answer') or attrs.get('correct')
+            if not correct_answer:
+                raise serializers.ValidationError("使用字符串选项格式时，必须提供correct或correct_answer字段")
+        else:
+            # 字典格式，统计正确答案数量
+            correct_count = sum(1 for option in options if option.get('is_correct', False))
+            
+            # 验证正确答案数量
+            if question_type == 0:  # 单选题
+                if correct_count != 1:
+                    raise serializers.ValidationError("单选题必须有且仅有一个正确答案")
+            elif question_type == 1:  # 多选题
+                if correct_count < 2:
+                    raise serializers.ValidationError("多选题至少需要2个正确答案")
         
         return attrs
     
@@ -127,24 +159,80 @@ class ChoiceQuestionImportItemSerializer(serializers.Serializer):
     
     def convert_to_create_format(self, data):
         """转换为ChoiceQuestionCreateSerializer期望的格式"""
+        # 统一字段名
+        description = data.get('description') or data.get('question', '')
+        
+        # 确定题目类型
+        question_type = data.get('question_type')
+        if question_type is None:
+            type_str = data.get('type', 'single')
+            question_type = 0 if type_str == 'single' else 1
+        
+        # 处理选项
+        options = data.get('options', [])
+        correct_answer = data.get('correct_answer') or data.get('correct', '')
+        
+        # 转换选项格式
+        converted_options = []
+        if options and isinstance(options[0], str):
+            # 字符串数组格式，需要转换为字典格式
+            for i, option_text in enumerate(options):
+                # 判断是否为正确答案
+                is_correct = False
+                if correct_answer:
+                    # 支持多种正确答案格式：A, B, C, D 或 0, 1, 2, 3
+                    if correct_answer.upper() == chr(65 + i):  # A, B, C, D
+                        is_correct = True
+                    elif correct_answer == str(i):  # 0, 1, 2, 3
+                        is_correct = True
+                    elif correct_answer == str(i + 1):  # 1, 2, 3, 4
+                        is_correct = True
+                
+                converted_options.append({
+                    'content': option_text,
+                    'is_correct': is_correct
+                })
+        else:
+            # 已经是字典格式
+            converted_options = options
+        
         # 获取编程语言
         language = data.get('language', '')
         
-        # 转换选项格式，并处理选项中的代码块
+        # 处理题目描述中的代码块
+        if language:
+            description = process_html_with_language(description, language)
+        
+        # 处理解释中的代码块
+        explanation = data.get('explanation', '')
+        if explanation and language:
+            explanation = process_html_with_language(explanation, language)
+        
+        # 处理选项格式，并处理选项中的代码块
         options = []
-        for i, option_data in enumerate(data['options']):
+        for i, option in enumerate(data['options']):
             option_letter = chr(ord('A') + i)
-            option_text = option_data['content']
+            
+            if isinstance(option, dict):
+                # 如果已经是字典格式（来自validate_options处理）
+                option_text = option.get('content') or option.get('text', '')
+                option_key = option.get('key', option_letter)
+            else:
+                # 如果是字符串格式（原始输入）
+                option_text = str(option)
+                option_key = option_letter
+            
             # 处理选项中的代码块
             if language:
                 option_text = process_html_with_language(option_text, language)
+            
             options.append({
-                'key': option_letter,
-                'text': option_text
+                'key': option_key,
+                'text': option_text,
+                'content': option_text  # 同时提供content字段以兼容不同版本
             })
         
         # 转换题目类型 - 支持字符串和整数格式
-        question_type = data['question_type']
         if isinstance(question_type, int):
             question_type_map = {0: 'single', 1: 'multiple'}
             question_type = question_type_map.get(question_type, 'single')
@@ -154,39 +242,31 @@ class ChoiceQuestionImportItemSerializer(serializers.Serializer):
         difficulty_map = {'Easy': 'easy', 'Mid': 'medium', 'Hard': 'hard'}
         difficulty = difficulty_map.get(data.get('difficulty', 'Easy'), 'easy')
         
-        # 生成正确答案字符串
-        correct_answers = []
-        for i, option in enumerate(data['options']):
-            if option.get('is_correct', False):
-                correct_answers.append(chr(ord('A') + i))
-        correct_answer = ''.join(correct_answers) if correct_answers else 'A'
+        # 生成正确答案字符串 - 从correct或correct_answer字段获取
+        correct_answer_str = data.get('correct_answer') or data.get('correct', 'A')
         
-        # 处理题目描述中的代码块
-        description = data['description']
-        if language:
-            description = process_html_with_language(description, language)
+        # 如果正确答案是数字格式（0,1,2,3），转换为字母格式（A,B,C,D）
+        if correct_answer_str.isdigit():
+            correct_answer_str = chr(ord('A') + int(correct_answer_str))
         
-        # 处理解析中的代码块
-        explanation = data.get('explanation', '')
-        if language and explanation:
-            explanation = process_html_with_language(explanation, language)
-        
-        # 过滤掉模型中不存在的字段（如language）
-        result = {
+        # 返回转换后的数据
+        return {
+            '_id': data.get('id', ''),
             'title': data.get('title', ''),
             'description': description,
             'question_type': question_type,
             'difficulty': difficulty,
             'score': data.get('score', 2),
-            'options': options,
-            'correct_answer': correct_answer,
+            'options': options,  # 保持为列表格式
+            'correct_answer': correct_answer_str,
             'explanation': explanation,
             'visible': data.get('visible', True),
-            'is_public': True,
-            'language': language
+            'language': language,
+            'import_order': 0  # 添加import_order字段
         }
         
-        return result
+
+
 
 
 class ChoiceQuestionImportSerializer(serializers.Serializer):
@@ -237,21 +317,25 @@ class ChoiceQuestionImportSerializer(serializers.Serializer):
         
         for index, question_data in enumerate(questions_data):
             try:
+                # 直接转换数据格式，因为question_data已经经过验证
+                item_serializer = ChoiceQuestionImportItemSerializer()
+                converted_data = item_serializer.convert_to_create_format(question_data)
+                
                 # 添加分类
                 if category_id:
-                    question_data['category'] = category_id
+                    converted_data['category'] = category_id
                 
                 # 添加编程语言
-                if language and not question_data.get('language'):
-                    question_data['language'] = language
+                if language and not converted_data.get('language'):
+                    converted_data['language'] = language
                 
                 # 生成显示ID
-                if not question_data.get('_id'):
+                if not converted_data.get('_id'):
                     import uuid
-                    question_data['_id'] = str(uuid.uuid4())[:8].upper()
+                    converted_data['_id'] = str(uuid.uuid4())[:8].upper()
                 
                 # 使用现有的创建序列化器
-                serializer = ChoiceQuestionCreateSerializer(data=question_data)
+                serializer = ChoiceQuestionCreateSerializer(data=converted_data)
                 if serializer.is_valid():
                     question = serializer.save(created_by=created_by)
                     
