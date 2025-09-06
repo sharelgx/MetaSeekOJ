@@ -18,6 +18,13 @@ from .api.exam import (
     ExamSessionAPI,
     ExamSessionActionAPI
 )
+from .api.topic import (
+    TopicPracticeAPI,
+    TopicPracticeDetailAPI,
+    TopicPracticeStartAPI,
+    TopicPracticeSubmitAPI,
+    TopicPracticeListAPI
+)
 
 app_name = 'choice_question'
 
@@ -69,4 +76,11 @@ urlpatterns = [
     re_path(r"^exam-sessions/(?P<session_id>\d+)/start/?$", ExamSessionActionAPI.as_view(), name="exam-session-start"),
     re_path(r"^exam-sessions/(?P<session_id>\d+)/answer/?$", ExamSessionActionAPI.as_view(), name="exam-session-answer"),
     re_path(r"^exam-sessions/(?P<session_id>\d+)/submit/?$", ExamSessionActionAPI.as_view(), name="exam-session-submit"),
+    
+    # 专题试做 API - 新增
+    re_path(r"^topics/?$", TopicPracticeAPI.as_view(), name="topic-practice-home"),
+    re_path(r"^topics/(?P<category_id>\d+)/?$", TopicPracticeDetailAPI.as_view(), name="topic-practice-detail"),
+    re_path(r"^topics/start/?$", TopicPracticeStartAPI.as_view(), name="topic-practice-start"),
+    re_path(r"^topics/(?P<session_id>\d+)/submit/?$", TopicPracticeSubmitAPI.as_view(), name="topic-practice-submit"),
+    re_path(r"^topics/records/?$", TopicPracticeListAPI.as_view(), name="topic-practice-records"),
 ]
