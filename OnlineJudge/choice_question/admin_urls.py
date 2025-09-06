@@ -9,6 +9,11 @@ from .admin_views import (
     ChoiceQuestionCategoryAdminAPI,
     ChoiceQuestionTagAdminAPI
 )
+from .admin_views_topic import (
+    TopicPracticeRecordsAdminAPI,
+    TopicPracticeStatisticsAdminAPI,
+    TopicPracticeExportAdminAPI
+)
 from .views import ChoiceQuestionImportAPI
 from .api.exam import ExamPaperImportAPI
 
@@ -32,4 +37,10 @@ urlpatterns = [
     
     # 试卷导入
     re_path(r"^exam_paper/import/?$", ExamPaperImportAPI.as_view(), name="exam_paper_import"),
+    
+    # 专题试做管理
+    re_path(r"^topic_practice/records/?$", TopicPracticeRecordsAdminAPI.as_view(), name="topic_practice_records_admin"),
+    re_path(r"^topic_practice/records/(?P<record_id>\d+)/?$", TopicPracticeRecordsAdminAPI.as_view(), name="topic_practice_record_detail_admin"),
+    re_path(r"^topic_practice/statistics/?$", TopicPracticeStatisticsAdminAPI.as_view(), name="topic_practice_statistics_admin"),
+    re_path(r"^topic_practice/export/?$", TopicPracticeExportAdminAPI.as_view(), name="topic_practice_export_admin"),
 ]
