@@ -10,6 +10,7 @@ from .admin_views import (
     ChoiceQuestionTagAdminAPI
 )
 from .views import ChoiceQuestionImportAPI
+from .api.exam import ExamPaperImportAPI
 
 app_name = 'choice_question_admin'
 
@@ -28,4 +29,7 @@ urlpatterns = [
     
     # 标签管理
     re_path(r"^choice_question/tags/?$", ChoiceQuestionTagAdminAPI.as_view(), name="choice_question_tags_admin"),
+    
+    # 试卷导入
+    re_path(r"^exam_paper/import/?$", ExamPaperImportAPI.as_view(), name="exam_paper_import"),
 ]

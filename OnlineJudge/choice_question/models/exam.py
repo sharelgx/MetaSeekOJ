@@ -45,6 +45,21 @@ class ExamPaper(PluginBaseModel):
         help_text='是否按题目导入顺序显示题目，适用于整套试卷导入的场景', 
         verbose_name='按导入顺序排序'
     )
+    
+    # 试卷类型
+    PAPER_TYPE_CHOICES = [
+        ('dynamic', '动态生成'),
+        ('fixed', '固定题目'),
+    ]
+    
+    paper_type = models.CharField(
+        max_length=20,
+        choices=PAPER_TYPE_CHOICES,
+        default='dynamic',
+        verbose_name="试卷类型",
+        help_text="动态生成：根据配置随机生成题目；固定题目：使用导入的固定题目集合"
+    )
+    
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="创建者")
     
     class Meta:
@@ -92,6 +107,55 @@ class ExamPaper(PluginBaseModel):
             questions.extend(list(additional_questions))
         
         return questions[:self.question_count]
+    
+    def get_questions(self):
+        """获取试卷题目，支持两种模式"""
+        if self.paper_type == 'fixed':
+            # 固定题目模式：从关联表获取
+            return ChoiceQuestion.objects.filter(
+                paper_questions__paper=self
+            ).order_by('paper_questions__order')
+        else:
+            # 动态生成模式：使用现有逻辑
+            return self.generate_questions()
+
+
+class ExamPaperQuestion(PluginBaseModel):
+    """
+    试卷题目关联模型
+    """
+    
+    paper = models.ForeignKey(
+        ExamPaper,
+        on_delete=models.CASCADE,
+        related_name="paper_questions",
+        verbose_name="试卷"
+    )
+    
+    question = models.ForeignKey(
+        ChoiceQuestion,
+        on_delete=models.CASCADE,
+        verbose_name="题目"
+    )
+    
+    order = models.IntegerField(
+        verbose_name="题目顺序"
+    )
+    
+    score = models.IntegerField(
+        default=2,
+        verbose_name="题目分值"
+    )
+    
+    class Meta:
+        db_table = "choice_exam_paper_question"
+        verbose_name = "试卷题目"
+        verbose_name_plural = "试卷题目"
+        ordering = ['order']
+        unique_together = [['paper', 'question'], ['paper', 'order']]
+        
+    def __str__(self):
+        return f"{self.paper.title} - 第{self.order}题"
 
 
 class ExamSession(PluginBaseModel):

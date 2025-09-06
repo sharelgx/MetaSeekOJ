@@ -4,7 +4,7 @@ from openpyxl import load_workbook
 import json
 import re
 from typing import List, Dict, Any, Optional
-from ..models import ChoiceQuestion, Category, QuestionTag
+from ..models import ChoiceQuestion, Category, QuestionTag, ExamPaper, ExamPaperQuestion
 from .validator import QuestionValidator
 from .helpers import generate_question_id, format_answer
 
@@ -423,3 +423,141 @@ class QuestionImporter:
             'total_count': self.success_count + self.error_count,
             'logs': self.import_log
         }
+    
+    def import_paper_from_json(self, file_path: str, category_name: str = None, paper_title: str = None, language: str = None, use_import_order: bool = True) -> Dict[str, Any]:
+        """
+        从JSON文件导入整套试卷
+        
+        Args:
+            file_path: JSON文件路径
+            category_name: 分类名称
+            paper_title: 试卷标题
+            language: 编程语言
+            use_import_order: 是否按导入顺序排序
+            
+        Returns:
+            导入结果，包含试卷ID和统计信息
+        """
+        with transaction.atomic():
+            # 1. 解析JSON文件
+            paper_data = self._parse_paper_json(file_path)
+            questions_data = paper_data.get('questions', [])
+            
+            # 2. 创建或获取分类
+            category = None
+            if category_name:
+                category, _ = Category.objects.get_or_create(
+                    name=category_name,
+                    defaults={'description': f'自动创建的分类: {category_name}'}
+                )
+            
+            # 3. 批量导入题目，保持顺序
+            imported_questions = []
+            for i, question_data in enumerate(questions_data):
+                question_data['import_order'] = i + 1  # 设置导入顺序
+                if category:
+                    question_data['category'] = category.name
+                if language:
+                    question_data['language'] = language
+                question = self._import_single_question_for_paper(question_data)
+                imported_questions.append(question)
+            
+            # 4. 创建固定题目试卷
+            paper = ExamPaper.objects.create(
+                title=paper_title or paper_data.get('title', '导入的试卷'),
+                description=paper_data.get('description', ''),
+                duration=paper_data.get('duration', 60),
+                total_score=sum(q.score for q in imported_questions),
+                question_count=len(imported_questions),
+                paper_type='fixed',
+                use_import_order=use_import_order,
+                is_active=True,
+                created_by=self.user
+            )
+            
+            # 5. 建立试卷题目关联
+            for i, question in enumerate(imported_questions):
+                ExamPaperQuestion.objects.create(
+                    paper=paper,
+                    question=question,
+                    order=i + 1,
+                    score=question.score
+                )
+            
+            # 6. 关联分类
+            if category:
+                paper.categories.add(category)
+            
+            return {
+                'paper_id': paper.id,
+                'paper_title': paper.title,
+                'success_count': len(imported_questions),
+                'error_count': 0,
+                'total_count': len(imported_questions),
+                'logs': self.import_log
+            }
+    
+    def _parse_paper_json(self, file_path: str) -> Dict[str, Any]:
+        """
+        解析试卷JSON文件
+        """
+        with open(file_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        
+        # 验证JSON格式
+        if 'questions' not in data:
+            raise ValidationError('JSON文件必须包含questions字段')
+        
+        if not isinstance(data['questions'], list):
+            raise ValidationError('questions字段必须是数组')
+        
+        return data
+    
+    def _import_single_question_for_paper(self, question_data: Dict[str, Any]) -> ChoiceQuestion:
+        """
+        为试卷导入单个题目（返回题目对象）
+        """
+        # 验证数据
+        validation_result = self.validator.validate_question_data(question_data)
+        if not validation_result['is_valid']:
+            raise ValidationError('; '.join(validation_result['errors']))
+        
+        # 处理分类
+        category = None
+        if question_data.get('category'):
+            category, _ = Category.objects.get_or_create(
+                name=question_data['category'],
+                defaults={'description': f'自动创建的分类: {question_data["category"]}'}
+            )
+        
+        # 创建题目
+        question = ChoiceQuestion.objects.create(
+            _id=generate_question_id(),
+            title=question_data['title'],
+            description=question_data['description'],
+            question_type=question_data['question_type'],
+            options=json.dumps(question_data['options'], ensure_ascii=False),
+            correct_answer=format_answer(question_data['answer']),
+            explanation=question_data['explanation'],
+            difficulty=question_data['difficulty'],
+            score=question_data['score'],
+            import_order=question_data.get('import_order', 0),
+            language=question_data.get('language'),
+            category=category,
+            created_by=self.user,
+            is_public=True
+        )
+        
+        # 处理标签
+        if question_data.get('tags'):
+            for tag_name in question_data['tags']:
+                tag, _ = QuestionTag.objects.get_or_create(
+                    name=tag_name,
+                    defaults={'description': f'自动创建的标签: {tag_name}'}
+                )
+                question.tags.add(tag)
+        
+        self.success_count += 1
+        self._add_log('success', f'题目导入成功: {question.title}')
+        
+        return question

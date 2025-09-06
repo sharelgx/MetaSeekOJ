@@ -194,9 +194,20 @@ class QuestionValidator:
                 'required': False,
                 'maxlength': 5000
             },
+            'question': {  # 支持新的JSON格式中的question字段
+                'type': 'string',
+                'required': False,  # 可选，因为有title字段
+                'minlength': 1,
+                'maxlength': 2000
+            },
             'question_type': {
                 'type': 'string',
-                'required': True,
+                'required': False,  # 可选，因为可以从type字段获取
+                'allowed': ['single', 'multiple']
+            },
+            'type': {  # 支持新的JSON格式
+                'type': 'string',
+                'required': False,
                 'allowed': ['single', 'multiple']
             },
             'options': {
@@ -205,7 +216,11 @@ class QuestionValidator:
             },
             'answer': {
                 'type': ['string', 'list'],
-                'required': True
+                'required': False  # correct字段也可以作为答案
+            },
+            'correct': {  # 支持新的JSON格式中的correct字段
+                'type': ['string', 'list'],
+                'required': False
             },
             'explanation': {
                 'type': 'string',
@@ -270,26 +285,54 @@ class QuestionValidator:
         """
         errors = []
         
+        # 标准化数据格式（支持新的JSON格式）
+        normalized_data = self._normalize_question_data(question_data)
+        
         # 验证选项格式
-        options = question_data.get('options')
+        options = normalized_data.get('options')
         if options:
             options_errors = self._validate_options(options)
             errors.extend(options_errors)
         
         # 验证答案格式
-        answer = question_data.get('answer')
-        question_type = question_data.get('question_type', 'single')
+        answer = normalized_data.get('answer')
+        question_type = normalized_data.get('question_type', 'single')
         if answer:
             answer_errors = self._validate_answer(answer, question_type, options)
             errors.extend(answer_errors)
         
         # 验证标题唯一性（如果需要）
-        title = question_data.get('title')
+        title = normalized_data.get('title')
         if title:
             title_errors = self._validate_title(title)
             errors.extend(title_errors)
         
         return errors
+    
+    def _normalize_question_data(self, question_data: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        标准化题目数据格式，支持新的JSON格式
+        """
+        normalized = question_data.copy()
+        
+        # 处理标题字段：优先使用title，如果没有则使用question
+        if 'title' not in normalized and 'question' in normalized:
+            normalized['title'] = normalized['question']
+        
+        # 处理题目类型字段：优先使用question_type，如果没有则使用type
+        if 'question_type' not in normalized and 'type' in normalized:
+            normalized['question_type'] = normalized['type']
+        
+        # 处理答案字段：优先使用answer，如果没有则使用correct
+        if 'answer' not in normalized and 'correct' in normalized:
+            normalized['answer'] = normalized['correct']
+        
+        # 设置默认值
+        normalized.setdefault('question_type', 'single')
+        normalized.setdefault('difficulty', 'medium')
+        normalized.setdefault('score', 2)
+        
+        return normalized
     
     def _validate_batch_custom(self, questions_data: List[Dict[str, Any]]) -> List[str]:
         """
