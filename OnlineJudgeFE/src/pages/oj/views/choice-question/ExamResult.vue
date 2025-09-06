@@ -198,7 +198,7 @@
 </template>
 
 <script>
-import api from '../../api'
+// import api from '../../api'
 
 export default {
   name: 'ExamResult',
@@ -222,8 +222,8 @@ export default {
         const sessionId = this.$route.params.sessionId
         
         // 获取考试会话详情
-        const res = await api.getExamSessionDetail(sessionId)
-        this.examSession = res.data.data
+        const res = await this.$http.get(`/exam-session/${sessionId}/`)
+        this.examSession = res.data.data || res.data
         
         // 处理统计数据
         this.processStats()
@@ -624,5 +624,185 @@ export default {
 
 .action-buttons .ivu-btn {
   margin: 0 10px;
+}
+
+/* 移动端响应式设计 */
+@media (max-width: 768px) {
+  .exam-result {
+    padding: 10px;
+  }
+  
+  .result-header {
+    padding: 15px;
+    margin-bottom: 15px;
+  }
+  
+  .result-header .ivu-icon {
+    font-size: 24px;
+  }
+  
+  .exam-info h2 {
+    font-size: 18px;
+    margin-bottom: 8px;
+  }
+  
+  .exam-meta {
+    font-size: 12px;
+  }
+  
+  .exam-meta .divider {
+    margin: 0 5px;
+  }
+  
+  .score-overview {
+    margin-bottom: 20px;
+  }
+  
+  .score-item {
+    padding: 15px 10px;
+  }
+  
+  .score-value {
+    font-size: 28px;
+    margin-bottom: 6px;
+  }
+  
+  .score-label {
+    font-size: 12px;
+  }
+  
+  .score-max {
+    font-size: 11px;
+  }
+  
+  .analysis-section {
+    margin-bottom: 20px;
+  }
+  
+  .analysis-item {
+    padding: 15px;
+  }
+  
+  .analysis-item h4 {
+    font-size: 16px;
+    margin-bottom: 15px;
+  }
+  
+  .type-stat, .difficulty-stat {
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 12px;
+  }
+  
+  .type-name, .difficulty-name {
+    width: auto;
+    margin-bottom: 5px;
+    font-size: 14px;
+  }
+  
+  .type-progress, .difficulty-progress {
+    width: 100%;
+  }
+  
+  .type-detail, .difficulty-detail {
+    margin-left: 0;
+    margin-top: 5px;
+    font-size: 11px;
+  }
+  
+  .wrong-questions-section {
+    margin-bottom: 20px;
+  }
+  
+  .wrong-question {
+    padding: 15px;
+    margin-bottom: 15px;
+  }
+  
+  .question-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .question-header h4 {
+    font-size: 14px;
+  }
+  
+  .question-text {
+    font-size: 14px;
+    margin-bottom: 12px;
+  }
+  
+  .option {
+    padding: 6px 10px;
+    margin-bottom: 6px;
+  }
+  
+  .option-text {
+    font-size: 13px;
+  }
+  
+  .answer-comparison {
+    padding: 12px;
+  }
+  
+  .answer-item {
+    margin-bottom: 6px;
+    font-size: 13px;
+  }
+  
+  .action-buttons {
+    padding: 30px 0;
+  }
+  
+  .action-buttons .ivu-btn {
+    margin: 5px;
+    min-width: 100px;
+  }
+}
+
+@media (max-width: 480px) {
+  .exam-result {
+    padding: 8px;
+  }
+  
+  .result-header {
+    padding: 12px;
+  }
+  
+  .exam-info h2 {
+    font-size: 16px;
+  }
+  
+  .score-item {
+    padding: 12px 8px;
+  }
+  
+  .score-value {
+    font-size: 24px;
+  }
+  
+  .analysis-item {
+    padding: 12px;
+  }
+  
+  .wrong-question {
+    padding: 12px;
+  }
+  
+  .question-text {
+    font-size: 13px;
+  }
+  
+  .option-text {
+    font-size: 12px;
+  }
+  
+  .action-buttons .ivu-btn {
+    display: block;
+    width: 100%;
+    margin: 8px 0;
+  }
 }
 </style>

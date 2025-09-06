@@ -3,7 +3,7 @@ import VueRouter from 'vue-router'
 // 引入 view 组件
 import { Announcement, Conf, Contest, ContestList, Home, JudgeServer, Login,
   Problem, ProblemList, User, PruneTestCase, Dashboard, ProblemImportOrExport,
-  ChoiceQuestion, ChoiceQuestionList, CategoryManagement, TagManagement, ImportChoiceQuestion } from './views'
+  ChoiceQuestion, ChoiceQuestionList, CategoryManagement, TagManagement, ImportChoiceQuestion, ImportExamPaper, ExamPaperList, ExamStatistics } from './views'
 Vue.use(VueRouter)
 
 export default new VueRouter({
@@ -99,6 +99,21 @@ export default new VueRouter({
           path: '/choice-question/import',
           name: 'import-choice-question',
           component: ImportChoiceQuestion
+        },
+        {
+          path: '/exam-paper/import',
+          name: 'import-exam-paper',
+          component: ImportExamPaper
+        },
+        {
+          path: '/exam-papers',
+          name: 'exam-paper-list',
+          component: ExamPaperList
+        },
+        {
+          path: '/exam-statistics',
+          name: 'exam-statistics',
+          component: ExamStatistics
         },
         {
           path: '/contest/create',

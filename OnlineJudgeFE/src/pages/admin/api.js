@@ -381,11 +381,107 @@ export default {
       params: { id }
     })
   },
-  // Choice Question Import
+  // Choice Question Import// 导入选择题
   importChoiceQuestions (data) {
     return ajax('admin/choice_question/import', 'post', {
       data
     })
+  },
+
+  // 试卷管理相关API
+  // 获取试卷列表
+  getExamPaperList (params) {
+    return ajax('plugin/choice/exam-papers/', 'get', {
+      params
+    })
+  },
+  // 创建试卷
+  createExamPaper (data) {
+    return ajax('plugin/choice/exam-papers/', 'post', {
+      data
+    })
+  },
+  // 获取单个试卷
+  getExamPaper (id) {
+    return ajax(`plugin/choice/exam-papers/${id}/`, 'get')
+  },
+  // 更新试卷
+  updateExamPaper (id, data) {
+    return ajax(`plugin/choice/exam-papers/${id}/`, 'put', {
+      data
+    })
+  },
+  // 删除试卷
+  deleteExamPaper (id) {
+    return ajax(`plugin/choice/exam-papers/${id}/`, 'delete')
+  },
+  // 批量更新试卷
+  batchUpdateExamPapers (ids, data) {
+    return ajax('plugin/choice/exam-papers/batch-update/', 'post', {
+      data: {
+        ids,
+        ...data
+      }
+    })
+  },
+  // 批量删除试卷
+  batchDeleteExamPapers (ids) {
+    return ajax('plugin/choice/exam-papers/batch-delete/', 'post', {
+      data: {
+        ids
+      }
+    })
+  },
+  // 导入试卷
+  importExamPapers (data) {
+    // 注意：后端没有直接的试卷导入API
+    // 需要分两步：1. 导入题目 2. 创建试卷
+    // 这里先导入题目
+    return ajax('admin/choice_question/import', 'post', {
+      data: {
+        questions: data.questions,
+        category_id: data.category_id,
+        tag_ids: data.tag_ids || [],  // 注意：后端期望tag_ids
+        language: data.language || 'zh-CN'
+      }
+    })
+  },
+
+  // 试卷导入API - 直接导入完整试卷
+  importExamPaper (data) {
+    return ajax('admin/exam_paper/import', 'post', {
+      data: {
+        title: data.title,
+        description: data.description || '',
+        questions: data.questions,
+        category_id: data.category_id,
+        language: data.language || 'zh-CN',
+        use_import_order: data.use_import_order || false,
+        duration: data.duration || 60,
+        total_score: data.total_score
+      }
+    })
+  },
+
+  // 考试统计相关API
+  getExamStatistics () {
+    return ajax('admin/exam_statistics', 'get')
+  },
+
+  // 试卷统计相关API
+  getPaperStatistics (params) {
+    return ajax('admin/paper_statistics', 'get', {
+      params
+    })
+  },
+
+  // 分类和标签相关API
+  getCategoryList () {
+    return ajax('admin/choice_question/categories', 'get')
+  },
+
+  getTagList () {
+    return ajax('admin/choice_question/tags', 'get')
   }
 }
 

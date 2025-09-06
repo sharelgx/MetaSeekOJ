@@ -153,7 +153,7 @@
 </template>
 
 <script>
-import api from '../../api'
+import api from '@/pages/oj/api'
 
 export default {
   name: 'ExamPaper',
@@ -199,11 +199,34 @@ export default {
     if (!this.paperId) {
       console.error('缺少试卷ID参数')
       this.$Message.error('缺少试卷ID参数')
-      this.$router.push({ name: 'choice-question-list' })
+      this.$router.go(-1)
       return
     }
     
     console.log('试卷ID:', this.paperId)
+    
+    // 检查用户是否已登录
+    if (!this.$store.getters.isAuthenticated) {
+      console.log('用户未登录，引导登录')
+      this.$Message.warning('请先登录后再参加考试')
+      this.$store.dispatch('changeModalStatus', {'mode': 'login', 'visible': true})
+      // 登录成功后重新初始化考试
+       const unwatch = this.$store.watch(
+         (state, getters) => getters.isAuthenticated,
+         async (newVal) => {
+           if (newVal) {
+             unwatch()
+             await this.initExam()
+             this.startTimer()
+             this.$nextTick(() => {
+               this.highlightCode()
+               this.renderMath()
+             })
+           }
+         }
+       )
+      return
+    }
     
     // 初始化考试
     await this.initExam()
@@ -493,7 +516,26 @@ export default {
         
       } catch (error) {
         console.error('初始化考试失败:', error)
-        this.$Message.error('初始化考试失败：' + (error.message || '未知错误'))
+        console.error('错误详情:', {
+          message: error.message,
+          response: error.response,
+          data: error.response && error.response.data,
+          status: error.response && error.response.status,
+          statusText: error.response && error.response.statusText
+        })
+        
+        let errorMessage = '初始化考试失败: '
+        if (error.response) {
+          // 服务器返回了错误响应
+          errorMessage += `HTTP ${error.response.status} - ${(error.response.data && error.response.data.data) || error.response.statusText || '服务器错误'}`
+        } else if (error.message) {
+          // 网络错误或其他错误
+          errorMessage += error.message
+        } else {
+          errorMessage += '未知错误'
+        }
+        
+        this.$message.error(errorMessage)
         // 返回列表页
         setTimeout(() => {
           this.$router.push({ name: 'choice-question-list' })
@@ -688,7 +730,7 @@ export default {
           // 确保答案是纯数组，去除Vue的Observer包装
           const cleanAnswer = JSON.parse(JSON.stringify(answer))
           
-          const response = await api.submitExamAnswer(this.examSession.id, {
+          const response = await this.$http.post(`/exam-session/${this.examSession.id}/answer/`, {
             question_id: questionId,
             answer: cleanAnswer
           })
@@ -742,7 +784,7 @@ export default {
         // 清理答案数据，去除Vue的Observer包装
         const cleanAnswers = JSON.parse(JSON.stringify(this.answers))
         
-        await api.submitExamSession(this.examSession.id, {
+        await this.$http.post(`/exam-session/${this.examSession.id}/submit/`, {
           answers: cleanAnswers
         })
         
@@ -1012,5 +1054,155 @@ export default {
 .warning-text {
   color: #fa8c16;
   font-weight: 500;
+}
+
+/* 移动端响应式设计 */
+@media (max-width: 768px) {
+  .exam-paper {
+    padding: 10px;
+  }
+  
+  .exam-header {
+    padding: 15px;
+    margin-bottom: 15px;
+  }
+  
+  .exam-header h2 {
+    font-size: 18px;
+    margin-bottom: 8px;
+  }
+  
+  .exam-info {
+    font-size: 12px;
+  }
+  
+  .exam-info .divider {
+    margin: 0 5px;
+  }
+  
+  .timer-section {
+    margin-top: 10px;
+    text-align: center;
+  }
+  
+  .timer {
+    padding: 6px 12px;
+    font-size: 14px;
+  }
+  
+  .time-text {
+    font-size: 14px;
+  }
+  
+  .question-card {
+    margin-bottom: 15px;
+  }
+  
+  .question-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .question-header h3 {
+    font-size: 16px;
+  }
+  
+  .question-text {
+    font-size: 14px;
+    margin-bottom: 15px;
+  }
+  
+  .question-description {
+    font-size: 13px;
+    padding: 10px 12px;
+    margin-bottom: 15px;
+  }
+  
+  .option-item {
+    padding: 12px 15px;
+    margin-bottom: 10px;
+    min-height: 45px;
+  }
+  
+  .option-text {
+    font-size: 14px;
+  }
+  
+  .question-actions {
+    margin-top: 20px;
+  }
+  
+  .question-actions .ivu-btn {
+    margin: 5px;
+    min-width: 80px;
+  }
+  
+  .answer-sheet {
+    position: static;
+    margin-top: 20px;
+  }
+  
+  .answer-grid {
+    grid-template-columns: repeat(6, 1fr);
+    gap: 6px;
+  }
+  
+  .answer-item {
+    width: 35px;
+    height: 35px;
+    font-size: 12px;
+  }
+  
+  .answer-stats {
+    padding: 8px;
+  }
+  
+  .answer-stats p {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .exam-paper {
+    padding: 8px;
+  }
+  
+  .exam-header {
+    padding: 12px;
+  }
+  
+  .exam-header h2 {
+    font-size: 16px;
+  }
+  
+  .question-text {
+    font-size: 13px;
+  }
+  
+  .option-item {
+    padding: 10px 12px;
+    min-height: 40px;
+  }
+  
+  .option-text {
+    font-size: 13px;
+  }
+  
+  .answer-grid {
+    grid-template-columns: repeat(8, 1fr);
+    gap: 4px;
+  }
+  
+  .answer-item {
+    width: 30px;
+    height: 30px;
+    font-size: 11px;
+  }
+  
+  .question-actions .ivu-btn {
+    font-size: 12px;
+    padding: 6px 12px;
+  }
 }
 </style>

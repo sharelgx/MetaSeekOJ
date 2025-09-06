@@ -20,6 +20,8 @@ export const m = {
   Batch_Import: '批量导入',
   Category_Management: '分类管理',
   Tag_Management: '标签管理',
+  Exam_Paper_List: '试卷列表',
+  Import_Exam_Paper: '导入试卷',
   Options: '选项',
   Explanation: '解释',
   Contest: '比赛&练习',
