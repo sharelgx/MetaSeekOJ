@@ -75,7 +75,7 @@ ROOT_URLCONF = 'oj.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': ['/home/metaspeekoj/mcp-servers/templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

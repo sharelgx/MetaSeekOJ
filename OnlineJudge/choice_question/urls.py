@@ -14,6 +14,7 @@ from .api.question import ChoiceQuestionSubmitAPI
 from .api.wrong_question import WrongQuestionAPI
 from .api.exam import (
     ExamPaperAPI,
+    ExamPaperImportAPI,
     ExamSessionAPI,
     ExamSessionActionAPI
 )
@@ -59,6 +60,7 @@ urlpatterns = [
     re_path(r"^exam-papers/?$", ExamPaperAPI.as_view(), name="exam-paper-list"),
     re_path(r"^exam-papers/(?P<paper_id>\d+)/?$", ExamPaperAPI.as_view(), name="exam-paper-detail"),
     re_path(r"^exam-papers/generate-preview/?$", ExamPaperAPI.as_view(), name="exam-paper-generate-preview"),
+    re_path(r"^exam-papers/import/?$", ExamPaperImportAPI.as_view(), name="exam-paper-import"),
     
     # 考试会话管理 - RESTful API
     re_path(r"^exam-sessions/?$", ExamSessionAPI.as_view(), name="exam-session-list"),

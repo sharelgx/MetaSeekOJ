@@ -15,12 +15,16 @@ try:
     print(f"用户ID: {user.id}")
     print(f"管理员类型: {user.admin_type}")
     
-    # 重置密码为 'rootroot123'
-    new_password = 'rootroot123'
+    # 重置密码为 'rootroot'
+    new_password = 'rootroot'
     user.set_password(new_password)
+    # 设置管理员权限
+    user.is_staff = True
+    user.is_superuser = True
+    user.is_active = True
     user.save()
     
-    print(f"✅ 已重置root用户密码为: {new_password}")
+    print(f"✅ 已重置root用户密码为: {new_password}，并已设置管理员权限")
     
     # 验证密码设置
     if user.check_password(new_password):
@@ -35,11 +39,16 @@ except User.DoesNotExist:
     user = User.objects.create_superuser(
         username='root',
         email='root@example.com',
-        password='rootroot123',
+        password='rootroot',
         admin_type='Super Admin',
         problem_permission='ALL'
     )
-    print(f"✅ 已创建root用户，密码: rootroot123")
+    # 设置管理员权限
+    user.is_staff = True
+    user.is_superuser = True
+    user.is_active = True
+    user.save()
+    print(f"✅ 已创建root用户，密码: rootroot，并已设置管理员权限")
     
 except Exception as e:
     print(f"❌ 操作失败: {e}")

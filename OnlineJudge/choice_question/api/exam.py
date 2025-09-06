@@ -19,9 +19,11 @@ import json
 import logging
 import hashlib
 from datetime import timedelta
+from typing import Dict, Any
 
-from ..models import ExamPaper, ExamSession, ChoiceQuestion, WrongQuestion
+from ..models import ExamPaper, ExamSession, ChoiceQuestion, WrongQuestion, Category
 from ..serializers import ExamPaperSerializer, ExamSessionSerializer
+from ..utils.importer import QuestionImporter
 
 logger = logging.getLogger(__name__)
 
@@ -118,8 +120,59 @@ class ExamPaperAPI(CSRFExemptAPIView):
                     return self.error("试卷不存在")
             else:
                 # 获取试卷列表
-                papers = ExamPaper.objects.filter(is_active=True).order_by('-create_time')
-                serializer = ExamPaperSerializer(papers, many=True)
+                queryset = ExamPaper.objects.filter(is_active=True)
+                
+                # 分类筛选
+                category_id = request.GET.get('category')
+                if category_id:
+                    try:
+                        category = Category.objects.get(id=category_id)
+                        # 包含子分类的试卷
+                        categories = category.get_descendants(include_self=True)
+                        queryset = queryset.filter(categories__in=categories).distinct()
+                    except Category.DoesNotExist:
+                        pass
+                
+                # 试卷类型筛选
+                paper_type = request.GET.get('paper_type')
+                if paper_type and paper_type in ['dynamic', 'fixed']:
+                    queryset = queryset.filter(paper_type=paper_type)
+                
+                # 关键词搜索
+                keyword = request.GET.get('keyword', '').strip()
+                if keyword:
+                    queryset = queryset.filter(
+                        Q(title__icontains=keyword) |
+                        Q(description__icontains=keyword)
+                    )
+                
+                # 排序
+                order_by = request.GET.get('order_by', 'create_time')
+                order_direction = request.GET.get('order_direction', 'desc')
+                
+                if order_by == 'import_order':
+                    # 按导入顺序排序（仅对固定题目试卷有效）
+                    if order_direction == 'asc':
+                        queryset = queryset.order_by('create_time')
+                    else:
+                        queryset = queryset.order_by('-create_time')
+                elif order_by == 'title':
+                    if order_direction == 'asc':
+                        queryset = queryset.order_by('title')
+                    else:
+                        queryset = queryset.order_by('-title')
+                elif order_by == 'question_count':
+                    if order_direction == 'asc':
+                        queryset = queryset.order_by('question_count')
+                    else:
+                        queryset = queryset.order_by('-question_count')
+                else:  # 默认按创建时间排序
+                    if order_direction == 'asc':
+                        queryset = queryset.order_by('create_time')
+                    else:
+                        queryset = queryset.order_by('-create_time')
+                
+                serializer = ExamPaperSerializer(queryset, many=True)
                 return self.success(serializer.data)
                 
         except Exception as e:
@@ -243,6 +296,215 @@ class ExamPaperAPI(CSRFExemptAPIView):
             return self.error("生成预览失败")
 
 
+class ExamPaperImportAPI(CSRFExemptAPIView):
+    """
+    试卷导入API
+    """
+    
+    @transaction.atomic
+    def post(self, request):
+        """
+        从JSON数据或文件导入整套试卷
+        """
+        try:
+            # 验证用户权限
+            if not request.user.is_authenticated:
+                return self.error("请先登录")
+            
+            # 支持两种导入方式：文件上传和直接JSON数据
+            if 'file' in request.FILES:
+                # 文件上传方式
+                uploaded_file = request.FILES['file']
+                
+                # 验证文件类型
+                if not uploaded_file.name.endswith('.json'):
+                    return self.error("只支持JSON格式文件")
+                
+                # 获取其他参数
+                category_name = request.data.get('category_name')
+                paper_title = request.data.get('paper_title')
+                language = request.data.get('language')
+                use_import_order = request.data.get('use_import_order', True)
+                
+                # 保存临时文件
+                import tempfile
+                import os
+                
+                with tempfile.NamedTemporaryFile(mode='w+b', suffix='.json', delete=False) as temp_file:
+                    for chunk in uploaded_file.chunks():
+                        temp_file.write(chunk)
+                    temp_file_path = temp_file.name
+                
+                try:
+                    # 使用QuestionImporter导入试卷
+                    importer = QuestionImporter(user=request.user)
+                    result = importer.import_paper_from_json(
+                        file_path=temp_file_path,
+                        category_name=category_name,
+                        paper_title=paper_title,
+                        language=language,
+                        use_import_order=use_import_order
+                    )
+                    
+                    return self.success({
+                        'message': '试卷导入成功',
+                        'paper_id': result['paper_id'],
+                        'paper_title': result['paper_title'],
+                        'imported_questions': result['success_count'],
+                        'logs': result['logs']
+                    })
+                    
+                finally:
+                    # 清理临时文件
+                    if os.path.exists(temp_file_path):
+                        os.unlink(temp_file_path)
+            
+            else:
+                # 直接JSON数据方式（前端发送的格式）
+                data = request.data
+                
+                # 获取参数
+                paper_title = data.get('title')
+                description = data.get('description', '')
+                questions_data = data.get('questions', [])
+                category_id = data.get('category_id')
+                language = data.get('language', 'zh-CN')
+                use_import_order = data.get('use_import_order', False)
+                duration = data.get('duration', 60)
+                total_score = data.get('total_score')
+                
+                if not paper_title:
+                    return self.error("试卷标题不能为空")
+                
+                if not questions_data:
+                    return self.error("题目数据不能为空")
+                
+                # 获取分类
+                category = None
+                if category_id:
+                    try:
+                        category = Category.objects.get(id=category_id)
+                    except Category.DoesNotExist:
+                        return self.error("指定的分类不存在")
+                
+                # 批量导入题目
+                imported_questions = []
+                importer = QuestionImporter(user=request.user)
+                
+                for i, question_data in enumerate(questions_data):
+                    # 转换前端数据格式为后端期望格式
+                    converted_data = self._convert_frontend_question_format(question_data)
+                    # 不要在单个题目数据中添加import_order和language，这些是试卷级别的字段
+                    if category:
+                        converted_data['category'] = category.name
+                    
+                    question = importer._import_single_question_for_paper(converted_data)
+                    imported_questions.append(question)
+                
+                # 创建试卷
+                from ..models import ExamPaper, ExamPaperQuestion
+                
+                paper = ExamPaper.objects.create(
+                    title=paper_title,
+                    description=description,
+                    duration=duration,
+                    total_score=total_score or sum(q.score for q in imported_questions),
+                    question_count=len(imported_questions),
+                    paper_type='fixed',
+                    use_import_order=use_import_order,
+                    is_active=True,
+                    created_by=request.user
+                )
+                
+                # 建立试卷题目关联
+                for i, question in enumerate(imported_questions):
+                    ExamPaperQuestion.objects.create(
+                        paper=paper,
+                        question=question,
+                        order=i + 1,
+                        score=question.score
+                    )
+                
+                # 关联分类
+                if category:
+                    paper.categories.add(category)
+                
+                return self.success({
+                    'message': '试卷导入成功',
+                    'paper_id': paper.id,
+                    'paper_title': paper.title,
+                    'imported_questions': len(imported_questions),
+                    'logs': importer.import_log
+                })
+                    
+        except json.JSONDecodeError:
+            return self.error("JSON数据格式错误")
+        except Exception as e:
+            logger.exception(f"导入试卷失败: {e}")
+            return self.error(f"导入失败: {str(e)}")
+    
+    def _convert_frontend_question_format(self, question_data: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        转换前端题目数据格式为后端期望格式
+        """
+        converted = {}
+        
+        # 转换题目内容
+        if 'question' in question_data:
+            converted['title'] = question_data['question'][:200]  # 限制标题长度
+            converted['description'] = question_data['question']
+        else:
+            converted['title'] = '未知题目'
+            converted['description'] = ''
+        
+        # 转换题目类型（支持从JSON中读取type字段）
+        converted['question_type'] = question_data.get('type', 'single')
+        
+        # 转换选项格式
+        if 'options' in question_data and isinstance(question_data['options'], list):
+            converted['options'] = question_data['options']
+        else:
+            converted['options'] = []
+        
+        # 转换答案格式 - 转换为JSON格式字符串以符合验证器要求
+        if 'correct' in question_data:
+            correct_answer = question_data['correct']
+            if isinstance(correct_answer, str):
+                # 将A,B,C,D转换为JSON格式的索引数组
+                if correct_answer.upper() == 'A':
+                    converted['answer'] = '[0]'
+                elif correct_answer.upper() == 'B':
+                    converted['answer'] = '[1]'
+                elif correct_answer.upper() == 'C':
+                    converted['answer'] = '[2]'
+                elif correct_answer.upper() == 'D':
+                    converted['answer'] = '[3]'
+                else:
+                    # 如果不是A-D格式，尝试转换为数字索引
+                    try:
+                        index = int(correct_answer)
+                        converted['answer'] = f'[{index}]'
+                    except ValueError:
+                        # 如果不能转换为数字，保持原样
+                        converted['answer'] = f'["{correct_answer}"]'
+            else:
+                # 如果已经是数字或其他类型，转换为JSON数组
+                try:
+                    index = int(correct_answer)
+                    converted['answer'] = f'[{index}]'
+                except (ValueError, TypeError):
+                    converted['answer'] = f'["{correct_answer}"]'
+        else:
+            converted['answer'] = '[0]'  # 默认答案
+        
+        # 其他字段
+        converted['explanation'] = question_data.get('explanation', '')
+        converted['score'] = question_data.get('score', 2)
+        converted['difficulty'] = question_data.get('difficulty', 'easy').lower()
+        
+        return converted
+
+
 class ExamSessionAPI(CSRFExemptAPIView):
     """
     考试会话API
@@ -357,11 +619,20 @@ class ExamSessionAPI(CSRFExemptAPIView):
                 return self.error("请先登录")
                 
             data = request.data
+            logger.info(f"接收到的请求数据: {data}")
             
             # 验证必需字段
             paper_id = data.get('paper_id')
+            logger.info(f"提取的paper_id: {paper_id}, 类型: {type(paper_id)}")
             if not paper_id:
                 return self.error("缺少试卷ID")
+                
+            # 确保paper_id是整数
+            try:
+                paper_id = int(paper_id)
+            except (ValueError, TypeError):
+                logger.error(f"paper_id类型转换失败: {paper_id}")
+                return self.error("试卷ID格式错误")
             
             # 获取试卷
             try:
