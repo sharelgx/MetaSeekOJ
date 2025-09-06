@@ -25,8 +25,11 @@
       <el-menu-item index="/choice-questions">{{$t('m.Choice_Question_List')}}</el-menu-item>
       <el-menu-item index="/choice-question/create">{{$t('m.Create_Choice_Question')}}</el-menu-item>
       <el-menu-item index="/choice-question/import">{{$t('m.Batch_Import')}}</el-menu-item>
+      <el-menu-item index="/exam-papers">{{$t('m.Exam_Paper_List')}}</el-menu-item>
+      <el-menu-item index="/exam-paper/import">{{$t('m.Import_Exam_Paper')}}</el-menu-item>
       <el-menu-item index="/choice-question/category">{{$t('m.Category_Management')}}</el-menu-item>
       <el-menu-item index="/choice-question/tag">{{$t('m.Tag_Management')}}</el-menu-item>
+      <el-menu-item index="/exam-statistics">{{$t('m.Exam_Statistics')}}</el-menu-item>
     </el-submenu>
     <el-submenu index="contest">
       <template slot="title"><i class="el-icon-fa-trophy"></i>{{$t('m.Contest')}}</template>

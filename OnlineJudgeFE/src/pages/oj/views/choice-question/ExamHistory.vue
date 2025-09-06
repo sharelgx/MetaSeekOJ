@@ -135,7 +135,7 @@
 </template>
 
 <script>
-import api from '../../api'
+// import api from '../../api'
 
 export default {
   name: 'ExamHistory',
@@ -285,9 +285,9 @@ export default {
           params.end_date = this.formatDate(this.dateRange[1])
         }
         
-        const res = await api.getExamHistoryList(params)
-        this.examHistory = res.data.data.results
-        this.total = res.data.data.total
+        const res = await this.$http.get('/exam-history/', { params })
+        this.examHistory = (res.data.data && res.data.data.results) || res.data.results || res.data
+        this.total = (res.data.data && res.data.data.total) || res.data.total || 0
       } catch (err) {
         this.$Message.error('获取考试历史失败')
         console.error(err)
@@ -483,5 +483,124 @@ export default {
   background: #fafafa;
   border-left: 4px solid #2d8cf0;
   border-radius: 4px;
+}
+
+/* 移动端响应式设计 */
+@media (max-width: 768px) {
+  .exam-history {
+    margin: 10px;
+  }
+  
+  .filter-section {
+    padding: 12px;
+    margin-bottom: 15px;
+  }
+  
+  .filter-section .ivu-form-item {
+    margin-bottom: 12px;
+  }
+  
+  .filter-section .ivu-btn {
+    width: 100%;
+    margin-top: 8px;
+  }
+  
+  .ivu-table-wrapper {
+    overflow-x: auto;
+  }
+  
+  .ivu-table {
+    min-width: 600px;
+  }
+  
+  .ivu-table th,
+  .ivu-table td {
+    padding: 8px 4px;
+    font-size: 12px;
+  }
+  
+  .ivu-table .ivu-btn {
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+  
+  .pagination {
+    text-align: center;
+    margin-top: 15px;
+  }
+  
+  .ivu-modal-body {
+    padding: 15px;
+  }
+  
+  .question-item {
+    padding: 12px;
+    margin-bottom: 15px;
+  }
+  
+  .question-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .question-number {
+    font-size: 14px;
+  }
+  
+  .question-content {
+    font-size: 13px;
+    margin-top: 10px;
+  }
+  
+  .option-item {
+    padding: 6px 10px;
+    margin: 3px 0;
+    font-size: 12px;
+  }
+  
+  .explanation {
+    padding: 10px;
+    margin-top: 10px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .exam-history {
+    margin: 8px;
+  }
+  
+  .filter-section {
+    padding: 10px;
+  }
+  
+  .ivu-table {
+    min-width: 500px;
+  }
+  
+  .ivu-table th,
+  .ivu-table td {
+    padding: 6px 2px;
+    font-size: 11px;
+  }
+  
+  .question-item {
+    padding: 10px;
+  }
+  
+  .question-content {
+    font-size: 12px;
+  }
+  
+  .option-item {
+    padding: 5px 8px;
+    font-size: 11px;
+  }
+  
+  .explanation {
+    padding: 8px;
+    font-size: 11px;
+  }
 }
 </style>

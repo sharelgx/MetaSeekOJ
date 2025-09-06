@@ -469,6 +469,18 @@ export default {
     return ajax('plugin/choice/questions/' + questionId + '/submit/', 'post', {
       data: data
     })
+  },
+
+  // 试卷导入API
+  importExamPaper (data) {
+    return ajax('plugin/choice/exam-papers/import/', 'post', {
+      data: data
+    })
+  },
+
+  // 删除试卷API
+  deleteExamPaper (paperId) {
+    return ajax('plugin/choice/exam-papers/' + paperId + '/', 'delete')
   }
 }
 

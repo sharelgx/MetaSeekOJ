@@ -583,4 +583,87 @@ export default {
   background-color: #f5f7fa;
   cursor: pointer;
 }
+
+/* 移动端响应式设计 */
+@media (max-width: 768px) {
+  .choice-question-list {
+    margin: 10px;
+  }
+  
+  .filter-section {
+    padding: 12px;
+    margin-bottom: 15px;
+  }
+  
+  .filter-section .ivu-form-item {
+    margin-bottom: 12px;
+  }
+  
+  .filter-section .ivu-btn {
+    width: 100%;
+    margin-top: 8px;
+  }
+  
+  .ivu-table-wrapper {
+    overflow-x: auto;
+  }
+  
+  ::v-deep .ivu-table {
+    min-width: 700px;
+    font-size: 12px;
+  }
+  
+  ::v-deep .ivu-table th,
+  ::v-deep .ivu-table td {
+    padding: 8px 4px;
+  }
+  
+  ::v-deep .ivu-table-tbody tr {
+    height: 50px;
+  }
+  
+  ::v-deep .ivu-table .ivu-btn {
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+  
+  ::v-deep .ivu-tag {
+    font-size: 10px;
+    padding: 2px 6px;
+  }
+  
+  .pagination {
+    text-align: center;
+    margin-top: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .choice-question-list {
+    margin: 8px;
+  }
+  
+  .filter-section {
+    padding: 10px;
+  }
+  
+  ::v-deep .ivu-table {
+    min-width: 600px;
+    font-size: 11px;
+  }
+  
+  ::v-deep .ivu-table th,
+  ::v-deep .ivu-table td {
+    padding: 6px 2px;
+  }
+  
+  ::v-deep .ivu-table-tbody tr {
+    height: 45px;
+  }
+  
+  ::v-deep .ivu-tag {
+    font-size: 9px;
+    padding: 1px 4px;
+  }
+}
 </style>

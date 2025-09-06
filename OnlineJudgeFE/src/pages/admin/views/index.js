@@ -16,9 +16,12 @@ import ChoiceQuestionList from './choice-question/ChoiceQuestionList.vue'
 import CategoryManagement from './choice-question/CategoryManagement.vue'
 import TagManagement from './choice-question/TagManagement.vue'
 import ImportChoiceQuestion from './choice-question/ImportChoiceQuestion.vue'
+import ImportExamPaper from './choice-question/ImportExamPaper.vue'
+import ExamPaperList from './choice/ExamPaperList.vue'
+import ExamStatistics from './ExamStatistics.vue'
 
 export {
-  Announcement, User, Conf, JudgeServer, Problem, ProblemList, Contest,
-  ContestList, Login, Home, PruneTestCase, Dashboard, ProblemImportOrExport,
-  ChoiceQuestion, ChoiceQuestionList, CategoryManagement, TagManagement, ImportChoiceQuestion
+  Announcement, Conf, Contest, ContestList, Home, JudgeServer, Login,
+  Problem, ProblemList, User, PruneTestCase, Dashboard, ProblemImportOrExport,
+  ChoiceQuestion, ChoiceQuestionList, CategoryManagement, TagManagement, ImportChoiceQuestion, ImportExamPaper, ExamPaperList, ExamStatistics
 }

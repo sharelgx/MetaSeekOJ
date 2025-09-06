@@ -67,7 +67,20 @@
           </el-col>
           <el-col :span="24">
             <el-form-item prop="description" :label="$t('m.Description')" required>
-              <Simditor v-model="choiceQuestion.description"></Simditor>
+              <!-- 添加调试信息 -->
+              <div v-if="!choiceQuestion.description" class="debug-info">
+                <el-alert
+                  title="题目描述为空"
+                  type="warning"
+                  :closable="false"
+                  show-icon>
+                  <div slot="default">
+                    <p>如果您看到这个警告，说明题目数据没有正确加载。</p>
+                    <p>请检查浏览器控制台查看详细错误信息。</p>
+                  </div>
+                </el-alert>
+              </div>
+              <Simditor v-model="choiceQuestion.description" v-if="choiceQuestion.description || true"></Simditor>
             </el-form-item>
           </el-col>
         </el-row>
@@ -76,6 +89,20 @@
         <el-row>
           <el-col :span="24">
             <el-form-item :label="$t('m.Options')" required>
+              <!-- 添加选项调试信息 -->
+              <div v-if="choiceQuestion.options.every(opt => !opt.text)" class="debug-info">
+                <el-alert
+                  title="所有选项都为空"
+                  type="warning"
+                  :closable="false"
+                  show-icon>
+                  <div slot="default">
+                    <p>选项数据没有正确加载。原始选项数据可能格式不正确。</p>
+                    <p>请查看浏览器控制台的调试信息。</p>
+                  </div>
+                </el-alert>
+              </div>
+              
               <div v-for="(option, index) in choiceQuestion.options" :key="index" class="option-item">
                 <el-row :gutter="10">
                   <el-col :span="2">
@@ -250,44 +277,120 @@
         })
       },
       getChoiceQuestion (choiceQuestionId) {
+        console.log('📝 开始加载选择题数据, ID:', choiceQuestionId)
+        
         api.getChoiceQuestion(choiceQuestionId).then(res => {
+          console.log('📊 API响应数据:', res)
           let data = res.data.data
+          console.log('📄 题目原始数据:', data)
           
-          // 处理选项和正确答案
-          let options = data.options || [
-            { text: '', is_correct: false },
-            { text: '', is_correct: false },
-            { text: '', is_correct: false },
-            { text: '', is_correct: false }
-          ]
-          
-          // 根据correct_answer设置选项的is_correct状态
-          if (data.correct_answer && data.question_type === 'multiple') {
-            const correctAnswers = data.correct_answer.split(',')
-            options.forEach((option, index) => {
-              const optionKey = String.fromCharCode(65 + index) // A, B, C, D...
-              option.is_correct = correctAnswers.includes(optionKey)
-            })
-          } else if (data.correct_answer && data.question_type === 'single') {
-            const correctIndex = data.correct_answer.charCodeAt(0) - 65
-            options.forEach((option, index) => {
-              option.is_correct = index === correctIndex
-            })
+          if (!data) {
+            console.error('❌ 没有获取到题目数据')
+            this.$message.error('无法获取题目数据')
+            return
           }
           
+          // 处理选项和正确答案 - 更强的容错性
+          let options = []
+          
+          // 尝试多种可能的选项数据格式
+          if (data.options && Array.isArray(data.options)) {
+            console.log('📅 处理选项数据:', data.options)
+            
+            options = data.options.map(option => {
+              // 支持多种选项格式
+              if (typeof option === 'string') {
+                // 字符串格式: "A. 选项内容"
+                return { text: option, is_correct: false }
+              } else if (option.content) {
+                // content 字段格式
+                return { text: option.content, is_correct: option.is_correct || false }
+              } else if (option.text) {
+                // text 字段格式
+                return { text: option.text, is_correct: option.is_correct || false }
+              } else {
+                // 其他格式，尝试直接使用
+                return { text: String(option), is_correct: false }
+              }
+            })
+          } else {
+            // 如果没有选项数据，创建默认选项
+            console.log('⚠️ 没有找到选项数据，使用默认选项')
+            options = [
+              { text: '', is_correct: false },
+              { text: '', is_correct: false },
+              { text: '', is_correct: false },
+              { text: '', is_correct: false }
+            ]
+          }
+          
+          // 根据correct_answer设置选项的is_correct状态
+          if (data.correct_answer) {
+            console.log('🎯 处理正确答案:', data.correct_answer, '题目类型:', data.question_type)
+            
+            if (data.question_type === 'multiple') {
+              // 多选题：支持多种格式
+              let correctAnswers = []
+              if (typeof data.correct_answer === 'string') {
+                // 字符串格式："A,B" 或 "AB"
+                if (data.correct_answer.includes(',')) {
+                  correctAnswers = data.correct_answer.split(',')
+                } else {
+                  correctAnswers = data.correct_answer.split('')
+                }
+              } else if (Array.isArray(data.correct_answer)) {
+                // 数组格式：["A", "B"]
+                correctAnswers = data.correct_answer
+              }
+              
+              options.forEach((option, index) => {
+                const optionKey = String.fromCharCode(65 + index) // A, B, C, D...
+                option.is_correct = correctAnswers.includes(optionKey)
+              })
+            } else {
+              // 单选题
+              const correctAnswer = String(data.correct_answer).charAt(0) // 取第一个字符
+              const correctIndex = correctAnswer.charCodeAt(0) - 65 // A=0, B=1, C=2...
+              
+              options.forEach((option, index) => {
+                option.is_correct = index === correctIndex
+              })
+            }
+          }
+          
+          console.log('📋 处理后的选项数据:', options)
+          
+          // 构建choiceQuestion对象 - 支持多种字段名
           this.choiceQuestion = {
             id: data.id,
-            title: data.title,
-            description: data.description,
-            difficulty: data.difficulty,
+            title: data.title || '',
+            description: data.description || data.content || '', // 支持description或content字段
+            difficulty: data.difficulty || 'Easy',
             question_type: data.question_type || 'single',
-            category: data.category ? data.category.id : null,
-            tags: data.tags ? data.tags.map(tag => tag.name) : [],
+            category: data.category ? (data.category.id || data.category) : null,
+            tags: data.tags ? data.tags.map(tag => tag.name || tag) : [],
             options: options,
             correct_answer: data.correct_answer || 'A',
             explanation: data.explanation || '',
-            visible: data.visible
+            visible: data.visible !== undefined ? data.visible : true
           }
+          
+          console.log('✅ 最终的choiceQuestion数据:', this.choiceQuestion)
+          
+          // 检查数据完整性
+          if (!this.choiceQuestion.title) {
+            console.warn('⚠️ 题目标题为空')
+          }
+          if (!this.choiceQuestion.description) {
+            console.warn('⚠️ 题目描述为空')
+          }
+          if (options.every(opt => !opt.text)) {
+            console.warn('⚠️ 所有选项都为空')
+          }
+          
+        }).catch(error => {
+          console.error('❌ 获取选择题数据失败:', error)
+          this.$message.error('获取题目数据失败: ' + (error.message || '未知错误'))
         })
       },
       getCategories () {
@@ -368,5 +471,31 @@
   
   .save-button {
     text-align: center;
+  }
+  
+  // 调试信息样式
+  .debug-info {
+    margin-bottom: 15px;
+    
+    .el-alert {
+      border-radius: 6px;
+      
+      p {
+        margin: 5px 0;
+        font-size: 14px;
+        line-height: 1.5;
+      }
+    }
+  }
+  
+  // 选项编辑器样式
+  .option-editor {
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #606266;
+    }
   }
 </style>

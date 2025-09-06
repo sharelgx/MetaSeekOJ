@@ -170,7 +170,7 @@ export default {
     })
   },
   createExamSession(data) {
-    return ajax('plugin/choice/exam-sessions/', 'post', {
+    return ajax('plugin/choice/exam-sessions/create/', 'post', {
       data
     })
   },
