@@ -8,6 +8,10 @@ export {default as ExamHistory} from './ExamHistory.vue'
 export {default as ExamReview} from './ExamReview.vue'
 export {default as PracticeMode} from './PracticeMode.vue'
 
+// 专题练习组件导出
+export {default as TopicPracticeHome} from '../topic/TopicPracticeHome.vue'
+export {default as TopicPracticeDetail} from '../topic/TopicPracticeDetail.vue'
+
 // 选择题子组件导出
 export {default as QuestionCard} from './components/QuestionCard.vue'
 export {default as CategoryTree} from './components/CategoryTree.vue'

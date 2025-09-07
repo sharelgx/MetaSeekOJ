@@ -44,7 +44,9 @@
             this.logining = true
             api.login(this.ruleForm2.account, this.ruleForm2.password).then(data => {
               this.logining = false
-              this.$router.push({name: 'dashboard'})
+              // 检查是否有重定向路径，如果有则跳转到原来的页面，否则跳转到dashboard
+              const redirect = this.$route.query.redirect || '/'
+              this.$router.push(redirect)
             }, () => {
               this.logining = false
             })

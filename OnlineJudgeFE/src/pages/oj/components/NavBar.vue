@@ -14,6 +14,10 @@
         <Icon type="ios-list-box"></Icon>
         {{$t('m.Choice_Question')}}
       </Menu-item>
+      <Menu-item name="/topics">
+        <Icon type="ios-paper"></Icon>
+        {{$t('m.Topic_Practice')}}
+      </Menu-item>
       <Menu-item name="/contest">
         <Icon type="trophy"></Icon>
         {{$t('m.Contests')}}

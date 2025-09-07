@@ -29,6 +29,9 @@
       <el-menu-item index="/exam-paper/import">{{$t('m.Import_Exam_Paper')}}</el-menu-item>
       <el-menu-item index="/choice-question/category">{{$t('m.Category_Management')}}</el-menu-item>
       <el-menu-item index="/choice-question/tag">{{$t('m.Tag_Management')}}</el-menu-item>
+      <el-menu-item index="/topic-practice/management">专题练习管理</el-menu-item>
+      <el-menu-item index="/topic/management">专题管理</el-menu-item>
+      <el-menu-item index="/topic/categories">专题分类管理</el-menu-item>
       <el-menu-item index="/exam-statistics">{{$t('m.Exam_Statistics')}}</el-menu-item>
     </el-submenu>
     <el-submenu index="contest">

@@ -147,6 +147,7 @@ export const m = {
   Home: 'Home',
   NavProblems: 'Problems',
   Choice_Question: 'Choice Questions',
+  Topic_Practice: 'Topic Practice',
   Contests: 'Contests',
   NavStatus: 'Status',
   Programming_Submissions: 'Programming Submissions',

@@ -147,6 +147,7 @@ export const m = {
   Home: '首页',
   NavProblems: '问题',
   Choice_Question: '选择题',
+  Topic_Practice: '专题练习',
   Question_List: '题目列表',
   Wrong_Question_Book: '错题本',
   Exam_History: '考试历史',

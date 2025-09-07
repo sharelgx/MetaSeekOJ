@@ -95,6 +95,18 @@ export default [
     }
   },
   {
+    name: 'TopicPracticeHome',
+    path: '/topics',
+    meta: {title: 'Topic Practice'},
+    component: ChoiceQuestion.TopicPracticeHome
+  },
+  {
+    name: 'TopicPracticeDetail',
+    path: '/topics/category/:categoryId',
+    meta: {title: 'Topic Category'},
+    component: ChoiceQuestion.TopicPracticeDetail
+  },
+  {
     name: 'wrong-question-book',
     path: '/wrong-questions',
     meta: {title: 'Wrong Question Book'},

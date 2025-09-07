@@ -261,5 +261,8 @@ export const m = {
   Score_Must_Be_Between_1_And_100: 'Score must be between 1 and 100',
   Import_Successful: 'Import successful, {count} questions imported',
   Import_Failed: 'Import failed',
-  Import_Errors: 'Import Errors'
+  Import_Errors: 'Import Errors',
+  Topic_Management: 'Topic Management',
+  Topic_Category_Management: 'Topic Category Management',
+  Topic_Practice_Management: 'Topic Practice Management'
 }
