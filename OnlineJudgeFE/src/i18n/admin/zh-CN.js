@@ -294,5 +294,8 @@ export const m = {
   Score_Must_Be_Between_1_And_100: '分数必须在1-100之间',
   Import_Successful: '导入成功，共导入 {count} 道题目',
   Import_Failed: '导入失败',
-  Import_Errors: '导入错误'
+  Import_Errors: '导入错误',
+  Topic_Management: '专题管理',
+  Topic_Category_Management: '专题分类管理',
+  Topic_Practice_Management: '专题练习管理'
 }

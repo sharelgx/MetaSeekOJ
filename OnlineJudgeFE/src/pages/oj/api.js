@@ -481,6 +481,120 @@ export default {
   // 删除试卷API
   deleteExamPaper (paperId) {
     return ajax('plugin/choice/exam-papers/' + paperId + '/', 'delete')
+  },
+  
+  // 专题试做相关API - 新增
+  getTopicPracticeHome () {
+    return ajax('plugin/choice/topics/', 'get')
+  },
+  
+  getTopicPracticeDetail (categoryId) {
+    if (!categoryId) {
+      return Promise.reject(new Error('分类ID不能为空'))
+    }
+    return ajax('plugin/choice/topics/' + categoryId + '/', 'get')
+  },
+  
+  startTopicPractice (data) {
+    return ajax('plugin/choice/topics/start/', 'post', {
+      data
+    })
+  },
+  
+  submitTopicPractice (sessionId, data) {
+    if (!sessionId) {
+      return Promise.reject(new Error('会话ID不能为空'))
+    }
+    return ajax('plugin/choice/topics/' + sessionId + '/submit/', 'post', {
+      data
+    })
+  },
+  
+  getTopicPracticeRecords (params) {
+    return ajax('plugin/choice/topic-practice/records/', 'get', {
+      params: params || {}
+    })
+  },
+
+  // 专题管理相关API
+  getTopicList (params) {
+    return ajax('plugin/choice/topics/manage/', 'get', {
+      params: params || {}
+    })
+  },
+
+  createTopic (data) {
+    return ajax('plugin/choice/topics/manage/', 'post', {
+      data
+    })
+  },
+
+  getTopicDetail (topicId) {
+    return ajax('plugin/choice/topics/manage/' + topicId + '/', 'get')
+  },
+
+  updateTopic (topicId, data) {
+    return ajax('plugin/choice/topics/manage/' + topicId + '/', 'put', {
+      data
+    })
+  },
+
+  deleteTopic (topicId) {
+    return ajax('plugin/choice/topics/manage/' + topicId + '/', 'delete')
+  },
+
+  updateTopic (topicId, data) {
+    return ajax('plugin/choice/topics/manage/' + topicId + '/', 'put', {
+      data
+    })
+  },
+
+  deleteTopic (topicId) {
+    return ajax('plugin/choice/topics/manage/' + topicId + '/', 'delete')
+  },
+
+  // 专题练习相关API
+  getTopicPractice (topicId) {
+    return ajax('plugin/choice/topics/' + topicId + '/practice/', 'get')
+  },
+
+  submitTopicAnswer (data) {
+    return ajax('plugin/choice/topics/practice/submit/', 'post', {
+      data
+    })
+  },
+
+  // 专题错题本相关API
+  getTopicWrongQuestions (params) {
+    return ajax('plugin/choice/topics/wrong-questions/', 'get', {
+      params: params || {}
+    })
+  },
+
+  getTopicWrongQuestionStatistics () {
+    return ajax('plugin/choice/topics/wrong-questions/statistics/', 'get')
+  },
+
+  // 专题练习首页数据
+  getTopicPracticeHome () {
+    return ajax('plugin/choice/topics/', 'get')
+  },
+
+  // 获取专题分类列表
+  getTopicCategories () {
+    return ajax('plugin/choice/categories/', 'get')
+  },
+
+  // 获取专题练习详情
+  getTopicPracticeDetail (categoryId) {
+    return ajax('plugin/choice/topics/' + categoryId + '/', 'get')
+  },
+
+  // 开始专题练习
+  startTopicPractice (data) {
+    return ajax('plugin/choice/topics/start/', 'post', {
+      data
+    })
   }
 }
 
