@@ -48,6 +48,9 @@ yarn-error.log*
 # OS
 .DS_Store
 .DS_Store?
+
+# Browser logs
+browser_logs.txt
 ._*
 .Spotlight-V100
 .Trashes
