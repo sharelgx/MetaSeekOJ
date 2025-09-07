@@ -7,7 +7,10 @@ from .models import (
     ChoiceQuestionSubmission,
     WrongQuestion,
     ExamPaper,
-    ExamSession
+    ExamSession,
+    Topic,
+    TopicPracticeRecord,
+    TopicWrongQuestionRecord
 )
 
 User = get_user_model()
@@ -27,6 +30,10 @@ class ChoiceQuestionCategorySerializer(serializers.ModelSerializer):
     
     def get_children(self, obj):
         """递归获取子分类"""
+        # 检查context中是否要求不包含children
+        if self.context.get('exclude_children', False):
+            return []
+            
         if hasattr(obj, 'get_children'):
             children = obj.get_children().filter(is_active=True).order_by('order', 'name')
             if children.exists():
@@ -286,3 +293,60 @@ class ExamSessionSerializer(serializers.ModelSerializer):
     def get_exam_paper_title(self, obj):
         """获取试卷标题"""
         return obj.paper.title if obj.paper else ''
+
+
+class TopicSerializer(serializers.ModelSerializer):
+    """专题序列化器"""
+    created_by = UserSerializer(read_only=True)
+    
+    class Meta:
+        model = Topic
+        fields = '__all__'
+        read_only_fields = ('created_by', 'create_time', 'last_update_time')
+
+
+class TopicCreateSerializer(serializers.ModelSerializer):
+    """专题创建序列化器"""
+    
+    class Meta:
+        model = Topic
+        fields = ['title', 'description', 'difficulty_level', 'pass_score', 'is_active', 'is_public']
+    
+    def validate_title(self, value):
+        """验证专题标题"""
+        if not value or not value.strip():
+            raise serializers.ValidationError("专题标题不能为空")
+        return value.strip()
+    
+    def validate_difficulty_level(self, value):
+        """验证难度等级"""
+        if value not in [1, 2, 3, 4, 5]:
+            raise serializers.ValidationError("难度等级必须在1-5之间")
+        return value
+    
+    def validate_pass_score(self, value):
+        """验证及格分数"""
+        if value < 0 or value > 100:
+            raise serializers.ValidationError("及格分数必须在0-100之间")
+        return value
+
+
+class TopicPracticeRecordSerializer(serializers.ModelSerializer):
+    """专题练习记录序列化器"""
+    user = UserSerializer(read_only=True)
+    topic = TopicSerializer(read_only=True)
+    
+    class Meta:
+        model = TopicPracticeRecord
+        fields = '__all__'
+
+
+class TopicWrongQuestionRecordSerializer(serializers.ModelSerializer):
+    """专题错题记录序列化器"""
+    user = UserSerializer(read_only=True)
+    topic = TopicSerializer(read_only=True)
+    question = ChoiceQuestionListSerializer(read_only=True)
+    
+    class Meta:
+        model = TopicWrongQuestionRecord
+        fields = '__all__'

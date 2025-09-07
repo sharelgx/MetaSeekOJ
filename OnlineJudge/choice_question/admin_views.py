@@ -274,8 +274,20 @@ class ChoiceQuestionCategoryAdminAPI(APIView):
             except Category.DoesNotExist:
                 return self.error("Category does not exist")
         
-        categories = Category.objects.all().order_by('name')
-        return self.success(ChoiceQuestionCategorySerializer(categories, many=True).data)
+        # 支持根据parent参数过滤
+        parent_id = request.GET.get("parent")
+        if parent_id is not None:
+            if parent_id == "null" or parent_id == "":
+                categories = Category.objects.filter(parent=None).order_by('order', 'create_time')
+                # 获取一级分类时不包含children，避免前端显示所有子分类
+                context = {'exclude_children': True}
+            else:
+                categories = Category.objects.filter(parent_id=parent_id).order_by('order', 'create_time')
+                context = {'exclude_children': True}
+        else:
+            categories = Category.objects.all().order_by('order', 'create_time')
+            context = {}
+        return self.success(ChoiceQuestionCategorySerializer(categories, many=True, context=context).data)
     
     @problem_permission_required
     def post(self, request):

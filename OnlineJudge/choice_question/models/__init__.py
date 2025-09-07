@@ -10,6 +10,14 @@ from .question import ChoiceQuestion
 from .submission import ChoiceQuestionSubmission
 from .wrong_question import WrongQuestion
 from .exam import ExamPaper, ExamSession, ExamPaperQuestion
+from .topic import (
+    Topic, 
+    TopicCategoryRelation, 
+    TopicTagRelation, 
+    TopicQuestion,
+    TopicPracticeRecord,
+    TopicWrongQuestionRecord
+)
 
 __all__ = [
     'PluginBaseModel',
@@ -21,4 +29,10 @@ __all__ = [
     'ExamPaper',
     'ExamSession',
     'ExamPaperQuestion',
+    'Topic',
+    'TopicCategoryRelation',
+    'TopicTagRelation',
+    'TopicQuestion',
+    'TopicPracticeRecord',
+    'TopicWrongQuestionRecord',
 ]
