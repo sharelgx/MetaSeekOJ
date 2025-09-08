@@ -18,45 +18,7 @@
       </div>
     </div>
 
-    <!-- 搜索筛选 -->
-    <div class="search-section">
-      <el-card>
-        <el-row :gutter="20">
-          <el-col :span="8">
-            <el-input 
-              v-model="searchForm.keyword" 
-              placeholder="搜索专题名称或描述"
-              @keyup.enter.native="searchTopics">
-              <el-button slot="append" @click="searchTopics">搜索</el-button>
-            </el-input>
-          </el-col>
-          <el-col :span="4">
-            <el-select v-model="searchForm.difficulty" placeholder="选择难度" clearable>
-              <el-option label="简单" :value="1"></el-option>
-              <el-option label="中等" :value="2"></el-option>
-              <el-option label="困难" :value="3"></el-option>
-              <el-option label="专家" :value="4"></el-option>
-              <el-option label="大师" :value="5"></el-option>
-            </el-select>
-          </el-col>
-          <el-col :span="4">
-            <el-select v-model="searchForm.status" placeholder="选择状态" clearable>
-              <el-option label="启用" :value="true"></el-option>
-              <el-option label="禁用" :value="false"></el-option>
-            </el-select>
-          </el-col>
-          <el-col :span="4">
-            <el-select v-model="searchForm.visibility" placeholder="可见性" clearable>
-              <el-option label="公开" :value="true"></el-option>
-              <el-option label="私有" :value="false"></el-option>
-            </el-select>
-          </el-col>
-          <el-col :span="4">
-            <el-button @click="resetSearch">重置</el-button>
-          </el-col>
-        </el-row>
-      </el-card>
-    </div>
+
 
     <!-- 专题列表 -->
     <div class="main-content">
@@ -307,13 +269,7 @@ export default {
       topics: [],
       selectedTopics: [],
       
-      // 搜索表单
-      searchForm: {
-        keyword: '',
-        difficulty: null,
-        status: null,
-        visibility: null
-      },
+
       
       // 分页
       pagination: {
@@ -348,11 +304,7 @@ export default {
         
         const params = {
           page: this.pagination.page,
-          page_size: this.pagination.pageSize,
-          keyword: this.searchForm.keyword,
-          difficulty: this.searchForm.difficulty,
-          is_active: this.searchForm.status,
-          is_public: this.searchForm.visibility
+          page_size: this.pagination.pageSize
         }
         
         console.log('Loading topics with params:', params)
@@ -396,21 +348,7 @@ export default {
       }
     },
 
-    // 搜索相关
-    searchTopics () {
-      this.pagination.page = 1
-      this.loadTopics()
-    },
 
-    resetSearch () {
-      this.searchForm = {
-        keyword: '',
-        difficulty: null,
-        status: null,
-        visibility: null
-      }
-      this.searchTopics()
-    },
 
     refreshData () {
       this.loadTopics()

@@ -5,13 +5,15 @@
  * 提供全面的项目重启功能，包含Redis、前端、后端等所有服务
  */
 
-const { Server } = require('@modelcontextprotocol/sdk/server/index.js');
-const { StdioServerTransport } = require('@modelcontextprotocol/sdk/server/stdio.js');
-const { CallToolRequestSchema, ListToolsRequestSchema } = require('@modelcontextprotocol/sdk/types.js');
-const { spawn, exec } = require('child_process');
-const { promisify } = require('util');
-const fs = require('fs').promises;
-const path = require('path');
+import { Server } from '@modelcontextprotocol/sdk/server/index.js';
+import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
+import { spawn, exec } from 'child_process';
+import { promisify } from 'util';
+import fs from 'fs';
+import path from 'path';
+
+const fsPromises = fs.promises;
 
 const execAsync = promisify(exec);
 
@@ -271,7 +273,7 @@ class ProjectRestartServer {
   }
 
   async pythonRestart() {
-    const result = await this.executeCommand('python3 /home/metaspeekoj/restart_project.py');
+    const result = await this.executeCommand('python3 /home/metaspeekoj/mcp-servers/restart_project.py');
     
     return {
       content: [

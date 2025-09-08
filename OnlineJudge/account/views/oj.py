@@ -9,7 +9,7 @@ from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
 from django.utils.timezone import now
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
-from otpauth import OtpAuth
+from otpauth import TOTP
 
 from problem.models import Problem
 from utils.constants import ContestRuleType
@@ -102,7 +102,8 @@ class TwoFactorAuthAPI(APIView):
         user.save()
 
         label = f"{SysOptions.website_name_shortcut}:{user.username}"
-        image = qrcode.make(OtpAuth(token).to_uri("totp", label, SysOptions.website_name.replace(" ", "")))
+        totp = TOTP(token)
+        image = qrcode.make(totp.to_uri("totp", label, SysOptions.website_name.replace(" ", "")))
         return self.success(img2base64(image))
 
     @login_required
@@ -113,7 +114,8 @@ class TwoFactorAuthAPI(APIView):
         """
         code = request.data["code"]
         user = request.user
-        if OtpAuth(user.tfa_token).valid_totp(code):
+        totp = TOTP(user.tfa_token)
+        if totp.verify(code):
             user.two_factor_auth = True
             user.save()
             return self.success("Succeeded")
@@ -127,7 +129,8 @@ class TwoFactorAuthAPI(APIView):
         user = request.user
         if not user.two_factor_auth:
             return self.error("2FA is already turned off")
-        if OtpAuth(user.tfa_token).valid_totp(code):
+        totp = TOTP(user.tfa_token)
+        if totp.verify(code):
             user.two_factor_auth = False
             user.save()
             return self.success("Succeeded")
@@ -172,7 +175,8 @@ class UserLoginAPI(CSRFExemptAPIView):
             if user.two_factor_auth and "tfa_code" not in data:
                 return self.error("tfa_required")
 
-            if OtpAuth(user.tfa_token).valid_totp(data["tfa_code"]):
+            totp = TOTP(user.tfa_token)
+            if totp.verify(data["tfa_code"]):
                 auth.login(request, user)
                 return self.success("Succeeded")
             else:
@@ -337,6 +341,17 @@ class SessionManagementAPI(APIView):
         session_store = engine.SessionStore
         current_session = request.session.session_key
         session_keys = request.user.session_keys
+        
+        # Handle case where session_keys might be stored as string in database
+        if isinstance(session_keys, str):
+            import json
+            try:
+                session_keys = json.loads(session_keys)
+            except (json.JSONDecodeError, TypeError):
+                session_keys = []
+        elif session_keys is None:
+            session_keys = []
+        
         result = []
         modified = False
         for key in session_keys[:]:
@@ -356,6 +371,7 @@ class SessionManagementAPI(APIView):
             s["session_key"] = key
             result.append(s)
         if modified:
+            request.user.session_keys = session_keys
             request.user.save()
         return self.success(result)
 
@@ -365,8 +381,21 @@ class SessionManagementAPI(APIView):
         if not session_key:
             return self.error("Parameter Error")
         request.session.delete(session_key)
-        if session_key in request.user.session_keys:
-            request.user.session_keys.remove(session_key)
+        
+        session_keys = request.user.session_keys
+        # Handle case where session_keys might be stored as string in database
+        if isinstance(session_keys, str):
+            import json
+            try:
+                session_keys = json.loads(session_keys)
+            except (json.JSONDecodeError, TypeError):
+                session_keys = []
+        elif session_keys is None:
+            session_keys = []
+        
+        if session_key in session_keys:
+            session_keys.remove(session_key)
+            request.user.session_keys = session_keys
             request.user.save()
             return self.success("Succeeded")
         else:

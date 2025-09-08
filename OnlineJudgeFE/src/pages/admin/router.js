@@ -3,7 +3,7 @@ import VueRouter from 'vue-router'
 // 引入 view 组件
 import { Announcement, Conf, Contest, ContestList, Home, JudgeServer, Login,
   Problem, ProblemList, User, PruneTestCase, Dashboard, ProblemImportOrExport,
-  ChoiceQuestion, ChoiceQuestionList, CategoryManagement, TagManagement, ImportChoiceQuestion, ImportExamPaper, TopicPracticeManagement, TopicManagement, CreateTopic, TopicCategoryManagement, ExamPaperList, ExamStatistics } from './views'
+  ChoiceQuestion, ChoiceQuestionList, CategoryManagement, TagManagement, ImportChoiceQuestion, ImportExamPaper, TopicPracticeManagement, TopicManagement, CreateTopic, ExamPaperList, ExamStatistics } from './views'
 Vue.use(VueRouter)
 
 export default new VueRouter({
@@ -125,11 +125,7 @@ export default new VueRouter({
           name: 'edit-topic',
           component: CreateTopic
         },
-        {
-          path: '/topic/categories',
-          name: 'topic-categories',
-          component: TopicCategoryManagement
-        },
+
         {
           path: '/exam-papers',
           name: 'exam-paper-list',

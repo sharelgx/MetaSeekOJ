@@ -20,12 +20,12 @@ import ImportExamPaper from './choice-question/ImportExamPaper.vue'
 import TopicPracticeManagement from './choice-question/TopicPracticeManagement.vue'
 import TopicManagement from './general/TopicManagement.vue'
 import CreateTopic from './general/CreateTopic.vue'
-import TopicCategoryManagement from './general/TopicCategoryManagement.vue'
+
 import ExamPaperList from './choice/ExamPaperList.vue'
 import ExamStatistics from './ExamStatistics.vue'
 
 export {
   Announcement, Conf, Contest, ContestList, Home, JudgeServer, Login,
   Problem, ProblemList, User, PruneTestCase, Dashboard, ProblemImportOrExport,
-  ChoiceQuestion, ChoiceQuestionList, CategoryManagement, TagManagement, ImportChoiceQuestion, ImportExamPaper, TopicPracticeManagement, TopicManagement, CreateTopic, TopicCategoryManagement, ExamPaperList, ExamStatistics
+  ChoiceQuestion, ChoiceQuestionList, CategoryManagement, TagManagement, ImportChoiceQuestion, ImportExamPaper, TopicPracticeManagement, TopicManagement, CreateTopic, ExamPaperList, ExamStatistics
 }

@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 
-const fs = require('fs');
-const path = require('path');
-const { execSync } = require('child_process');
+import fs from 'fs';
+import path from 'path';
+import { execSync } from 'child_process';
+import readline from 'readline';
 
 // 测试文件管理MCP服务器
 class TestFileManagerServer {
@@ -452,7 +453,6 @@ class MCPServer {
     }
 
     async run() {
-        const readline = require('readline');
         const rl = readline.createInterface({
             input: process.stdin,
             output: process.stdout
@@ -522,9 +522,10 @@ class MCPServer {
 }
 
 // 启动服务器
-if (require.main === module) {
+// ES模块入口点
+if (import.meta.url === `file://${process.argv[1]}`) {
     const server = new MCPServer();
     server.run().catch(console.error);
 }
 
-module.exports = { TestFileManagerServer, MCPServer };
+export { TestFileManagerServer, MCPServer };

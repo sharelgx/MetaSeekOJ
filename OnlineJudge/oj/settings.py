@@ -34,7 +34,7 @@ VENDOR_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'django_dramatiq',
+    # 'django_dramatiq',  # Temporarily disabled for Django 2.1.7 compatibility
     'django_dbconn_retry',
     'corsheaders',
 ]
@@ -294,3 +294,11 @@ SESSION_COOKIE_HTTPONLY = False  # Allow JavaScript access for debugging
 SESSION_COOKIE_AGE = 86400  # 24 hours
 CSRF_COOKIE_SAMESITE = 'Lax'
 CSRF_COOKIE_SECURE = False
+
+# CSRF trusted origins
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:8080",
+    "http://127.0.0.1:8080",
+    "http://localhost:8082",
+    "http://127.0.0.1:8082",
+]

@@ -1,164 +1,245 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
-MetaSeekOJ项目重启脚本
-用于快速重启前端和后端服务
+MetaSeekOJ 项目重启脚本 (Python版本)
+提供更好的错误处理和状态检查
 """
 
-import subprocess
-import time
 import os
+import sys
+import time
+import subprocess
 import signal
 import psutil
+import requests
+from pathlib import Path
 
-def kill_process_by_port(port):
-    """根据端口号杀死进程"""
-    try:
-        for proc in psutil.process_iter(['pid', 'name', 'connections']):
-            try:
-                for conn in proc.info['connections']:
-                    if conn.laddr.port == port:
-                        print(f"正在停止端口 {port} 上的进程 (PID: {proc.info['pid']})")
-                        proc.kill()
-                        proc.wait(timeout=3)
-                        return True
-            except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-                pass
-    except Exception as e:
-        print(f"停止端口 {port} 进程时出错: {e}")
-    return False
-
-def kill_process_by_name(name_pattern):
-    """根据进程名模式杀死进程"""
-    try:
+class ProjectManager:
+    def __init__(self):
+        self.base_dir = Path("/home/metaspeekoj")
+        self.backend_dir = self.base_dir / "OnlineJudge"
+        self.frontend_dir = self.base_dir / "OnlineJudgeFE"
+        self.log_dir = Path("/tmp")
+        
+    def kill_processes(self, patterns):
+        """根据进程名模式杀死进程"""
+        killed = []
         for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
             try:
-                cmdline = ' '.join(proc.info['cmdline']) if proc.info['cmdline'] else ''
-                if name_pattern in cmdline:
-                    print(f"正在停止进程: {proc.info['name']} (PID: {proc.info['pid']})")
+                cmdline = ' '.join(proc.info['cmdline'] or [])
+                for pattern in patterns:
+                    if pattern in cmdline:
+                        print(f"停止进程: {proc.info['pid']} - {cmdline[:80]}...")
+                        proc.terminate()
+                        killed.append(proc.info['pid'])
+                        break
+            except (psutil.NoSuchProcess, psutil.AccessDenied):
+                continue
+        
+        # 等待进程优雅退出
+        time.sleep(3)
+        
+        # 强制杀死仍在运行的进程
+        for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
+            try:
+                if proc.pid in killed and proc.is_running():
                     proc.kill()
-                    proc.wait(timeout=3)
-            except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-                pass
-    except Exception as e:
-        print(f"停止进程时出错: {e}")
-
-def restart_project():
-    """重启整个项目"""
-    print("=== MetaSeekOJ 项目重启开始 ===")
+            except (psutil.NoSuchProcess, psutil.AccessDenied):
+                continue
+                
+        return len(killed)
     
-    # 1. 停止现有服务
-    print("\n1. 停止现有服务...")
-    
-    # 停止Redis服务 (端口6379)
-    kill_process_by_port(6379)
-    
-    # 停止前端服务 (端口8080)
-    kill_process_by_port(8080)
-    
-    # 停止后端服务 (端口8081)
-    kill_process_by_port(8081)
-    
-    # 停止可能的其他相关进程
-    kill_process_by_name('redis-server')
-    kill_process_by_name('manage.py runserver')
-    kill_process_by_name('npm run dev')
-    kill_process_by_name('node')
-    
-    print("等待进程完全停止...")
-    time.sleep(3)
-    
-    # 2. 启动Redis服务
-    print("\n2. 启动Redis服务...")
-    redis_cmd = ["redis-server"]
-    
-    try:
-        redis_process = subprocess.Popen(
-            redis_cmd,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            preexec_fn=os.setsid
-        )
-        print(f"Redis服务已启动 (PID: {redis_process.pid})")
-        time.sleep(2)  # 等待Redis启动
-    except Exception as e:
-        print(f"启动Redis服务失败: {e}")
+    def check_port(self, port):
+        """检查端口是否被占用"""
+        for conn in psutil.net_connections():
+            if conn.laddr.port == port and conn.status == 'LISTEN':
+                return True
         return False
     
-    # 3. 启动后端服务
-    print("\n3. 启动后端Django服务...")
-    backend_dir = "/home/metaspeekoj/OnlineJudge"
-    backend_cmd = ["python3", "manage.py", "runserver", "0.0.0.0:8081"]
-    
-    try:
-        backend_process = subprocess.Popen(
-            backend_cmd,
-            cwd=backend_dir,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            preexec_fn=os.setsid
-        )
-        print(f"后端服务已启动 (PID: {backend_process.pid})")
-        time.sleep(5)  # 等待后端启动
-    except Exception as e:
-        print(f"启动后端服务失败: {e}")
-        return False
-    
-    # 4. 启动前端服务
-    print("\n4. 启动前端开发服务...")
-    frontend_dir = "/home/metaspeekoj/OnlineJudgeFE"
-    frontend_cmd = ["npm", "run", "dev", "--", "--port", "8080"]
-    
-    # 设置Node.js环境变量
-    env = os.environ.copy()
-    env['NODE_OPTIONS'] = '--openssl-legacy-provider'
-    
-    try:
-        frontend_process = subprocess.Popen(
-            frontend_cmd,
-            cwd=frontend_dir,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            env=env,
-            preexec_fn=os.setsid
-        )
-        print(f"前端服务已启动 (PID: {frontend_process.pid})")
-        time.sleep(5)  # 等待前端启动
-    except Exception as e:
-        print(f"启动前端服务失败: {e}")
-        return False
-    
-    # 5. 验证服务状态
-    print("\n5. 验证服务状态...")
-    
-    # 检查端口是否被占用
-    redis_running = False
-    backend_running = False
-    frontend_running = False
-    
-    for proc in psutil.process_iter(['pid', 'connections']):
+    def start_redis(self):
+        """启动Redis服务"""
+        print("启动Redis服务...")
         try:
-            for conn in proc.info['connections']:
-                if conn.laddr.port == 6379:
-                    redis_running = True
-                elif conn.laddr.port == 8081:
-                    backend_running = True
-                elif conn.laddr.port == 8080:
-                    frontend_running = True
-        except (psutil.NoSuchProcess, psutil.AccessDenied):
+            # 检查Redis是否已经运行
+            result = subprocess.run(['redis-cli', 'ping'], 
+                                  capture_output=True, text=True, timeout=5)
+            if result.returncode == 0 and 'PONG' in result.stdout:
+                print("✓ Redis服务已在运行")
+                return True
+        except:
             pass
-    
-    print(f"Redis服务 (端口6379): {'✓ 运行中' if redis_running else '✗ 未运行'}")
-    print(f"后端服务 (端口8081): {'✓ 运行中' if backend_running else '✗ 未运行'}")
-    print(f"前端服务 (端口8080): {'✓ 运行中' if frontend_running else '✗ 未运行'}")
-    
-    if redis_running and backend_running and frontend_running:
-        print("\n=== 项目重启成功! ===")
-        print("前端访问地址: http://localhost:8080")
-        print("后端API地址: http://localhost:8081")
-        return True
-    else:
-        print("\n=== 项目重启部分失败，请检查日志 ===")
+            
+        # 启动Redis
+        log_file = self.log_dir / "redis.log"
+        cmd = f"nohup redis-server > {log_file} 2>&1 &"
+        subprocess.run(cmd, shell=True)
+        
+        # 等待启动
+        for i in range(10):
+            time.sleep(1)
+            try:
+                result = subprocess.run(['redis-cli', 'ping'], 
+                                      capture_output=True, text=True, timeout=2)
+                if result.returncode == 0:
+                    print("✓ Redis服务启动成功")
+                    return True
+            except:
+                continue
+                
+        print("✗ Redis服务启动失败")
         return False
+    
+    def start_backend(self):
+        """启动后端Django服务"""
+        print("启动后端服务...")
+        
+        if not self.backend_dir.exists():
+            print(f"✗ 后端目录不存在: {self.backend_dir}")
+            return False
+            
+        venv_python = self.backend_dir / "venv" / "bin" / "python"
+        if not venv_python.exists():
+            print(f"✗ 虚拟环境不存在: {venv_python}")
+            return False
+            
+        log_file = self.log_dir / "backend.log"
+        cmd = f"cd {self.backend_dir} && nohup {venv_python} manage.py runserver 0.0.0.0:8086 > {log_file} 2>&1 &"
+        subprocess.run(cmd, shell=True)
+        
+        # 等待启动
+        for i in range(15):
+            time.sleep(1)
+            if self.check_port(8086):
+                try:
+                    response = requests.get('http://localhost:8086', timeout=5)
+                    if response.status_code in [200, 404]:  # 404也表示服务在运行
+                        print("✓ 后端服务启动成功")
+                        return True
+                except:
+                    continue
+                    
+        print("✗ 后端服务启动失败")
+        return False
+    
+    def start_frontend(self):
+        """启动前端Vue服务"""
+        print("启动前端服务...")
+        
+        if not self.frontend_dir.exists():
+            print(f"✗ 前端目录不存在: {self.frontend_dir}")
+            return False
+            
+        package_json = self.frontend_dir / "package.json"
+        if not package_json.exists():
+            print(f"✗ package.json不存在: {package_json}")
+            return False
+            
+        log_file = self.log_dir / "frontend.log"
+        env = os.environ.copy()
+        env['NODE_OPTIONS'] = '--openssl-legacy-provider'
+        
+        cmd = f"cd {self.frontend_dir} && nohup npm run dev -- --port 8080 > {log_file} 2>&1 &"
+        subprocess.run(cmd, shell=True, env=env)
+        
+        # 等待启动
+        for i in range(30):
+            time.sleep(1)
+            if self.check_port(8080):
+                try:
+                    response = requests.get('http://localhost:8080', timeout=5)
+                    if response.status_code == 200:
+                        print("✓ 前端服务启动成功")
+                        return True
+                except:
+                    continue
+                    
+        print("✗ 前端服务启动失败")
+        return False
+    
+    def check_status(self):
+        """检查所有服务状态"""
+        print("\n=== 服务状态检查 ===")
+        
+        # Redis
+        try:
+            result = subprocess.run(['redis-cli', 'ping'], 
+                                  capture_output=True, text=True, timeout=2)
+            if result.returncode == 0:
+                print("✓ Redis服务: 运行中")
+            else:
+                print("✗ Redis服务: 未运行")
+        except:
+            print("✗ Redis服务: 未运行")
+            
+        # 后端
+        if self.check_port(8086):
+            print("✓ 后端服务 (8086): 运行中")
+        else:
+            print("✗ 后端服务 (8086): 未运行")
+            
+        # 前端
+        if self.check_port(8080):
+            print("✓ 前端服务 (8080): 运行中")
+        else:
+            print("✗ 前端服务 (8080): 未运行")
+            
+        print("\n=== 访问地址 ===")
+        print("前端: http://localhost:8080")
+        print("后端API: http://localhost:8086")
+    
+    def restart_project(self):
+        """重启整个项目"""
+        print("=== MetaSeekOJ 项目重启 ===")
+        
+        # 停止现有服务
+        print("\n停止现有服务...")
+        patterns = [
+            'manage.py runserver',
+            'npm run dev',
+            'node.*8080',
+            'redis-server'
+        ]
+        killed_count = self.kill_processes(patterns)
+        print(f"已停止 {killed_count} 个进程")
+        
+        time.sleep(2)
+        
+        # 启动服务
+        success = True
+        
+        if not self.start_redis():
+            success = False
+            
+        if not self.start_backend():
+            success = False
+            
+        if not self.start_frontend():
+            success = False
+            
+        # 检查状态
+        self.check_status()
+        
+        if success:
+            print("\n🎉 项目重启成功!")
+        else:
+            print("\n❌ 项目重启过程中出现错误，请检查日志")
+            print("日志文件:")
+            print(f"  Redis: {self.log_dir}/redis.log")
+            print(f"  后端: {self.log_dir}/backend.log")
+            print(f"  前端: {self.log_dir}/frontend.log")
+            
+        return success
+
+def main():
+    try:
+        manager = ProjectManager()
+        manager.restart_project()
+    except KeyboardInterrupt:
+        print("\n用户中断操作")
+        sys.exit(1)
+    except Exception as e:
+        print(f"\n错误: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    restart_project()
+    main()

@@ -10,6 +10,7 @@ from .base import PluginBaseModel
 from .question import ChoiceQuestion
 from .category import Category
 from .tag import QuestionTag
+from utils.models import JSONField
 import json
 
 
@@ -32,7 +33,7 @@ class ExamPaper(PluginBaseModel):
     question_count = models.IntegerField(verbose_name="题目数量")
     categories = models.ManyToManyField(Category, blank=True, verbose_name="题目分类")
     tags = models.ManyToManyField(QuestionTag, blank=True, verbose_name="题目标签")
-    difficulty_distribution = models.JSONField(
+    difficulty_distribution = JSONField(
         default=dict, 
         verbose_name="难度分布",
         help_text="格式: {'easy': 5, 'medium': 3, 'hard': 2}"
@@ -179,8 +180,8 @@ class ExamSession(PluginBaseModel):
     submit_time = models.DateTimeField(null=True, blank=True, verbose_name="提交时间")
     
     # 题目和答案
-    questions = models.JSONField(verbose_name="题目列表", help_text="存储题目ID列表")
-    answers = models.JSONField(default=dict, verbose_name="答案记录")
+    questions = JSONField(verbose_name="题目列表", help_text="存储题目ID列表")
+    answers = JSONField(default=dict, verbose_name="答案记录")
     
     # 成绩统计
     score = models.IntegerField(null=True, blank=True, verbose_name="得分")

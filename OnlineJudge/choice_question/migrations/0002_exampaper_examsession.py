@@ -3,6 +3,7 @@
 from django.conf import settings
 from django.db import migrations, models
 import django.db.models.deletion
+import jsonfield.fields
 
 
 class Migration(migrations.Migration):
@@ -25,7 +26,7 @@ class Migration(migrations.Migration):
                 ('duration', models.IntegerField(verbose_name='考试时长(分钟)')),
                 ('total_score', models.IntegerField(default=100, verbose_name='总分')),
                 ('question_count', models.IntegerField(verbose_name='题目数量')),
-                ('difficulty_distribution', models.JSONField(default=dict, help_text="格式: {'easy': 5, 'medium': 3, 'hard': 2}", verbose_name='难度分布')),
+                ('difficulty_distribution', jsonfield.fields.JSONField(default=dict, help_text="格式: {'easy': 5, 'medium': 3, 'hard': 2}", verbose_name='难度分布')),
                 ('is_active', models.BooleanField(default=True, verbose_name='是否启用')),
                 ('categories', models.ManyToManyField(blank=True, to='choice_question.category', verbose_name='题目分类')),
                 ('created_by', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL, verbose_name='创建者')),
@@ -49,8 +50,8 @@ class Migration(migrations.Migration):
                 ('start_time', models.DateTimeField(blank=True, null=True, verbose_name='开始时间')),
                 ('end_time', models.DateTimeField(blank=True, null=True, verbose_name='结束时间')),
                 ('submit_time', models.DateTimeField(blank=True, null=True, verbose_name='提交时间')),
-                ('questions', models.JSONField(help_text='存储题目ID列表', verbose_name='题目列表')),
-                ('answers', models.JSONField(default=dict, verbose_name='答案记录')),
+                ('questions', jsonfield.fields.JSONField(help_text='存储题目ID列表', verbose_name='题目列表')),
+                ('answers', jsonfield.fields.JSONField(default=dict, verbose_name='答案记录')),
                 ('score', models.IntegerField(blank=True, null=True, verbose_name='得分')),
                 ('correct_count', models.IntegerField(default=0, verbose_name='正确题数')),
                 ('total_count', models.IntegerField(default=0, verbose_name='总题数')),

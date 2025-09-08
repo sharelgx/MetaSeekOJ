@@ -297,5 +297,26 @@ export const m = {
   Import_Errors: '导入错误',
   Topic_Management: '专题管理',
   Topic_Category_Management: '专题分类管理',
-  Topic_Practice_Management: '专题练习管理'
+  Topic_Practice_Management: '专题练习管理',
+  // Category Sort Features
+  Sort_Mode: '排序模式',
+  Finish_Sort: '完成排序',
+  Drag_To_Sort: '拖拽调整顺序',
+  Sort_Order: '排序顺序',
+  Move_Up: '上移',
+  Move_Down: '下移',
+  Manual_Sort_Order: '手动设置顺序',
+  Sort_Help: '排序帮助',
+  Drag_Category_To_Sort: '拖拽分类项来调整顺序',
+  Use_Move_Buttons: '使用上移/下移按钮',
+  Manual_Input_Order: '手动输入排序数值',
+  Click_Finish_When_Done: '完成后点击"完成排序"',
+  Sort_Mode_Entered: '已进入排序模式，可以拖拽调整分类顺序',
+  Sort_Mode_Exited: '已退出排序模式',
+  Sort_Order_Updated: '分类顺序已更新',
+  Sort_Order_Saved: '排序已保存',
+  Move_Failed: '移动失败',
+  Update_Sort_Failed: '更新失败',
+  Save_Sort_Failed: '保存排序失败',
+  Number_Lower_Is_Higher: '排序数值，越小越靠前'
 }

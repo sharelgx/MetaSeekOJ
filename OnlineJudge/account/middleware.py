@@ -28,8 +28,19 @@ class SessionRecordMiddleware(MiddlewareMixin):
             session["ip"] = request.ip
             session["last_activity"] = now()
             user_sessions = request.user.session_keys
+            # Handle case where session_keys might be stored as string in database
+            if isinstance(user_sessions, str):
+                import json
+                try:
+                    user_sessions = json.loads(user_sessions)
+                except (json.JSONDecodeError, TypeError):
+                    user_sessions = []
+            elif user_sessions is None:
+                user_sessions = []
+            
             if session.session_key not in user_sessions:
                 user_sessions.append(session.session_key)
+                request.user.session_keys = user_sessions
                 request.user.save()
 
 

@@ -26,7 +26,8 @@ sleep 2
 # 启动后端服务
 echo "启动后端服务..."
 cd /home/metaspeekoj/OnlineJudge
-nohup python3 manage.py runserver 0.0.0.0:8086 > /tmp/backend.log 2>&1 &
+# 激活虚拟环境并启动Django服务
+nohup bash -c "source venv/bin/activate && python manage.py runserver 0.0.0.0:8086" > /tmp/backend.log 2>&1 &
 BACKEND_PID=$!
 echo "后端服务已启动 (PID: $BACKEND_PID)"
 

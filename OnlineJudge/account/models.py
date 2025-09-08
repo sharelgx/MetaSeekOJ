@@ -1,7 +1,8 @@
+import json
 from django.contrib.auth.models import AbstractBaseUser
 from django.conf import settings
 from django.db import models
-from utils.models import JSONField
+from django.db import models as django_models
 
 
 class AdminType(object):
@@ -36,7 +37,16 @@ class User(AbstractBaseUser):
     auth_token = models.TextField(null=True)
     two_factor_auth = models.BooleanField(default=False)
     tfa_token = models.TextField(null=True)
-    session_keys = JSONField(default=list)
+    session_keys = django_models.TextField(default='[]')
+    
+    def get_session_keys(self):
+        try:
+            return json.loads(self.session_keys or '[]')
+        except (json.JSONDecodeError, TypeError):
+            return []
+    
+    def set_session_keys(self, value):
+        self.session_keys = json.dumps(value or [])
     # open api key
     open_api = models.BooleanField(default=False)
     open_api_appkey = models.TextField(null=True)
@@ -94,9 +104,27 @@ class UserProfile(models.Model):
     #         }
     #     }
     # }
-    acm_problems_status = JSONField(default=dict)
+    acm_problems_status = django_models.TextField(default='{}')
     # like acm_problems_status, merely add "score" field
-    oi_problems_status = JSONField(default=dict)
+    oi_problems_status = django_models.TextField(default='{}')
+    
+    def get_acm_problems_status(self):
+        try:
+            return json.loads(self.acm_problems_status or '{}')
+        except (json.JSONDecodeError, TypeError):
+            return {}
+    
+    def set_acm_problems_status(self, value):
+        self.acm_problems_status = json.dumps(value or {})
+    
+    def get_oi_problems_status(self):
+        try:
+            return json.loads(self.oi_problems_status or '{}')
+        except (json.JSONDecodeError, TypeError):
+            return {}
+    
+    def set_oi_problems_status(self, value):
+        self.oi_problems_status = json.dumps(value or {})
 
     real_name = models.TextField(null=True)
     avatar = models.TextField(default=f"{settings.AVATAR_URI_PREFIX}/default.png")

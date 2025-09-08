@@ -1,0 +1,22 @@
+{
+  "name": "mcp-servers",
+  "version": "1.0.0",
+  "description": "MCP服务器集合",
+  "type": "module",
+  "scripts": {
+    "start:project-restart": "node project_restart_mcp_server.js",
+    "start:browser-log": "node browser_log_mcp_server.js",
+    "start:test-file-manager": "node test_file_manager_mcp_server.js",
+    "start:git-push": "node git_push_mcp_server.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^0.5.0",
+    "chokidar": "^3.5.3",
+    "playwright": "^1.40.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "author": "MetaSeekOJ Team",
+  "license": "MIT"
+}

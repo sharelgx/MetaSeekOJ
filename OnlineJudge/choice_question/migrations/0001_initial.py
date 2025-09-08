@@ -4,6 +4,7 @@ from django.conf import settings
 import django.core.validators
 from django.db import migrations, models
 import django.db.models.deletion
+import jsonfield.fields
 import mptt.fields
 import utils.models
 
@@ -74,7 +75,7 @@ class Migration(migrations.Migration):
                 ('title', models.TextField(help_text='题目的标题或问题描述', verbose_name='题目标题')),
                 ('description', utils.models.RichTextField(help_text='题目的详细描述，支持富文本格式', verbose_name='题目描述')),
                 ('question_type', models.CharField(choices=[('single', '单选题'), ('multiple', '多选题')], max_length=10, verbose_name='题目类型')),
-                ('options', models.JSONField(help_text='格式: [{"key": "A", "text": "选项内容"}, ...]', verbose_name='选项列表')),
+                ('options', jsonfield.fields.JSONField(help_text='格式: [{"key": "A", "text": "选项内容"}, ...]', verbose_name='选项列表')),
                 ('correct_answer', models.CharField(help_text='单选题格式: A，多选题格式: A,B,C', max_length=10, verbose_name='正确答案')),
                 ('explanation', utils.models.RichTextField(blank=True, help_text='题目答案的详细解析', verbose_name='答案解析')),
                 ('difficulty', models.CharField(choices=[('easy', '简单'), ('medium', '中等'), ('hard', '困难')], default='medium', max_length=10, verbose_name='难度等级')),

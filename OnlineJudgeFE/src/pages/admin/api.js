@@ -332,6 +332,20 @@ export default {
     })
   },
   
+  // 分类排序 API
+  updateCategoryOrder (data) {
+    return ajax('admin/choice_question/categories/order', 'put', {
+      data
+    })
+  },
+  
+  // 批量更新分类排序
+  batchUpdateCategoryOrder (categories) {
+    return ajax('admin/choice_question/categories/batch-order', 'put', {
+      data: { categories }
+    })
+  },
+  
   // 标签管理 API
   createChoiceQuestionTag (data) {
     return ajax('admin/choice_question/tags', 'post', {
