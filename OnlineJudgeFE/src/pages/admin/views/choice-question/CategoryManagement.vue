@@ -1,794 +1,634 @@
-      const currentIndex = siblings.findIndex(item => item.id === category.id)
+<template>
+  <div class="category-management">
+    <div style="margin-bottom: 20px;">
+      <el-button type="primary" @click="showCreateDialog">
+        <i class="el-icon-plus"></i> 添加分类
+      </el-button>
+      <el-button @click="refreshCategories">
+        <i class="el-icon-refresh"></i> 刷新
+      </el-button>
+    </div>
+    
+
+    
+    <el-table
+        :data="flattenCategories"
+        v-loading="loading"
+        row-key="id"
+        border
+        class="category-table"
+      >
+      <el-table-column label="分类名称" min-width="280">
+         <template slot-scope="scope">
+           <div class="category-name-cell">
+             <i class="el-icon-rank drag-handle" title="拖拽排序" @mousedown="startDrag(scope.row, scope.$index)"></i>
+             <i :class="getCategoryIcon(scope.row)" class="category-icon"></i>
+             <span class="category-name">{{ scope.row.displayName || scope.row.name }}</span>
+             <el-tag v-if="scope.row.children && scope.row.children.length > 0" size="mini" type="info" class="children-count">
+               {{ scope.row.children.length }}个子分类
+             </el-tag>
+           </div>
+         </template>
+       </el-table-column>
+      <el-table-column prop="description" label="描述" min-width="150">
+        <template slot-scope="scope">
+          <span class="description-text">{{ scope.row.description || '-' }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column prop="question_count" label="题目数量" width="100" align="center">
+        <template slot-scope="scope">
+          <el-tag :type="scope.row.question_count > 0 ? 'success' : 'info'" size="mini">
+            {{ scope.row.question_count || 0 }}
+          </el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column label="排序" width="120" align="center">
+         <template slot-scope="scope">
+           <div class="sort-controls">
+             <el-input-number
+               v-model="scope.row.sort_order"
+               :min="0"
+               :max="9999"
+               size="mini"
+               controls-position="right"
+               @change="handleSortChange(scope.row)"
+               style="width: 80px;"
+             ></el-input-number>
+           </div>
+         </template>
+       </el-table-column>
+      <el-table-column label="状态" width="80" align="center">
+        <template slot-scope="scope">
+          <el-switch
+            v-model="scope.row.is_enabled"
+            @change="handleStatusChange(scope.row)"
+            active-color="#13ce66"
+            inactive-color="#ff4949">
+          </el-switch>
+        </template>
+      </el-table-column>
+      <el-table-column label="操作" width="220" align="center">
+        <template slot-scope="scope">
+          <el-button size="mini" type="success" @click="handleAddChild(scope.row)">
+            <i class="el-icon-plus"></i> 子分类
+          </el-button>
+          <el-button size="mini" type="primary" @click="handleEdit(scope.row)">
+            <i class="el-icon-edit"></i> 编辑
+          </el-button>
+          <el-button size="mini" type="danger" @click="handleDelete(scope.row)">
+            <i class="el-icon-delete"></i> 删除
+          </el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+    
+    <!-- 创建/编辑对话框 -->
+    <el-dialog 
+      :title="dialogTitle" 
+      :visible.sync="dialogVisible"
+      width="500px"
+      @close="resetForm">
+      <el-form :model="categoryForm" :rules="rules" ref="categoryForm" label-width="100px">
+        <el-form-item label="分类名称" prop="name">
+          <el-input v-model="categoryForm.name" placeholder="请输入分类名称"></el-input>
+        </el-form-item>
+        
+        <el-form-item label="父级分类">
+          <el-select v-model="categoryForm.parent" placeholder="不选择则为顶级分类" clearable style="width: 100%">
+            <el-option
+              v-for="category in parentOptions"
+              :key="category.id"
+              :label="category.name"
+              :value="category.id"
+              :disabled="category.id === editingCategoryId">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        
+        <el-form-item label="分类描述">
+          <el-input 
+            type="textarea" 
+            v-model="categoryForm.description" 
+            :rows="3"
+            placeholder="请输入分类描述">
+          </el-input>
+        </el-form-item>
+        
+        <el-form-item label="排序值">
+          <el-input-number 
+            v-model="categoryForm.sort_order" 
+            :min="0" 
+            :max="9999"
+            placeholder="排序值，数字越小越靠前">
+          </el-input-number>
+        </el-form-item>
+        
+        <el-form-item label="状态">
+          <el-switch 
+            v-model="categoryForm.is_enabled"
+            active-text="启用"
+            inactive-text="禁用">
+          </el-switch>
+        </el-form-item>
+      </el-form>
       
-      if (currentIndex < siblings.length - 1) {
-        const nextItem = siblings[currentIndex + 1]
-        this.swapSortOrder(category, nextItem)
-      }
-    },
-    
-    // 获取同级分类
-    getSiblings(category) {
-      if (!category.parent) {
-        return this.treeCategories
-      } else {
-        const parent = this.flatCategories.find(cat => cat.id === category.parent)
-        return parent ? parent.children : []
-      }
-    },
-    
-    // 交换两个分类的排序顺序
-    async swapSortOrder(cat1, cat2) {
-      try {
-        const temp = cat1.sort_order
-        cat1.sort_order = cat2.sort_order
-        cat2.sort_order = temp
-        
-        await this.updateCategoryOrder([
-          { id: cat1.id, sort_order: cat1.sort_order },
-          { id: cat2.id, sort_order: cat2.sort_order }
-        ])
-        
-        this.treeCategories = this.buildTree(this.categories)
-        this.$forceUpdate()
-        
-      } catch (error) {
-        console.error('交换排序失败:', error)
-        this.$message.error('调整顺序失败')
-      }
-    },
-    
-    // 手动更新排序
-    async updateManualOrder() {
-      if (!this.selectedCategoryData) return
-      
-      try {
-        await this.updateCategoryOrder([{
-          id: this.selectedCategoryData.id,
-          sort_order: this.manualOrder
-        }])
-        
-        this.selectedCategoryData.sort_order = this.manualOrder
-        this.treeCategories = this.buildTree(this.categories)
-        this.$forceUpdate()
-        
-        this.$message.success(this.$t('m.Sort_Order_Updated'))
-      } catch (error) {
-        console.error('更新排序失败:', error)
-        this.$message.error(this.$t('m.Update_Sort_Failed'))
-      }
-    },
-    
-    // 检查是否可以上移
-    canMoveUp(category) {
-      const siblings = this.getSiblings(category)
-      const currentIndex = siblings.findIndex(item => item.id === category.id)
-      return currentIndex > 0
-    },
-    
-    // 检查是否可以下移
-    canMoveDown(category) {
-      const siblings = this.getSiblings(category)
-      const currentIndex = siblings.findIndex(item => item.id === category.id)
-      return currentIndex < siblings.length - 1
-    },
-    
-    // 更新分类排序的API调用
-    async updateCategoryOrder(updates) {
-      try {
-        if (api.batchUpdateCategoryOrder) {
-          await api.batchUpdateCategoryOrder(updates)
-        } else {
-          for (const update of updates) {
-            await api.updateChoiceQuestionCategory(update.id, {
-              sort_order: update.sort_order
-            })
-            // 更新本地数据
-            const localCategory = this.categories.find(cat => cat.id === update.id)
-            if (localCategory) {
-              localCategory.sort_order = update.sort_order
-            }
-          }
-        }
-      } catch (error) {
-        console.error('更新分类排序失败:', error)
-        throw error
-      }
-    },
-    
-    // 保存排序结果
-    async saveSortOrder() {
-      try {
-        const updates = this.flatCategories.map(cat => ({
-          id: cat.id,
-          sort_order: cat.sort_order || 0
-        }))
-        
-        await this.updateCategoryOrder(updates)
-        this.$message.success(this.$t('m.Sort_Order_Saved'))
-      } catch (error) {
-        console.error('保存排序失败:', error)
-        this.$message.error(this.$t('m.Save_Sort_Failed'))
-      }
-    },
-    
-    // 其他现有方法
-    toggleExpand(nodeId) {
-      if (this.expandedNodes.has(nodeId)) {
-        this.expandedNodes.delete(nodeId)
-      } else {
-        this.expandedNodes.add(nodeId)
-      }
-      this.$forceUpdate()
-    },
-    
-    selectCategory(categoryId) {
-      this.selectedCategory = categoryId
-    },
-    
-    expandAll() {
-      this.expandedNodes = new Set(this.flatCategories.map(cat => cat.id))
-      this.$forceUpdate()
-    },
-    
-    collapseAll() {
-      this.expandedNodes.clear()
-      this.$forceUpdate()
-    },
-    
-    handleCreateCategory(parentId = null) {
-      this.editingCategory = null
-      // 为新分类设置合理的默认排序值
-      const siblings = parentId ? 
-        this.flatCategories.filter(cat => cat.parent === parentId) :
-        this.treeCategories
-      const maxOrder = siblings.length > 0 ? 
-        Math.max(...siblings.map(cat => cat.sort_order || 0)) : 0
-      
-      this.categoryForm = {
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="handleSubmit" :loading="submitting">确定</el-button>
+      </div>
+    </el-dialog>
+  </div>
+</template>
+
+<script>
+import api from '../../api'
+import draggable from 'vuedraggable'
+
+export default {
+  name: 'CategoryManagement',
+  components: {
+    draggable
+  },
+  data() {
+    return {
+      categories: [],
+      loading: false,
+      dialogVisible: false,
+      editingCategoryId: null,
+      submitting: false,
+      dragOptions: {
+        animation: 200,
+        group: 'categories',
+        disabled: false,
+        ghostClass: 'ghost'
+      },
+      categoryForm: {
         name: '',
         description: '',
-        parent: parentId,
-        sort_order: maxOrder + 10
+        parent: null,
+        sort_order: 0,
+        is_enabled: true
+      },
+      formRules: {
+        name: [
+          { required: true, message: '请输入分类名称', trigger: 'blur' },
+          { min: 1, max: 50, message: '长度在 1 到 50 个字符', trigger: 'blur' }
+        ]
       }
-      this.showCreateModal = true
+    }
+  },
+  
+  computed: {
+    dialogTitle() {
+      return this.editingCategoryId ? '编辑分类' : '创建分类'
     },
     
-    editCategory(category) {
-      this.editingCategory = category
+    flattenCategories() {
+      // 扁平化分类数据用于表格显示，确保按sort_order排序
+      const flatten = (categories, level = 0) => {
+        let result = []
+        // 先按sort_order排序
+        const sortedCategories = [...categories].sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0))
+        
+        sortedCategories.forEach(category => {
+          const flatCategory = {
+            ...category,
+            level: level,
+            displayName: '　'.repeat(level) + category.name
+          }
+          result.push(flatCategory)
+          if (category.children && category.children.length > 0) {
+            result = result.concat(flatten(category.children, level + 1))
+          }
+        })
+        return result
+      }
+      return flatten(this.categories)
+    },
+    
+    parentOptions() {
+      // 递归获取所有分类，但排除当前编辑的分类及其子分类
+      const getAllCategories = (categories, level = 0) => {
+        let result = []
+        categories.forEach(category => {
+          if (category.id !== this.editingCategoryId) {
+            result.push({
+              id: category.id,
+              name: '　'.repeat(level) + category.name,
+              level: level
+            })
+            if (category.children && category.children.length > 0) {
+              result = result.concat(getAllCategories(category.children, level + 1))
+            }
+          }
+        })
+        return result
+      }
+      return getAllCategories(this.categories)
+    }
+  },
+  
+  mounted() {
+    this.getCategories()
+  },
+  
+  methods: {
+    getCategoryIcon(category) {
+      if (category.children && category.children.length > 0) {
+        return 'el-icon-folder'
+      }
+      return 'el-icon-document'
+    },
+    
+    async handleSortChange(category) {
+      try {
+        // 先更新本地数据以立即反映UI变化
+        const updateCategory = (categories) => {
+          categories.forEach(cat => {
+            if (cat.id === category.id) {
+              cat.sort_order = category.sort_order
+            }
+            if (cat.children && cat.children.length > 0) {
+              updateCategory(cat.children)
+            }
+          })
+        }
+        updateCategory(this.categories)
+        
+        // 强制触发Vue响应式更新
+        this.$forceUpdate()
+        
+        // 然后更新到数据库
+        await api.updateChoiceQuestionCategory(category.id, {
+          sort_order: category.sort_order
+        })
+        this.$message.success('排序更新成功')
+      } catch (error) {
+        console.error('更新排序失败:', error)
+        this.$message.error('更新排序失败')
+        // 发生错误时刷新数据恢复原状态
+        this.getCategories()
+      }
+    },
+    
+    async handleStatusChange(category) {
+       try {
+         await api.updateChoiceQuestionCategory(category.id, {
+           is_enabled: category.is_enabled
+         })
+         this.$message.success('状态更新成功')
+       } catch (error) {
+         console.error('更新状态失败:', error)
+         this.$message.error('更新状态失败')
+         // 回滚状态
+         category.is_enabled = !category.is_enabled
+       }
+     },
+     
+     startDrag(category, index) {
+       // 简化的拖拽实现，使用上下移动按钮
+       this.showMoveDialog(category, index)
+     },
+     
+     showMoveDialog(category, currentIndex) {
+       const options = []
+       this.categories.forEach((cat, index) => {
+         if (index !== currentIndex) {
+           options.push({
+             label: `移动到 "${cat.name}" ${index < currentIndex ? '前面' : '后面'}`,
+             value: index
+           })
+         }
+       })
+       
+       this.$prompt('选择新位置', '移动分类', {
+         confirmButtonText: '确定',
+         cancelButtonText: '取消',
+         inputType: 'select',
+         inputOptions: options
+       }).then(({ value }) => {
+         this.moveCategory(currentIndex, parseInt(value))
+       }).catch(() => {
+         // 用户取消
+       })
+     },
+     
+     async moveCategory(fromIndex, toIndex) {
+       if (fromIndex === toIndex) {
+         return
+       }
+       
+       // 保存原始数据用于回滚
+       const originalCategories = [...this.categories]
+       
+       try {
+         // 立即更新本地排序
+         const updatedCategories = [...this.categories]
+         const movedItem = updatedCategories.splice(fromIndex, 1)[0]
+         updatedCategories.splice(toIndex, 0, movedItem)
+         
+         // 重新计算排序值并更新本地数据
+         updatedCategories.forEach((category, index) => {
+           category.sort_order = index * 10
+         })
+         
+         // 立即更新UI
+         this.categories = updatedCategories
+         
+         // 后台更新服务器数据
+         const updatePromises = updatedCategories.map((category, index) => {
+           const newSortOrder = index * 10
+           return api.updateChoiceQuestionCategory(category.id, {
+             sort_order: newSortOrder
+           })
+         })
+         
+         await Promise.all(updatePromises)
+         this.$message.success('排序更新成功')
+         // 不再重新获取数据，保持当前排序
+       } catch (error) {
+         console.error('移动分类失败:', error)
+         this.$message.error('排序更新失败')
+         // 发生错误时回滚到原始数据
+         this.categories = originalCategories
+       }
+     },
+    
+    async getCategories() {
+      this.loading = true
+      try {
+        console.log('开始获取分类数据...')
+        const res = await api.getChoiceQuestionCategories()
+        console.log('API响应:', res)
+        
+        // 处理不同的数据结构
+        let categoriesData = []
+        if (res.data && res.data.data) {
+          if (Array.isArray(res.data.data)) {
+            categoriesData = res.data.data
+          } else if (res.data.data.results && Array.isArray(res.data.data.results)) {
+            categoriesData = res.data.data.results
+          }
+        }
+        
+        console.log('处理后的分类数据:', categoriesData)
+        const treeData = this.buildTree(categoriesData)
+        console.log('构建的树结构:', treeData)
+        
+        // 使用Vue.set强制触发响应式更新
+        this.$set(this, 'categories', treeData)
+        
+        // 强制重新渲染
+        this.$forceUpdate()
+        
+        console.log('更新后的categories:', this.categories)
+        
+      } catch (error) {
+        console.error('获取分类列表失败:', error)
+        this.$message.error('获取分类列表失败: ' + (error.message || '未知错误'))
+        this.categories = []
+      } finally {
+        this.loading = false
+      }
+    },
+    
+    buildTree(categories) {
+      console.log('buildTree输入数据:', categories)
+      
+      if (!Array.isArray(categories) || categories.length === 0) {
+        console.log('分类数据为空或不是数组')
+        return []
+      }
+      
+      const map = {}
+      const roots = []
+      
+      // 创建映射，确保字段名正确映射
+      categories.forEach(category => {
+        console.log('处理分类:', category)
+        map[category.id] = { 
+          ...category, 
+          children: [],
+          hasChildren: false, // 初始化hasChildren属性
+          sort_order: category.order || category.sort_order || 0, // 支持多种字段名
+          is_enabled: category.is_active !== undefined ? category.is_active : 
+                     (category.is_enabled !== undefined ? category.is_enabled : true),
+          level: 0 // 添加层级字段
+        }
+      })
+      
+      console.log('映射表:', map)
+      
+      // 构建树结构
+      categories.forEach(category => {
+        if (category.parent) {
+          if (map[category.parent]) {
+            map[category.parent].children.push(map[category.id])
+            map[category.parent].hasChildren = true // 设置父节点有子节点
+            map[category.id].level = (map[category.parent].level || 0) + 1
+          } else {
+            console.warn('找不到父分类:', category.parent, '对于分类:', category.name)
+            roots.push(map[category.id]) // 如果找不到父分类，作为根分类处理
+          }
+        } else {
+          roots.push(map[category.id])
+        }
+      })
+      
+      // 按sort_order排序
+      const sortCategories = (categories) => {
+        categories.sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0))
+        categories.forEach(category => {
+          if (category.children && category.children.length > 0) {
+            sortCategories(category.children)
+          }
+        })
+      }
+      
+      sortCategories(roots)
+      console.log('构建完成的树结构:', roots)
+      return roots
+    },
+    
+    refreshCategories() {
+      this.getCategories()
+    },
+    
+    showCreateDialog() {
+      this.editingCategoryId = null
+      this.resetForm()
+      this.dialogVisible = true
+    },
+    
+    handleEdit(category) {
+      this.editingCategoryId = category.id
       this.categoryForm = {
         name: category.name,
         description: category.description || '',
         parent: category.parent,
-        sort_order: category.sort_order || 0
+        sort_order: category.sort_order || 0,
+        is_enabled: category.is_enabled
       }
-      this.showCreateModal = true
+      this.dialogVisible = true
     },
     
-    async deleteCategory(category) {
-      const confirm = await this.$confirm(
-        `确定要删除分类 "${category.name}" 吗？`, 
-        '确认删除', 
-        {
+    handleAddChild(parentCategory) {
+      this.editingCategoryId = null
+      this.categoryForm = {
+        name: '',
+        description: '',
+        parent: parentCategory.id,
+        sort_order: 0,
+        is_enabled: true
+      }
+      this.dialogVisible = true
+    },
+    
+    async handleDelete(category) {
+      if (category.children && category.children.length > 0) {
+        this.$message.warning('该分类下还有子分类，请先删除子分类')
+        return
+      }
+      
+      if (category.question_count > 0) {
+        this.$message.warning('该分类下还有题目，请先移除题目')
+        return
+      }
+      
+      try {
+        await this.$confirm('确定要删除这个分类吗？', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
-        }
-      ).catch(() => false)
-      
-      if (confirm) {
-        try {
-          await api.deleteChoiceQuestionCategory(category.id)
-          this.$message.success('删除成功')
-          this.getCategories()
-          
-          if (this.selectedCategory === category.id) {
-            this.selectedCategory = null
-          }
-        } catch (err) {
+        })
+        
+        await api.deleteChoiceQuestionCategory(category.id)
+        this.$message.success('删除成功')
+        this.getCategories()
+      } catch (error) {
+        if (error !== 'cancel') {
+          console.error('删除分类失败:', error)
           this.$message.error('删除失败')
-          console.error(err)
         }
       }
     },
     
     async handleSubmit() {
-      const valid = await this.$refs.categoryForm.validate().catch(() => false)
-      if (!valid) return
-      
-      this.submitting = true
       try {
-        if (this.editingCategory) {
-          await api.updateChoiceQuestionCategory(this.editingCategory.id, this.categoryForm)
+        await this.$refs.categoryForm.validate()
+        this.submitting = true
+        
+        if (this.editingCategoryId) {
+          await api.updateChoiceQuestionCategory(this.editingCategoryId, this.categoryForm)
           this.$message.success('更新成功')
         } else {
           await api.createChoiceQuestionCategory(this.categoryForm)
           this.$message.success('创建成功')
         }
-        this.showCreateModal = false
+        
+        this.dialogVisible = false
         this.getCategories()
-      } catch (err) {
-        this.$message.error(this.editingCategory ? '更新失败' : '创建失败')
-        console.error(err)
+      } catch (error) {
+        console.error('保存分类失败:', error)
+        this.$message.error('保存失败')
       } finally {
         this.submitting = false
       }
     },
     
     resetForm() {
-      this.editingCategory = null
       this.categoryForm = {
         name: '',
         description: '',
         parent: null,
-        sort_order: 0
+        sort_order: 0,
+        is_enabled: true
       }
-      this.$refs.categoryForm && this.$refs.categoryForm.resetFields()
-    },
-    
-    getParentName(parentId) {
-      if (!parentId) return null
-      const parent = this.flatCategories.find(cat => cat.id === parentId)
-      return parent ? parent.name : null
-    },
-
-    getChildrenCount(categoryId) {
-      return this.categories.filter(cat => cat.parent === categoryId).length
-    },
-
-    handleSearch() {
-      if (this.searchTimer) {
-        clearTimeout(this.searchTimer)
+      if (this.$refs.categoryForm) {
+        this.$refs.categoryForm.resetFields()
       }
-      
-      this.searchTimer = setTimeout(() => {
-        if (this.searchTerm && !this.sortMode) {
-          this.expandMatchingNodes()
-        }
-      }, 300)
-    },
-
-    expandMatchingNodes() {
-      const expandIds = new Set()
-      
-      const checkAndExpand = (nodes) => {
-        nodes.forEach(node => {
-          const matches = node.name.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-            (node.description && node.description.toLowerCase().includes(this.searchTerm.toLowerCase()))
-          
-          if (matches) {
-            let parent = this.categories.find(cat => cat.id === node.parent)
-            while (parent) {
-              expandIds.add(parent.id)
-              parent = this.categories.find(cat => cat.id === parent.parent)
-            }
-          }
-          
-          if (node.children && node.children.length > 0) {
-            checkAndExpand(node.children)
-          }
-        })
-      }
-      
-      checkAndExpand(this.treeCategories)
-      
-      expandIds.forEach(id => this.expandedNodes.add(id))
-      this.$forceUpdate()
-    },
-
-    handleImport() {
-      this.$message.info('导入功能开发中...')
-    },
-
-    handleExport() {
-      this.$message.info('导出功能开发中...')
-    },
-
-    handleBatchManage() {
-      this.$message.info('批量管理功能开发中...')
     }
   }
 }
 </script>
 
-<style scoped>
+<style lang="less" scoped>
 .category-management {
-  background-color: #f5f7fa;
-}
-
-.header-buttons {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-
-.main-content {
-  padding: 0;
-}
-
-.tree-panel, .details-panel, .quick-actions, .sort-help {
-  background: white;
-  border-radius: 8px;
-  border: 1px solid #ebeef5;
-  margin-bottom: 16px;
-}
-
-.tree-toolbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 16px;
-  padding: 16px 20px 0;
-  border-bottom: 1px solid #ebeef5;
-  padding-bottom: 16px;
-}
-
-.toolbar-actions {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-
-.sort-mode-tip {
-  background: #e6f7ff;
-  color: #1890ff;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 12px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  white-space: nowrap;
-}
-
-.tree-container {
-  min-height: 400px;
-  padding: 0 20px 20px;
-}
-
-.tree-content {
-  padding-top: 8px;
-}
-
-.empty-state {
-  text-align: center;
-  padding: 60px 20px;
-  color: #c0c4cc;
-}
-
-.empty-state p {
-  margin: 12px 0 0 0;
-  font-size: 14px;
-}
-
-.tree-node-content {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  position: relative;
-}
-
-.tree-node-content:hover {
-  background-color: #f5f7fa;
-}
-
-.tree-node-content.selected {
-  background-color: #ecf5ff;
-  border-left: 3px solid #409eff;
-}
-
-.tree-node-content.sort-mode {
-  cursor: move;
-}
-
-.tree-node-content.dragging {
-  opacity: 0.5;
-}
-
-.tree-node-content.drag-over-top {
-  border-top: 2px solid #409eff;
-}
-
-.tree-node-content.drag-over-middle {
-  background-color: #e6f7ff;
-}
-
-.tree-node-content.drag-over-bottom {
-  border-bottom: 2px solid #409eff;
-}
-
-.drag-handle {
-  color: #909399;
-  cursor: move;
-  padding: 2px;
-  transition: color 0.2s ease;
-}
-
-.drag-handle:hover {
-  color: #409eff;
-}
-
-.expand-button {
-  width: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.expand-btn {
-  padding: 0;
-  width: 20px;
-  height: 20px;
-  border: none;
-  background: none;
-}
-
-.expand-placeholder {
-  width: 20px;
-  height: 20px;
-}
-
-.folder-icon {
-  flex-shrink: 0;
-}
-
-.folder-icon-style {
-  font-size: 18px;
-  color: #409eff;
-}
-
-.document-icon-style {
-  font-size: 16px;
-  color: #909399;
-}
-
-.node-info {
-  flex: 1;
-  cursor: pointer;
-}
-
-.node-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 2px;
-}
-
-.node-name {
-  font-weight: 500;
-  color: #303133;
-  font-size: 14px;
-}
-
-.node-badges {
-  display: flex;
-  gap: 4px;
-  align-items: center;
-}
-
-.question-count, .sort-order {
-  margin-left: 4px;
-}
-
-.node-description {
-  font-size: 12px;
-  color: #909399;
-  line-height: 1.4;
-  margin-top: 2px;
-}
-
-.node-actions {
-  opacity: 0;
-  transition: opacity 0.2s ease;
-}
-
-.tree-node-content:hover .node-actions {
-  opacity: 1;
-}
-
-.action-btn {
-  padding: 4px !important;
-  margin: 0 2px;
-  border-radius: 4px;
-}
-
-.action-btn.success:hover {
-  background-color: #f0f9ff;
-  color: #67c23a;
-}
-
-.action-btn.primary:hover {
-  background-color: #ecf5ff;
-  color: #409eff;
-}
-
-.action-btn.danger:hover {
-  background-color: #fef0f0;
-  color: #f56c6c;
-}
-
-.tree-children {
-  border-left: 1px solid #ebeef5;
-  margin-left: 20px;
-  animation: slideDown 0.2s ease;
-}
-
-.details-panel, .quick-actions, .sort-help {
-  padding: 20px;
-}
-
-.panel-header {
-  padding-bottom: 16px;
-  border-bottom: 1px solid #ebeef5;
-  margin-bottom: 20px;
-}
-
-.panel-title {
-  font-weight: 600;
-  color: #303133;
-  font-size: 16px;
-}
-
-.details-content {
-  padding: 4px 0;
-}
-
-.detail-item {
-  margin-bottom: 16px;
-}
-
-.detail-item label {
-  display: block;
-  font-size: 13px;
-  font-weight: 600;
-  color: #606266;
-  margin-bottom: 4px;
-}
-
-.detail-item p {
-  margin: 0;
-  color: #303133;
-  font-size: 14px;
-  line-height: 1.4;
-}
-
-.detail-actions {
-  margin-top: 20px;
-  padding-top: 16px;
-  border-top: 1px solid #ebeef5;
-}
-
-.detail-actions .el-button {
-  margin-right: 8px;
-  margin-bottom: 8px;
-}
-
-.sort-actions {
-  margin-top: 20px;
-  padding-top: 16px;
-  border-top: 1px solid #ebeef5;
-}
-
-.sort-controls {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 16px;
-}
-
-.manual-order {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.manual-order label {
-  font-size: 13px;
-  color: #606266;
-  white-space: nowrap;
-}
-
-.no-selection {
-  text-align: center;
-  padding: 40px 20px;
-  color: #c0c4cc;
-}
-
-.no-selection p {
-  margin: 12px 0 0 0;
-  font-size: 14px;
-}
-
-.quick-action-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.quick-action-btn {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  width: 100%;
-  padding: 12px 16px;
-  border: 1px solid #ebeef5;
-  border-radius: 6px;
-  background: #fafafa;
-  color: #606266;
-  font-size: 14px;
-  transition: all 0.2s ease;
-}
-
-.quick-action-btn:hover {
-  background: #ecf5ff;
-  border-color: #409eff;
-  color: #409eff;
-}
-
-.quick-action-btn i {
-  margin-right: 8px;
-  font-size: 16px;
-}
-
-.help-content {
-  padding: 8px 0;
-}
-
-.help-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 0;
-  font-size: 13px;
-  color: #606266;
-}
-
-.help-item i {
-  color: #909399;
-  width: 16px;
-  text-align: center;
-}
-
-.form-help-text {
-  font-size: 12px;
-  color: #909399;
-  margin-top: 4px;
-}
-
-.dialog-footer {
-  text-align: right;
-}
-
-.dialog-footer .el-button {
-  margin-left: 8px;
-}
-
-/* 动画效果 */
-.tree-node-wrapper {
-  transition: all 0.3s ease;
-}
-
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* 响应式设计 */
-@media (max-width: 1200px) {
-  .tree-toolbar {
-    flex-direction: column;
-    gap: 12px;
-    align-items: stretch;
+  .category-table {
+    .category-name-cell {
+      display: flex;
+      align-items: center;
+      
+      .drag-handle {
+        color: #909399;
+        margin-right: 8px;
+        cursor: move;
+        font-size: 14px;
+        transition: color 0.3s;
+        
+        &:hover {
+          color: #409EFF;
+        }
+      }
+      
+      .category-icon {
+        color: #409EFF;
+        margin-right: 8px;
+        font-size: 16px;
+      }
+      
+      .category-name {
+        flex: 1;
+        font-weight: 500;
+        color: #303133;
+      }
+      
+      .children-count {
+        margin-left: 8px;
+      }
+    }
+    
+    .description-text {
+      color: #606266;
+      font-size: 13px;
+    }
+    
+    .sort-controls {
+      display: flex;
+      justify-content: center;
+    }
+    
+    // 表格行样式
+    /deep/ .el-table__row {
+      transition: background-color 0.3s;
+      
+      &:hover {
+        background-color: #f5f7fa;
+        
+        .drag-handle {
+          color: #409EFF;
+        }
+      }
+    }
+    
+    // 拖拽时的样式
+    .ghost {
+      opacity: 0.5;
+      background-color: #f0f9ff;
+    }
   }
   
-  .toolbar-actions {
-    justify-content: center;
-    flex-wrap: wrap;
-  }
-}
-
-@media (max-width: 768px) {
-  .header-buttons {
-    flex-direction: column;
-    gap: 8px;
-    width: 100%;
+  // 按钮组样式优化
+  .el-button + .el-button {
+    margin-left: 8px;
   }
   
-  .header-buttons .el-button {
-    width: 100%;
+  // 对话框样式
+  /deep/ .el-dialog {
+    .el-dialog__header {
+      background-color: #f8f9fa;
+      border-bottom: 1px solid #e9ecef;
+    }
   }
-  
-  .tree-node-content {
-    padding: 10px 8px;
-  }
-  
-  .node-actions {
-    opacity: 1; /* 在移动端始终显示操作按钮 */
-  }
-  
-  .sort-controls {
-    flex-direction: column;
-    gap: 8px;
-  }
-  
-  .manual-order {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-  }
-  
-  .manual-order label {
-    margin-bottom: 4px;
-  }
-  
-  /* 移动端列布局改为垂直堆叠 */
-  .main-content .el-col {
-    margin-bottom: 16px;
-  }
-  
-  .sort-mode-tip {
-    font-size: 11px;
-    padding: 2px 6px;
-  }
-}
-
-/* 搜索框样式 */
-.search-section .el-input__inner {
-  border-radius: 20px;
-}
-
-.search-section .el-input__prefix {
-  left: 12px;
-}
-
-.search-section .el-input--prefix .el-input__inner {
-  padding-left: 35px;
-}
-
-/* 排序模式下的特殊样式 */
-.sort-mode .tree-node-content {
-  border: 1px dashed #d9d9d9;
-  margin: 2px 0;
-}
-
-.sort-mode .tree-node-content:hover {
-  border-color: #409eff;
-}
-
-/* 拖拽状态动画 */
-.tree-node-content.dragging {
-  transform: rotate(2deg);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-}
-
-/* 更好的拖拽指示器 */
-.tree-node-content.drag-over-top::before {
-  content: '';
-  position: absolute;
-  top: -2px;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: #409eff;
-  border-radius: 1px;
-}
-
-.tree-node-content.drag-over-bottom::after {
-  content: '';
-  position: absolute;
-  bottom: -2px;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: #409eff;
-  border-radius: 1px;
 }
 </style>

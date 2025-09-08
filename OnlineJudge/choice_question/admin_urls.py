@@ -46,6 +46,7 @@ urlpatterns = [
     
     # 分类管理
     re_path(r"^choice_question/categories/?$", ChoiceQuestionCategoryAdminAPI.as_view(), name="choice_question_categories_admin"),
+    re_path(r"^choice_question/categories/(?P<category_id>\d+)/?$", ChoiceQuestionCategoryAdminAPI.as_view(), name="choice_question_category_detail_admin"),
     
     # 标签管理
     re_path(r"^choice_question/tags/?$", ChoiceQuestionTagAdminAPI.as_view(), name="choice_question_tags_admin"),

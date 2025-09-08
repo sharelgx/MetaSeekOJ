@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>路由调试</title>
+</head>
+<body>
+    <h1>路由调试信息</h1>
+    <p>当前访问的URL: <strong>http://localhost:8080/admin/topic/edit/29</strong></p>
+    
+    <h2>检查点</h2>
+    <ol>
+        <li>
+            <strong>路由配置检查</strong>
+            <ul>
+                <li>路由路径: <code>/admin/topic/edit/:topicId</code></li>
+                <li>组件: <code>CreateTopic</code></li>
+                <li>参数名: <code>topicId</code></li>
+            </ul>
+        </li>
+        
+        <li>
+            <strong>组件加载检查</strong>
+            <ul>
+                <li>组件应该能够获取 topicId = 29</li>
+                <li>API调用应该成功: <code>api.getTopicManageDetail(29)</code></li>
+                <li>数据应该正确映射到表单</li>
+            </ul>
+        </li>
+        
+        <li>
+            <strong>可能的问题</strong>
+            <ul>
+                <li>Vue Router base 配置问题</li>
+                <li>组件渲染条件问题</li>
+                <li>CSS 隐藏了内容</li>
+                <li>JavaScript 错误阻止了渲染</li>
+            </ul>
+        </li>
+    </ol>
+    
+    <h2>解决步骤</h2>
+    <ol>
+        <li>检查浏览器开发者工具的 Elements 标签，看是否有 DOM 元素生成</li>
+        <li>检查 Console 标签是否有 JavaScript 错误</li>
+        <li>检查 Network 标签，确认所有 API 调用都成功</li>
+        <li>尝试直接访问: <a href="http://localhost:8080/admin/topic/create" target="_blank">http://localhost:8080/admin/topic/create</a></li>
+    </ol>
+    
+    <h2>临时解决方案</h2>
+    <p>如果编辑页面仍然无法显示，可以尝试：</p>
+    <ol>
+        <li>清除浏览器缓存</li>
+        <li>重新启动开发服务器: <code>npm run dev</code></li>
+        <li>检查是否有编译错误</li>
+    </ol>
+    
+    <script>
+        console.log('当前 URL:', window.location.href);
+        console.log('路径:', window.location.pathname);
+        console.log('参数:', window.location.search);
+    </script>
+</body>
+</html>

@@ -1,0 +1,969 @@
+<template>
+  <div class="app-container">
+    <!-- 页面导航 -->
+    <div class="page-header">
+      <el-breadcrumb separator="/">
+        <el-breadcrumb-item :to="{ path: '/admin/topic/management' }">专题管理</el-breadcrumb-item>
+        <el-breadcrumb-item>{{ isEdit ? '编辑专题' : '创建专题' }}</el-breadcrumb-item>
+      </el-breadcrumb>
+    </div>
+
+    <!-- 头部 -->
+    <div class="page-title">
+      <h2>{{ isEdit ? '编辑专题' : '创建专题' }}</h2>
+      <p class="subtitle">{{ isEdit ? '修改专题信息和关联的分类' : '选择一级分类作为专题，二级分类下的试卷将自动关联' }}</p>
+    </div>
+
+    <!-- 表单 -->
+    <el-form ref="topicForm" :model="topicForm" :rules="rules" label-width="120px" class="topic-form">
+      <!-- 分类选择 -->
+      <el-card class="form-section">
+        <div slot="header" class="section-header">
+          <span>选择分类</span>
+        </div>
+        
+        <el-form-item label="一级分类" prop="category_id">
+          <el-select v-model="topicForm.category_id" placeholder="请选择一级分类作为专题" @change="onCategoryChange">
+            <el-option 
+              v-for="category in rootCategories" 
+              :key="category.id" 
+              :label="category.name" 
+              :value="category.id">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        
+        <!-- 显示选中分类的信息 -->
+        <div v-if="selectedCategory" class="category-info">
+          <h4>{{ selectedCategory.name }}</h4>
+          <p v-if="selectedCategory.description">{{ selectedCategory.description }}</p>
+          <div class="subcategories-preview">
+            <h5>包含的二级分类：</h5>
+            <el-tag v-for="sub in subcategories" :key="sub.id" class="subcategory-tag">
+              {{ sub.name }} ({{ sub.paper_count || 0 }}套试卷)
+            </el-tag>
+          </div>
+        </div>
+      </el-card>
+
+      <!-- 基本信息 -->
+      <el-card class="form-section">
+        <div slot="header" class="section-header">
+          <span>基本信息</span>
+        </div>
+        
+        <el-form-item label="专题名称" prop="name">
+          <el-input v-model="topicForm.name" placeholder="专题名称将自动使用分类名称" :readonly="true"></el-input>
+        </el-form-item>
+        
+        <el-form-item label="难度等级" prop="difficulty">
+          <el-select v-model="topicForm.difficulty" placeholder="请选择难度等级">
+            <el-option label="简单" value="Easy"></el-option>
+            <el-option label="中等" value="Medium"></el-option>
+            <el-option label="困难" value="Hard"></el-option>
+          </el-select>
+        </el-form-item>
+        
+        <el-form-item label="专题描述" prop="description">
+          <el-input type="textarea" v-model="topicForm.description" placeholder="请输入专题描述" :rows="4" maxlength="500" show-word-limit></el-input>
+        </el-form-item>
+        
+        <el-form-item label="及格分数" prop="pass_score">
+          <el-input-number v-model="topicForm.pass_score" :min="0" :max="100" placeholder="请输入及格分数"></el-input-number>
+        </el-form-item>
+        
+        <el-form-item label="状态" prop="is_active">
+          <el-switch v-model="topicForm.is_active" active-text="启用" inactive-text="禁用"></el-switch>
+        </el-form-item>
+      </el-card>
+
+      <!-- 封面图片上传 -->
+      <el-card class="form-section">
+        <div slot="header" class="section-header">
+          <span>封面图片</span>
+        </div>
+        
+        <el-form-item label="封面图片" prop="cover_image">
+          <div class="cover-upload-container">
+            <div v-if="topicForm.cover_image && !avatarOption.imgSrc" class="cover-preview">
+              <img :src="topicForm.cover_image" alt="封面预览">
+              <div class="cover-actions">
+                <el-button type="primary" size="mini" icon="el-icon-edit" @click="reselect">重新选择</el-button>
+                <el-button type="danger" size="mini" icon="el-icon-delete" @click="topicForm.cover_image = ''">删除</el-button>
+              </div>
+            </div>
+            <div v-else-if="!avatarOption.imgSrc" class="cover-upload">
+              <el-upload
+                class="cover-uploader"
+                :show-file-list="false"
+                :before-upload="handleSelectFile"
+                :auto-upload="false"
+                accept="image/*">
+                <div class="upload-area">
+                  <i class="el-icon-plus"></i>
+                  <div class="upload-text">点击上传封面图片</div>
+                </div>
+              </el-upload>
+            </div>
+            <div v-else class="image-cropper-container">
+              <div class="cropper-main">
+                <vue-cropper
+                  ref="cropper"
+                  autoCrop
+                  fixed
+                  :autoCropWidth="400"
+                  :autoCropHeight="300"
+                  :img="avatarOption.imgSrc"
+                  :outputSize="avatarOption.size"
+                  :outputType="avatarOption.outputType"
+                  :info="true"
+                  @realTime="realTime">
+                </vue-cropper>
+              </div>
+              <div class="cropper-controls">
+                <el-button-group>
+                  <el-button @click="rotate('left')" icon="el-icon-refresh-left">左转</el-button>
+                  <el-button @click="rotate('right')" icon="el-icon-refresh-right">右转</el-button>
+                  <el-button @click="reselect" icon="el-icon-refresh">重选</el-button>
+                  <el-button @click="finishCrop" type="primary" icon="el-icon-check">确定</el-button>
+                </el-button-group>
+              </div>
+              <div class="cropper-preview" :style="previewStyle">
+                <div :style="preview.div">
+                  <img :src="avatarOption.imgSrc" :style="preview.img">
+                </div>
+              </div>
+            </div>
+          </div>
+        </el-form-item>
+      </el-card>
+
+      <!-- 分类管理 -->
+      <el-card style="margin-top: 20px;" v-if="isEdit">
+        <div slot="header" class="category-header">
+          <span>分类管理</span>
+          <el-button type="primary" size="small" @click="showAddCategoryDialog">
+            <i class="el-icon-plus"></i> 添加分类
+          </el-button>
+        </div>
+
+        <div class="categories-management">
+          <div v-if="categories.length === 0" class="empty-categories">
+            <i class="el-icon-folder-opened"></i>
+            <p>暂无分类，点击"添加分类"开始创建</p>
+          </div>
+
+          <div v-else class="categories-list">
+            <div 
+              v-for="category in categories" 
+              :key="category.id" 
+              class="category-card">
+              <div class="category-info">
+                <h4 class="category-name">{{ category.name }}</h4>
+                <p class="category-desc">{{ category.description || '暂无描述' }}</p>
+                <div class="category-stats">
+                  <el-tag size="mini">{{ category.paper_count || 0 }} 个试卷</el-tag>
+                  <el-tag size="mini" :type="category.is_active ? 'success' : 'info'">
+                    {{ category.is_active ? '启用' : '禁用' }}
+                  </el-tag>
+                </div>
+              </div>
+              <div class="category-actions">
+                <el-button type="text" @click="managePapers(category)">
+                  <i class="el-icon-document"></i> 管理试卷
+                </el-button>
+                <el-button type="text" @click="editCategory(category)">
+                  <i class="el-icon-edit"></i> 编辑
+                </el-button>
+                <el-button type="text" @click="deleteCategory(category)">
+                  <i class="el-icon-delete"></i> 删除
+                </el-button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </el-card>
+
+      <!-- 操作按钮 -->
+      <div class="form-actions">
+        <el-button @click="goBack">取消</el-button>
+        <el-button type="primary" @click="saveTopic" :loading="saving" :disabled="!topicForm.category_id">
+          {{ isEdit ? '更新专题' : '创建专题' }}
+        </el-button>
+      </div>
+    </el-form>
+
+    <!-- 图片上传确认对话框 -->
+    <el-dialog title="确认上传" :visible.sync="uploadModalVisible" width="400px">
+      <div class="upload-modal">
+        <p class="notice">封面图片将设置为：</p>
+        <img :src="uploadImgSrc" class="preview-image"/>
+      </div>
+      <div slot="footer">
+        <el-button @click="uploadModalVisible = false">取消</el-button>
+        <el-button type="primary" @click="confirmUpload" :loading="loadingUploadBtn">确认</el-button>
+      </div>
+    </el-dialog>
+
+    <!-- 试卷管理对话框 -->
+    <el-dialog 
+      title="试卷管理" 
+      :visible.sync="showPaperDialog"
+      width="80%"
+      class="paper-management-dialog">
+      <div v-if="currentCategory">
+        <div class="paper-header">
+          <h3>{{ currentCategory.name }} - 试卷管理</h3>
+          <el-button type="primary" @click="addPapersToCategory">
+            <i class="el-icon-plus"></i> 添加试卷
+          </el-button>
+        </div>
+
+        <!-- 已关联的试卷 -->
+        <div class="associated-papers">
+          <h4>已关联试卷</h4>
+          <el-table :data="categoryPapers" style="width: 100%">
+            <el-table-column prop="title" label="试卷标题" min-width="200"></el-table-column>
+            <el-table-column prop="description" label="描述" width="200">
+              <template slot-scope="scope">
+                {{ scope.row.description || '-' }}
+              </template>
+            </el-table-column>
+            <el-table-column prop="total_score" label="总分" width="80"></el-table-column>
+            <el-table-column prop="duration" label="时长(分)" width="80"></el-table-column>
+            <el-table-column prop="question_count" label="题目数" width="80"></el-table-column>
+            <el-table-column label="操作" width="100">
+              <template slot-scope="scope">
+                <el-button 
+                  type="text" 
+                  @click="removePaperFromCategory(scope.row)">
+                  移除
+                </el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+        </div>
+
+        <!-- 可添加的试卷 -->
+        <div class="available-papers" style="margin-top: 20px;">
+          <h4>可添加试卷</h4>
+          <div class="paper-search">
+            <el-input 
+              v-model="paperSearchKeyword" 
+              placeholder="搜索试卷标题"
+              @input="searchPapers">
+              <el-button slot="append" @click="searchPapers">搜索</el-button>
+            </el-input>
+          </div>
+          <el-table 
+            :data="availablePapers" 
+            @selection-change="handlePaperSelection"
+            style="width: 100%; margin-top: 10px;">
+            <el-table-column type="selection" width="55"></el-table-column>
+            <el-table-column prop="title" label="试卷标题" min-width="200"></el-table-column>
+            <el-table-column prop="description" label="描述" width="200">
+              <template slot-scope="scope">
+                {{ scope.row.description || '-' }}
+              </template>
+            </el-table-column>
+            <el-table-column prop="total_score" label="总分" width="80"></el-table-column>
+            <el-table-column prop="duration" label="时长(分)" width="80"></el-table-column>
+            <el-table-column prop="question_count" label="题目数" width="80"></el-table-column>
+          </el-table>
+          
+          <div style="margin-top: 10px;" v-if="selectedPapers.length > 0">
+            <el-button type="primary" @click="addSelectedPapers">
+              添加选中的 {{ selectedPapers.length }} 个试卷
+            </el-button>
+          </div>
+        </div>
+      </div>
+    </el-dialog>
+  </div>
+</template>
+
+<script>
+import api from '@admin/api'
+import { VueCropper } from 'vue-cropper'
+
+export default {
+  name: 'CreateTopic',
+  components: {
+    VueCropper
+  },
+  data () {
+    return {
+      saving: false,
+      
+      // 专题表单
+      topicForm: {
+        category_id: null,
+        name: '',
+        description: '',
+        difficulty: 'Medium',
+        pass_score: 60,
+        cover_image: '',
+        is_active: true
+      },
+      rules: {
+        category_id: [
+          { required: true, message: '请选择一级分类', trigger: 'change' }
+        ],
+        name: [
+          { 
+            required: true, 
+            message: '请先选择一级分类，专题名称将自动填充', 
+            trigger: 'blur',
+            validator: (rule, value, callback) => {
+              if (!value && !this.topicForm.category_id) {
+                callback(new Error('请先选择一级分类'))
+              } else if (!value) {
+                callback(new Error('专题名称不能为空'))
+              } else {
+                callback()
+              }
+            }
+          }
+        ],
+        difficulty: [
+          { required: true, message: '请选择难度等级', trigger: 'change' }
+        ]
+      },
+
+      // 分类数据
+      rootCategories: [], // 一级分类列表
+      selectedCategory: null, // 选中的分类
+      subcategories: [], // 二级分类列表
+      
+      // 图片上传和裁剪
+      avatarOption: {
+        imgSrc: '',
+        size: 0.8,
+        outputType: 'png'
+      },
+      preview: {},
+      uploadModalVisible: false,
+      uploadImgSrc: '',
+      loadingUploadBtn: false
+    }
+  },
+
+  created () {
+    this.loadRootCategories()
+  },
+
+  mounted () {
+    // 检查是否为编辑模式
+    if (this.topicId) {
+      console.log('编辑模式，加载专题数据，ID:', this.topicId)
+      this.loadTopicForEdit(this.topicId)
+    }
+  },
+
+  computed: {
+    previewStyle() {
+      return {
+        width: '150px',
+        height: '112.5px',
+        overflow: 'hidden'
+      }
+    },
+    
+    // 获取专题ID，支持多种参数名
+    topicId() {
+      return this.$route.params.topicId || this.$route.params.id
+    },
+    
+    // 判断是否为编辑模式
+    isEdit() {
+      return !!this.topicId
+    }
+  },
+
+  methods: {
+    // 加载一级分类
+    async loadRootCategories () {
+      try {
+        const res = await api.getChoiceQuestionCategories({ parent: 'null' })
+        this.rootCategories = res.data.data
+      } catch (err) {
+        console.error('加载分类失败:', err)
+        this.$message.error('加载分类失败')
+      }
+    },
+
+    // 加载专题数据用于编辑
+    async loadTopicForEdit (topicId) {
+      try {
+        console.log('加载专题数据，ID:', topicId)
+        const res = await api.getTopicManageDetail(topicId)
+        const topic = res.data.data
+        
+        console.log('获取到的专题数据:', topic)
+        
+        // 处理数据为空的情况
+        if (!topic) {
+          throw new Error('专题数据为空')
+        }
+        
+        // 更安全的数据映射
+        this.topicForm = {
+          // 处理分类ID - 支持多种数据结构
+          category_id: this.getCategoryId(topic),
+          
+          // 专题名称
+          name: topic.title || topic.name || '',
+          
+          // 描述
+          description: topic.description || '',
+          
+          // 难度级别转换
+          difficulty: this.convertDifficultyLevel(topic.difficulty_level),
+          
+          // 及格分数
+          pass_score: topic.pass_score || 60,
+          
+          // 封面图片
+          cover_image: topic.cover_image || '',
+          
+          // 状态
+          is_active: topic.is_active !== undefined ? !!topic.is_active : true
+        }
+        
+        console.log('映射后的表单数据:', this.topicForm)
+        
+        // 加载分类信息
+        if (this.topicForm.category_id) {
+          await this.$nextTick() // 等待组件更新
+          await this.loadCategoryInfo()
+        }
+        
+      } catch (err) {
+        console.error('加载专题数据失败:', err)
+        this.$message.error('加载专题数据失败: ' + (err.response && err.response.data && err.response.data.error || err.message))
+        
+        // 加载失败时返回列表页
+        setTimeout(() => {
+          this.$router.push('/admin/topic/management')
+        }, 2000)
+      }
+    },
+
+    // 获取分类ID的辅助方法
+    getCategoryId(topic) {
+      // 支持多种数据结构
+      if (topic.category_ids && Array.isArray(topic.category_ids) && topic.category_ids.length > 0) {
+        return topic.category_ids[0]
+      }
+      if (topic.category_id) {
+        return topic.category_id
+      }
+      if (topic.categories && Array.isArray(topic.categories) && topic.categories.length > 0) {
+        return topic.categories[0].id
+      }
+      return null
+    },
+
+    // 难度级别转换
+    convertDifficultyLevel(level) {
+      if (typeof level === 'string') {
+        return level // 如果已经是字符串，直接返回
+      }
+      
+      // 数字转字符串
+      switch (level) {
+        case 1: return 'Easy'
+        case 2: return 'Medium'
+        case 3: return 'Hard'
+        default: return 'Medium'
+      }
+    },
+
+    // 加载分类信息
+    async loadCategoryInfo() {
+      try {
+        // 等待根分类加载完成
+        if (this.rootCategories.length === 0) {
+          await this.loadRootCategories()
+        }
+        
+        // 查找选中的分类
+        this.selectedCategory = this.rootCategories.find(cat => cat.id === this.topicForm.category_id)
+        
+        if (this.selectedCategory) {
+          console.log('找到选中的分类:', this.selectedCategory)
+          // 加载子分类
+          await this.loadSubcategories(this.topicForm.category_id)
+        } else {
+          console.warn('未找到ID为', this.topicForm.category_id, '的分类')
+        }
+      } catch (err) {
+        console.error('加载分类信息失败:', err)
+      }
+    },
+
+    // 分类选择变化
+    async onCategoryChange (categoryId) {
+      try {
+        this.selectedCategory = this.rootCategories.find(cat => cat.id === categoryId)
+        
+        if (this.selectedCategory) {
+          this.topicForm.category_id = categoryId
+          
+          // 如果不是编辑模式，自动填充名称
+          if (!this.isEdit) {
+            this.topicForm.name = this.selectedCategory.name
+          }
+          
+          // 手动触发name字段的验证
+          this.$nextTick(() => {
+            if (this.$refs.topicForm) {
+              this.$refs.topicForm.validateField('name')
+            }
+          })
+          
+          await this.loadSubcategories(categoryId)
+        }
+      } catch (err) {
+        console.error('分类选择失败:', err)
+        this.$message.error('加载分类信息失败')
+      }
+    },
+
+    // 加载二级分类和试卷统计
+    async loadSubcategories (parentId) {
+      try {
+        const res = await api.getChoiceQuestionCategories({ parent: parentId })
+        this.subcategories = res.data.data
+        
+        // 为每个二级分类加载试卷数量
+        for (let sub of this.subcategories) {
+          try {
+            const paperRes = await api.getChoiceQuestionPapers({ category: sub.id })
+            sub.paper_count = paperRes.data.data.length
+          } catch (err) {
+            sub.paper_count = 0
+          }
+        }
+      } catch (err) {
+        this.$message.error('加载子分类失败')
+        this.subcategories = []
+      }
+    },
+
+    // 保存专题
+    async saveTopic () {
+      if (!this.$refs.topicForm) return
+      
+      this.$refs.topicForm.validate(async (valid) => {
+        if (!valid) return
+        
+        this.saving = true
+        try {
+          const isEdit = this.isEdit
+          
+          // 调试信息：检查表单数据
+          console.log(isEdit ? '编辑专题' : '创建专题', '- 表单数据:', this.topicForm)
+          console.log('专题名称:', this.topicForm.name)
+          
+          const topicData = {
+            title: this.topicForm.name,
+            description: this.topicForm.description,
+            difficulty_level: this.topicForm.difficulty === 'Easy' ? 1 : this.topicForm.difficulty === 'Medium' ? 2 : this.topicForm.difficulty === 'Hard' ? 3 : 2,
+            pass_score: this.topicForm.pass_score,
+            cover_image: this.topicForm.cover_image,
+            is_active: this.topicForm.is_active,
+            category_ids: this.topicForm.category_id ? [this.topicForm.category_id] : []
+          }
+          
+          console.log('发送到API的数据:', topicData)
+          
+          if (isEdit) {
+            await api.updateTopic(this.topicId, topicData)
+            this.$message.success('专题更新成功')
+          } else {
+            await api.createTopic(topicData)
+            this.$message.success('专题创建成功')
+          }
+          
+          this.$router.push('/admin/topic/management')
+        } catch (err) {
+          const action = this.isEdit ? '更新' : '创建'
+          this.$message.error(`${action}失败: ` + (err.response && err.response.data && err.response.data.error || err.message))
+        } finally {
+          this.saving = false
+        }
+      })
+    },
+
+    goBack () {
+      this.$router.push('/admin/topic/management')
+    },
+
+    // 图片上传相关方法
+    handleSelectFile (file) {
+      if (!/\.(gif|jpg|jpeg|png|bmp|GIF|JPG|PNG)$/.test(file.name)) {
+        this.$message.error('图片类型必须是.gif,jpeg,jpg,png,bmp中的一种')
+        return false
+      }
+      let reader = new FileReader()
+      reader.onload = (e) => {
+        let data
+        if (typeof e.target.result === 'object') {
+          data = window.URL.createObjectURL(new Blob([e.target.result]))
+        } else {
+          data = e.target.result
+        }
+        this.avatarOption.imgSrc = data
+      }
+      reader.readAsDataURL(file)
+      return false
+      },
+
+      realTime (data) {
+        this.preview = data
+      },
+
+      rotate (direction) {
+        if (direction === 'left') {
+          this.$refs.cropper.rotateLeft()
+        } else {
+          this.$refs.cropper.rotateRight()
+        }
+      },
+
+      reselect () {
+        this.avatarOption.imgSrc = ''
+      },
+
+      finishCrop () {
+        this.$refs.cropper.getCropData((data) => {
+          this.topicForm.cover_image = data
+          this.avatarOption.imgSrc = ''
+          this.$message.success('封面图片设置成功')
+        })
+      }
+      // 这里已经有了handleSelectFile和realTime方法的定义，不需要重复
+  }
+}
+</script>
+
+<style lang="less" scoped>
+.create-topic-page {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+
+  .page-nav {
+    margin-bottom: 20px;
+  }
+
+  .page-header {
+    margin-bottom: 30px;
+    
+    .page-title {
+      font-size: 28px;
+      color: #2c3e50;
+      margin-bottom: 8px;
+    }
+    
+    .page-subtitle {
+      color: #7f8c8d;
+      font-size: 14px;
+      margin: 0;
+    }
+  }
+
+  .form-container {
+    .topic-form {
+      .form-tip {
+        font-size: 12px;
+        color: #909399;
+        margin-top: 5px;
+      }
+
+      .status-controls {
+        display: flex;
+        gap: 20px;
+      }
+    }
+
+    .category-selector {
+      .categories-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 16px;
+        margin-top: 20px;
+      }
+
+      .category-option {
+        border: 2px solid #e4e7ed;
+        border-radius: 8px;
+        padding: 20px;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: flex-start;
+        gap: 15px;
+
+        &:hover {
+          border-color: #409eff;
+          box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        &.selected {
+          border-color: #409eff;
+          background-color: #f0f9ff;
+          box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.2);
+        }
+
+        .category-icon {
+          font-size: 32px;
+          color: #409eff;
+          margin-top: 5px;
+        }
+
+        .category-info {
+          flex: 1;
+
+          h4 {
+            margin: 0 0 8px 0;
+            color: #2c3e50;
+            font-size: 16px;
+            font-weight: 600;
+          }
+
+          p {
+            margin: 0 0 12px 0;
+            color: #606266;
+            font-size: 14px;
+            line-height: 1.4;
+          }
+
+          .category-meta {
+            display: flex;
+            gap: 8px;
+          }
+        }
+      }
+
+      .empty-categories {
+        text-align: center;
+        padding: 60px 20px;
+        color: #909399;
+        
+        i {
+          font-size: 64px;
+          margin-bottom: 20px;
+          display: block;
+        }
+      }
+    }
+
+    .cover-upload-container {
+      .cover-preview {
+        position: relative;
+        width: 200px;
+        height: 112px;
+        border-radius: 6px;
+        overflow: hidden;
+        border: 1px solid #dcdfe6;
+
+        img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+
+        .cover-actions {
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-color: rgba(0, 0, 0, 0.6);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 10px;
+          opacity: 0;
+          transition: opacity 0.3s;
+        }
+
+        &:hover .cover-actions {
+          opacity: 1;
+        }
+      }
+
+      .cover-upload {
+        .cover-uploader {
+          .upload-area {
+            width: 200px;
+            height: 112px;
+            border: 2px dashed #d9d9d9;
+            border-radius: 6px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: border-color 0.3s;
+
+            &:hover {
+              border-color: #409eff;
+            }
+
+            i {
+              font-size: 32px;
+              color: #8c939d;
+              margin-bottom: 8px;
+            }
+
+            .upload-text {
+              color: #606266;
+              font-size: 14px;
+            }
+          }
+        }
+      }
+    }
+
+    .category-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .categories-management {
+      .empty-categories {
+        text-align: center;
+        padding: 40px;
+        color: #909399;
+        
+        i {
+          font-size: 48px;
+          margin-bottom: 16px;
+          display: block;
+        }
+      }
+
+      .categories-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 16px;
+      }
+
+      .category-card {
+        border: 1px solid #e4e7ed;
+        border-radius: 8px;
+        padding: 16px;
+        transition: all 0.3s;
+
+        &:hover {
+          border-color: #409eff;
+          box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .category-info {
+          margin-bottom: 12px;
+
+          .category-name {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #2c3e50;
+          }
+
+          .category-desc {
+            font-size: 14px;
+            color: #606266;
+            margin-bottom: 8px;
+          }
+
+          .category-stats {
+            display: flex;
+            gap: 8px;
+          }
+        }
+
+        .category-actions {
+          display: flex;
+          justify-content: flex-end;
+          gap: 8px;
+        }
+      }
+    }
+
+    .form-actions {
+      text-align: center;
+      padding: 30px 0;
+      border-top: 1px solid #e4e7ed;
+      margin-top: 30px;
+
+      .el-button {
+        margin: 0 10px;
+      }
+    }
+  }
+}
+
+.crop-container {
+  .crop-area {
+    max-height: 400px;
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+
+  .crop-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    background-color: #f5f7fa;
+    border-radius: 4px;
+
+    .crop-presets {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+
+      span {
+        font-size: 14px;
+        color: #606266;
+      }
+    }
+
+    .crop-actions {
+      display: flex;
+      gap: 10px;
+    }
+  }
+}
+
+.paper-management-dialog {
+  .paper-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    
+    h3 {
+      margin: 0;
+      color: #2c3e50;
+    }
+  }
+
+  .paper-search {
+    margin-bottom: 10px;
+  }
+
+  .associated-papers,
+  .available-papers {
+    h4 {
+      color: #2c3e50;
+      margin-bottom: 10px;
+    }
+  }
+}
+</style>
+

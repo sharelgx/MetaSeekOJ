@@ -265,8 +265,8 @@ class TopicDetailManageAPI(APIView):
                 'pass_score': topic.pass_score,
                 'total_questions': topic.total_questions,
                 'created_by': topic.created_by.username if topic.created_by else None,
-                'create_time': topic.create_time,
-                'update_time': topic.update_time
+                'create_time': topic.create_time.strftime('%Y-%m-%d %H:%M:%S') if topic.create_time else None,
+                'update_time': topic.last_update_time.strftime('%Y-%m-%d %H:%M:%S') if topic.last_update_time else None
             }
             
             # 分类信息
@@ -729,15 +729,26 @@ class TopicBatchAPI(APIView):
                 except Exception as e:
                     error_messages.append(f"处理专题 '{topic.title}' 时出错: {str(e)}")
         
-        result = {
-            'success_count': success_count,
-            'total_count': len(topic_ids),
-            'error_messages': error_messages
-        }
-        
         if success_count == len(topic_ids):
-            return self.success(result, "批量操作完成")
+            result = {
+                'success_count': success_count,
+                'total_count': len(topic_ids),
+                'error_messages': error_messages,
+                'message': '批量操作完成'
+            }
+            return self.success(result)
         elif success_count > 0:
-            return self.success(result, f"部分操作成功，成功处理 {success_count} 个专题")
+            result = {
+                'success_count': success_count,
+                'total_count': len(topic_ids),
+                'error_messages': error_messages,
+                'message': f'部分操作成功，成功处理 {success_count} 个专题'
+            }
+            return self.success(result)
         else:
+            result = {
+                'success_count': success_count,
+                'total_count': len(topic_ids),
+                'error_messages': error_messages
+            }
             return self.error("批量操作失败", result)

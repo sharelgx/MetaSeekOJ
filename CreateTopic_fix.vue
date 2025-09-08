@@ -1,20 +1,9 @@
 <template>
   <div class="app-container">
-    <!-- 调试信息 -->
-    <div style="background: #f0f0f0; padding: 10px; margin-bottom: 20px;">
-      <h3>调试信息</h3>
-      <p>当前路由: {{ $route.path }}</p>
-      <p>路由参数: {{ JSON.stringify($route.params) }}</p>
-      <p>专题ID: {{ topicId }}</p>
-      <p>是否编辑模式: {{ isEdit }}</p>
-      <p>表单数据: {{ JSON.stringify(topicForm) }}</p>
-      <p>根分类数量: {{ rootCategories.length }}</p>
-    </div>
-
     <!-- 页面导航 -->
     <div class="page-header">
       <el-breadcrumb separator="/">
-        <el-breadcrumb-item :to="{ path: '/topic/management' }">专题管理</el-breadcrumb-item>
+        <el-breadcrumb-item :to="{ path: '/admin/topic/management' }">专题管理</el-breadcrumb-item>
         <el-breadcrumb-item>{{ isEdit ? '编辑专题' : '创建专题' }}</el-breadcrumb-item>
       </el-breadcrumb>
     </div>
@@ -24,6 +13,17 @@
       <h2>{{ isEdit ? '编辑专题' : '创建专题' }}</h2>
       <p class="subtitle">{{ isEdit ? '修改专题信息和关联的分类' : '选择一级分类作为专题，二级分类下的试卷将自动关联' }}</p>
     </div>
+
+    <!-- 调试信息 -->
+    <el-card v-if="showDebugInfo" style="margin-bottom: 20px;">
+      <div slot="header">调试信息</div>
+      <p>当前路由: {{ $route.path }}</p>
+      <p>路由参数: {{ JSON.stringify($route.params) }}</p>
+      <p>专题ID: {{ topicId }}</p>
+      <p>是否编辑模式: {{ isEdit }}</p>
+      <p>表单数据: {{ JSON.stringify(topicForm) }}</p>
+      <el-button size="mini" @click="showDebugInfo = false">隐藏调试信息</el-button>
+    </el-card>
 
     <!-- 表单 -->
     <el-form ref="topicForm" :model="topicForm" :rules="rules" label-width="120px" class="topic-form">
@@ -64,7 +64,7 @@
         </div>
         
         <el-form-item label="专题名称" prop="name">
-          <el-input v-model="topicForm.name" placeholder="专题名称"></el-input>
+          <el-input v-model="topicForm.name" placeholder="专题名称" :readonly="!isEdit && topicForm.category_id"></el-input>
         </el-form-item>
         
         <el-form-item label="难度等级" prop="difficulty">
@@ -76,7 +76,7 @@
         </el-form-item>
         
         <el-form-item label="专题描述" prop="description">
-          <el-input type="textarea" v-model="topicForm.description" placeholder="请输入专题描述" :rows="4"></el-input>
+          <el-input type="textarea" v-model="topicForm.description" placeholder="请输入专题描述" :rows="4" maxlength="500" show-word-limit></el-input>
         </el-form-item>
         
         <el-form-item label="及格分数" prop="pass_score">
@@ -91,9 +91,10 @@
       <!-- 操作按钮 -->
       <div class="form-actions">
         <el-button @click="goBack">取消</el-button>
-        <el-button type="primary" @click="saveTopic" :loading="saving">
+        <el-button type="primary" @click="saveTopic" :loading="saving" :disabled="!topicForm.category_id">
           {{ isEdit ? '更新专题' : '创建专题' }}
         </el-button>
+        <el-button type="info" @click="showDebugInfo = true" size="mini">显示调试信息</el-button>
       </div>
     </el-form>
   </div>
@@ -107,6 +108,7 @@ export default {
   data () {
     return {
       saving: false,
+      showDebugInfo: false,
       
       // 专题表单
       topicForm: {
@@ -137,23 +139,6 @@ export default {
     }
   },
 
-  created () {
-    console.log('CreateTopic 组件创建')
-    this.loadRootCategories()
-  },
-
-  mounted () {
-    console.log('CreateTopic 组件挂载')
-    console.log('当前路由:', this.$route.path)
-    console.log('路由参数:', this.$route.params)
-    
-    // 检查是否为编辑模式
-    if (this.topicId) {
-      console.log('编辑模式，加载专题数据，ID:', this.topicId)
-      this.loadTopicForEdit(this.topicId)
-    }
-  },
-
   computed: {
     // 获取专题ID，支持多种参数名
     topicId() {
@@ -163,6 +148,24 @@ export default {
     // 判断是否为编辑模式
     isEdit() {
       return !!this.topicId
+    }
+  },
+
+  created () {
+    console.log('CreateTopic 组件创建')
+    console.log('当前路由:', this.$route.path)
+    console.log('路由参数:', this.$route.params)
+    console.log('专题ID:', this.topicId)
+    console.log('是否编辑模式:', this.isEdit)
+    
+    this.loadRootCategories()
+  },
+
+  mounted () {
+    // 检查是否为编辑模式
+    if (this.isEdit) {
+      console.log('编辑模式，加载专题数据，ID:', this.topicId)
+      this.loadTopicForEdit(this.topicId)
     }
   },
 
@@ -176,9 +179,14 @@ export default {
         
         this.rootCategories = res.data.data || []
         console.log('加载的根分类:', this.rootCategories)
+        
+        if (this.rootCategories.length === 0) {
+          this.$message.warning('暂无可用的分类，请先创建分类')
+        }
       } catch (err) {
         console.error('加载分类失败:', err)
-        this.$message.error('加载分类失败')
+        this.$message.error('加载分类失败: ' + (err.response?.data?.error || err.message))
+        this.rootCategories = []
       }
     },
 
@@ -186,23 +194,39 @@ export default {
     async loadTopicForEdit (topicId) {
       try {
         console.log('加载专题数据，ID:', topicId)
-        const res = await api.getTopicManageDetail(topicId)
-        const topic = res.data.data
         
+        const res = await api.getTopicManageDetail(topicId)
+        console.log('API 响应:', res)
+        
+        const topic = res.data.data
         console.log('获取到的专题数据:', topic)
         
+        // 处理数据为空的情况
         if (!topic) {
           throw new Error('专题数据为空')
         }
         
         // 更安全的数据映射
         this.topicForm = {
+          // 处理分类ID - 支持多种数据结构
           category_id: this.getCategoryId(topic),
+          
+          // 专题名称
           name: topic.title || topic.name || '',
+          
+          // 描述
           description: topic.description || '',
+          
+          // 难度级别转换
           difficulty: this.convertDifficultyLevel(topic.difficulty_level),
+          
+          // 及格分数
           pass_score: topic.pass_score || 60,
+          
+          // 封面图片
           cover_image: topic.cover_image || '',
+          
+          // 状态
           is_active: topic.is_active !== undefined ? !!topic.is_active : true
         }
         
@@ -210,18 +234,24 @@ export default {
         
         // 加载分类信息
         if (this.topicForm.category_id) {
-          await this.$nextTick()
+          await this.$nextTick() // 等待组件更新
           await this.loadCategoryInfo()
         }
         
       } catch (err) {
         console.error('加载专题数据失败:', err)
-        this.$message.error('加载专题数据失败: ' + (err.response && err.response.data && err.response.data.error || err.message))
+        this.$message.error('加载专题数据失败: ' + (err.response?.data?.error || err.message))
+        
+        // 加载失败时返回列表页
+        setTimeout(() => {
+          this.$router.push('/admin/topic/management')
+        }, 2000)
       }
     },
 
     // 获取分类ID的辅助方法
     getCategoryId(topic) {
+      // 支持多种数据结构
       if (topic.category_ids && Array.isArray(topic.category_ids) && topic.category_ids.length > 0) {
         return topic.category_ids[0]
       }
@@ -237,9 +267,10 @@ export default {
     // 难度级别转换
     convertDifficultyLevel(level) {
       if (typeof level === 'string') {
-        return level
+        return level // 如果已经是字符串，直接返回
       }
       
+      // 数字转字符串
       switch (level) {
         case 1: return 'Easy'
         case 2: return 'Medium'
@@ -251,15 +282,20 @@ export default {
     // 加载分类信息
     async loadCategoryInfo() {
       try {
+        // 等待根分类加载完成
         if (this.rootCategories.length === 0) {
           await this.loadRootCategories()
         }
         
+        // 查找选中的分类
         this.selectedCategory = this.rootCategories.find(cat => cat.id === this.topicForm.category_id)
         
         if (this.selectedCategory) {
           console.log('找到选中的分类:', this.selectedCategory)
+          // 加载子分类
           await this.loadSubcategories(this.topicForm.category_id)
+        } else {
+          console.warn('未找到ID为', this.topicForm.category_id, '的分类')
         }
       } catch (err) {
         console.error('加载分类信息失败:', err)
@@ -274,9 +310,17 @@ export default {
         if (this.selectedCategory) {
           this.topicForm.category_id = categoryId
           
+          // 如果不是编辑模式，自动填充名称
           if (!this.isEdit) {
             this.topicForm.name = this.selectedCategory.name
           }
+          
+          // 手动触发name字段的验证
+          this.$nextTick(() => {
+            if (this.$refs.topicForm) {
+              this.$refs.topicForm.validateField('name')
+            }
+          })
           
           await this.loadSubcategories(categoryId)
         }
@@ -286,14 +330,20 @@ export default {
       }
     },
 
-    // 加载二级分类
+    // 加载二级分类和试卷统计
     async loadSubcategories (parentId) {
       try {
         const res = await api.getChoiceQuestionCategories({ parent: parentId })
         this.subcategories = res.data.data || []
         
+        // 为每个二级分类加载试卷数量
         for (let sub of this.subcategories) {
-          sub.paper_count = 0 // 简化，不加载试卷数量
+          try {
+            const paperRes = await api.getChoiceQuestionPapers({ category: sub.id })
+            sub.paper_count = paperRes.data.data.length
+          } catch (err) {
+            sub.paper_count = 0
+          }
         }
       } catch (err) {
         this.$message.error('加载子分类失败')
@@ -312,17 +362,19 @@ export default {
         try {
           const isEdit = this.isEdit
           
+          console.log(isEdit ? '编辑专题' : '创建专题', '- 表单数据:', this.topicForm)
+          
           const topicData = {
             title: this.topicForm.name,
             description: this.topicForm.description,
-            difficulty_level: this.topicForm.difficulty === 'Easy' ? 1 : this.topicForm.difficulty === 'Medium' ? 2 : 3,
+            difficulty_level: this.topicForm.difficulty === 'Easy' ? 1 : this.topicForm.difficulty === 'Medium' ? 2 : this.topicForm.difficulty === 'Hard' ? 3 : 2,
             pass_score: this.topicForm.pass_score,
             cover_image: this.topicForm.cover_image,
             is_active: this.topicForm.is_active,
             category_ids: this.topicForm.category_id ? [this.topicForm.category_id] : []
           }
           
-          console.log('保存专题数据:', topicData)
+          console.log('发送到API的数据:', topicData)
           
           if (isEdit) {
             await api.updateTopic(this.topicId, topicData)
@@ -332,10 +384,10 @@ export default {
             this.$message.success('专题创建成功')
           }
           
-          this.$router.push('/topic/management')
+          this.$router.push('/admin/topic/management')
         } catch (err) {
           const action = this.isEdit ? '更新' : '创建'
-          this.$message.error(`${action}失败: ` + (err.response && err.response.data && err.response.data.error || err.message))
+          this.$message.error(`${action}失败: ` + (err.response?.data?.error || err.message))
         } finally {
           this.saving = false
         }
@@ -343,7 +395,7 @@ export default {
     },
 
     goBack () {
-      this.$router.push('/topic/management')
+      this.$router.push('/admin/topic/management')
     }
   }
 }

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>分类管理测试</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; }
+        .success { color: green; }
+        .error { color: red; }
+        button { margin: 5px; padding: 8px 15px; }
+        input { margin: 5px; padding: 5px; }
+        #results { background: #f5f5f5; padding: 10px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>选择题分类管理测试</h1>
+    
+    <div class="section">
+        <h2>1. 登录测试</h2>
+        <input type="text" id="username" placeholder="用户名" value="root">
+        <input type="password" id="password" placeholder="密码" value="rootroot">
+        <button onclick="testLogin()">登录</button>
+        <div id="login-status"></div>
+    </div>
+    
+    <div class="section">
+        <h2>2. 分类管理API测试</h2>
+        <button onclick="testGetCategories()">获取分类列表</button>
+        <button onclick="testCreateCategory()">创建测试分类</button>
+        <button onclick="testUpdateCategory()">更新分类</button>
+        <button onclick="testDeleteCategory()">删除分类</button>
+        <div id="category-status"></div>
+    </div>
+    
+    <div class="section">
+        <h2>3. 测试结果</h2>
+        <div id="results"></div>
+    </div>
+
+    <script>
+        // 配置axios
+        axios.defaults.baseURL = 'http://localhost:8086/api';
+        axios.defaults.withCredentials = true;
+        
+        let testCategoryId = null;
+        
+        function log(message, isError = false) {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = isError ? 'error' : 'success';
+            div.innerHTML = new Date().toLocaleTimeString() + ': ' + message;
+            results.appendChild(div);
+            console.log(message);
+        }
+        
+        async function testLogin() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const statusDiv = document.getElementById('login-status');
+            
+            try {
+                // 首先获取CSRF token
+                await axios.get('/');
+                
+                const response = await axios.post('/login', {
+                    username: username,
+                    password: password
+                });
+                
+                if (response.data.error === null) {
+                    statusDiv.innerHTML = '<span class="success">✅ 登录成功</span>';
+                    log('登录成功');
+                } else {
+                    statusDiv.innerHTML = '<span class="error">❌ 登录失败: ' + response.data.data + '</span>';
+                    log('登录失败: ' + response.data.data, true);
+                }
+            } catch (error) {
+                statusDiv.innerHTML = '<span class="error">❌ 登录错误: ' + error.message + '</span>';
+                log('登录错误: ' + error.message, true);
+            }
+        }
+        
+        async function testGetCategories() {
+            const statusDiv = document.getElementById('category-status');
+            
+            try {
+                const response = await axios.get('/admin/choice_question/categories');
+                
+                if (response.data.error === null) {
+                    statusDiv.innerHTML = '<span class="success">✅ 获取分类成功，共 ' + response.data.data.length + ' 个分类</span>';
+                    log('获取分类成功: ' + JSON.stringify(response.data.data, null, 2));
+                } else {
+                    statusDiv.innerHTML = '<span class="error">❌ 获取分类失败: ' + response.data.data + '</span>';
+                    log('获取分类失败: ' + response.data.data, true);
+                }
+            } catch (error) {
+                statusDiv.innerHTML = '<span class="error">❌ 获取分类错误: ' + error.message + '</span>';
+                log('获取分类错误: ' + error.message, true);
+            }
+        }
+        
+        async function testCreateCategory() {
+            try {
+                const response = await axios.post('/admin/choice_question/categories', {
+                    name: '测试分类_' + Date.now(),
+                    description: '这是一个测试分类',
+                    parent_id: null
+                });
+                
+                if (response.data.error === null) {
+                    testCategoryId = response.data.data.id;
+                    log('创建分类成功: ' + JSON.stringify(response.data.data, null, 2));
+                } else {
+                    log('创建分类失败: ' + response.data.data, true);
+                }
+            } catch (error) {
+                log('创建分类错误: ' + error.message, true);
+            }
+        }
+        
+        async function testUpdateCategory() {
+            if (!testCategoryId) {
+                log('请先创建一个测试分类', true);
+                return;
+            }
+            
+            try {
+                const response = await axios.put('/admin/choice_question/categories/' + testCategoryId, {
+                    name: '更新后的测试分类_' + Date.now(),
+                    description: '这是更新后的测试分类描述'
+                });
+                
+                if (response.data.error === null) {
+                    log('更新分类成功: ' + JSON.stringify(response.data.data, null, 2));
+                } else {
+                    log('更新分类失败: ' + response.data.data, true);
+                }
+            } catch (error) {
+                log('更新分类错误: ' + error.message, true);
+            }
+        }
+        
+        async function testDeleteCategory() {
+            if (!testCategoryId) {
+                log('请先创建一个测试分类', true);
+                return;
+            }
+            
+            try {
+                const response = await axios.delete('/admin/choice_question/categories/' + testCategoryId);
+                
+                if (response.data.error === null) {
+                    log('删除分类成功: ' + response.data.data);
+                    testCategoryId = null;
+                } else {
+                    log('删除分类失败: ' + response.data.data, true);
+                }
+            } catch (error) {
+                log('删除分类错误: ' + error.message, true);
+            }
+        }
+        
+        // 页面加载时自动测试获取分类
+        window.onload = function() {
+            log('页面加载完成，开始测试...');
+        };
+    </script>
+</body>
+</html>

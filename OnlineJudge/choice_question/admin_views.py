@@ -299,9 +299,9 @@ class ChoiceQuestionCategoryAdminAPI(APIView):
         return self.error(serializer.errors)
     
     @problem_permission_required
-    def put(self, request):
+    def put(self, request, **kwargs):
         """更新分类"""
-        category_id = request.GET.get("id")
+        category_id = kwargs.get('category_id') or request.GET.get("id")
         if not category_id:
             return self.error("Category ID required")
         
@@ -317,9 +317,9 @@ class ChoiceQuestionCategoryAdminAPI(APIView):
         return self.error(serializer.errors)
     
     @super_admin_required
-    def delete(self, request):
+    def delete(self, request, **kwargs):
         """删除分类"""
-        category_id = request.GET.get("id")
+        category_id = kwargs.get('category_id') or request.GET.get("id")
         if not category_id:
             return self.error("Category ID required")
         

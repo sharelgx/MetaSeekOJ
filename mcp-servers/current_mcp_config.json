@@ -1,18 +1,6 @@
 {
   "mcpServers": {
-    "codegen": {
-      "command": "python",
-      "args": [
-        "-m",
-        "codegen.cli.mcp.server"
-      ],
-      "env": {
-        "CODEGEN_API_KEY": "sk-a9d7e4c3-93e5-432f-b0c0-98cd4fa0fe6b"
-      },
-      "fromGalleryId": "codegen-sh.codegen-sdk_codegen-mcp-server",
-      "cwd": "/home/sharelgx/codegen",
-      "disabled": true
-    },
+
     "postgresql": {
       "command": "npx",
       "args": [
