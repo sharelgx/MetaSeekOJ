@@ -1,0 +1,79 @@
+{
+    "mcpServers": {
+        "codegen": {
+            "command": "python",
+            "args": [
+                "-m",
+                "codegen.cli.mcp.server"
+            ],
+            "env": {
+                "CODEGEN_API_KEY": "sk-a9d7e4c3-93e5-432f-b0c0-98cd4fa0fe6b"
+            },
+            "fromGalleryId": "codegen-sh.codegen-sdk_codegen-mcp-server",
+            "cwd": "/home/sharelgx/codegen",
+            "disabled": true
+        },
+        "postgresql": {
+            "command": "npx",
+            "args": [
+                "@henkey/postgres-mcp-server"
+            ],
+            "env": {
+                "POSTGRES_HOST": "127.0.0.1",
+                "POSTGRES_PORT": "5432",
+                "POSTGRES_DB": "onlinejudge",
+                "POSTGRES_USER": "onlinejudge",
+                "POSTGRES_PASSWORD": "onlinejudge"
+            }
+        },
+        "GitHub": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@modelcontextprotocol/server-github"
+            ],
+            "env": {
+          "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
+        },
+            "fromGalleryId": "modelcontextprotocol.servers_github"
+        },
+        "playwright": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@executeautomation/playwright-mcp-server"
+            ],
+            "fromGalleryId": "executeautomation.mcp-playwright"
+        },
+        "browser-log-monitor": {
+            "command": "node",
+            "args": [
+                "/home/metaspeekoj/mcp-servers/browser_log_mcp_server.js"
+            ],
+            "cwd": "/home/metaspeekoj/mcp-servers",
+            "env": {
+                "NODE_PATH": "/home/metaspeekoj/node_modules"
+            }
+        },
+        "project-restart": {
+            "command": "node",
+            "args": [
+                "/home/metaspeekoj/mcp-servers/project_restart_mcp_server.js"
+            ],
+            "cwd": "/home/metaspeekoj/mcp-servers",
+            "env": {
+                "NODE_PATH": "/home/metaspeekoj/node_modules"
+            }
+        },
+        "test-file-manager": {
+            "command": "node",
+            "args": [
+                "/home/metaspeekoj/mcp-servers/test_file_manager_mcp_server.js"
+            ],
+            "cwd": "/home/metaspeekoj/mcp-servers",
+            "env": {
+                "NODE_PATH": "/home/metaspeekoj/node_modules"
+            }
+        }
+    }
+}
