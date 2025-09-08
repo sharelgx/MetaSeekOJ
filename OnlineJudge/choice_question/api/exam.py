@@ -460,42 +460,43 @@ class ExamPaperImportAPI(CSRFExemptAPIView):
         # 转换题目类型（支持从JSON中读取type字段）
         converted['question_type'] = question_data.get('type', 'single')
         
-        # 转换选项格式
+        # 转换选项格式 - 将前端字符串数组转换为后端期望的对象数组格式
         if 'options' in question_data and isinstance(question_data['options'], list):
-            converted['options'] = question_data['options']
+            # 前端发送的是字符串数组，需要转换为 [{"key": "A", "text": "选项内容"}, ...] 格式
+            converted_options = []
+            for i, option_text in enumerate(question_data['options']):
+                option_key = chr(ord('A') + i)  # A, B, C, D...
+                converted_options.append({
+                    "key": option_key,
+                    "text": str(option_text).strip()
+                })
+            converted['options'] = converted_options
         else:
             converted['options'] = []
         
-        # 转换答案格式 - 转换为JSON格式字符串以符合验证器要求
+        # 转换答案格式 - 使用'answer'字段，转换为字符串格式以符合验证器schema
         if 'correct' in question_data:
             correct_answer = question_data['correct']
             if isinstance(correct_answer, str):
-                # 将A,B,C,D转换为JSON格式的索引数组
-                if correct_answer.upper() == 'A':
-                    converted['answer'] = '[0]'
-                elif correct_answer.upper() == 'B':
-                    converted['answer'] = '[1]'
-                elif correct_answer.upper() == 'C':
-                    converted['answer'] = '[2]'
-                elif correct_answer.upper() == 'D':
-                    converted['answer'] = '[3]'
+                # 如果是字母格式，转换为数字索引字符串
+                if correct_answer.upper() in ['A', 'B', 'C', 'D', 'E', 'F']:
+                    index = ord(correct_answer.upper()) - 65  # A->0, B->1, C->2, D->3
+                    converted['answer'] = str(index)
                 else:
-                    # 如果不是A-D格式，尝试转换为数字索引
+                    # 如果是数字格式，确保是字符串
                     try:
                         index = int(correct_answer)
-                        converted['answer'] = f'[{index}]'
+                        converted['answer'] = str(index)
                     except ValueError:
-                        # 如果不能转换为数字，保持原样
-                        converted['answer'] = f'["{correct_answer}"]'
+                        # 如果不能转换为数字，默认为"0"
+                        converted['answer'] = "0"
+            elif isinstance(correct_answer, int):
+                # 如果是数字，转换为字符串
+                converted['answer'] = str(correct_answer)
             else:
-                # 如果已经是数字或其他类型，转换为JSON数组
-                try:
-                    index = int(correct_answer)
-                    converted['answer'] = f'[{index}]'
-                except (ValueError, TypeError):
-                    converted['answer'] = f'["{correct_answer}"]'
+                converted['answer'] = "0"  # 默认答案
         else:
-            converted['answer'] = '[0]'  # 默认答案
+            converted['answer'] = "0"  # 默认答案
         
         # 其他字段
         converted['explanation'] = question_data.get('explanation', '')

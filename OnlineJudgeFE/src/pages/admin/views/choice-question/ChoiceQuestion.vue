@@ -302,6 +302,9 @@
               if (typeof option === 'string') {
                 // 字符串格式: "A. 选项内容"
                 return { text: option, is_correct: false }
+              } else if (option.key && option.text) {
+                // key-text 格式: {key: 'A', text: 'A. 正确'}
+                return { text: option.text, is_correct: option.is_correct || false }
               } else if (option.content) {
                 // content 字段格式
                 return { text: option.content, is_correct: option.is_correct || false }

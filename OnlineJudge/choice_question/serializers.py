@@ -87,10 +87,24 @@ class ChoiceQuestionDetailSerializer(serializers.ModelSerializer):
     category = ChoiceQuestionCategorySerializer(read_only=True)
     tags = ChoiceQuestionTagSerializer(many=True, read_only=True)
     created_by = UserSerializer(read_only=True)
+    options = serializers.SerializerMethodField()
     
     class Meta:
         model = ChoiceQuestion
         fields = '__all__'
+    
+    def get_options(self, obj):
+        """将options字段从JSON字符串转换为Python对象"""
+        import json
+        if obj.options:
+            try:
+                if isinstance(obj.options, str):
+                    return json.loads(obj.options)
+                else:
+                    return obj.options
+            except (json.JSONDecodeError, TypeError):
+                return []
+        return []
 
 
 class ChoiceQuestionCreateSerializer(serializers.ModelSerializer):

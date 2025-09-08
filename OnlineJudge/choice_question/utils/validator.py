@@ -376,15 +376,32 @@ class QuestionValidator:
         
         # 验证选项内容
         for i, option in enumerate(options_list):
-            if not isinstance(option, str):
-                errors.append(f"选项 {i + 1} 必须是字符串")
-            elif not option.strip():
-                errors.append(f"选项 {i + 1} 不能为空")
-            elif len(option) > 500:
-                errors.append(f"选项 {i + 1} 长度不能超过500字符")
+            if isinstance(option, str):
+                # 字符串格式选项
+                if not option.strip():
+                    errors.append(f"选项 {i + 1} 不能为空")
+                elif len(option) > 500:
+                    errors.append(f"选项 {i + 1} 长度不能超过500字符")
+            elif isinstance(option, dict):
+                # 字典格式选项（支持前端格式和后端格式）
+                content = option.get('content') or option.get('text') or option.get('value', '')
+                if not content or not str(content).strip():
+                    errors.append(f"选项 {i + 1} 的内容不能为空")
+                elif len(str(content)) > 500:
+                    errors.append(f"选项 {i + 1} 的内容长度不能超过500字符")
+            else:
+                errors.append(f"选项 {i + 1} 格式错误，应为字符串或字典")
         
         # 检查选项重复
-        clean_options = [opt.strip().lower() for opt in options_list if isinstance(opt, str)]
+        clean_options = []
+        for opt in options_list:
+            if isinstance(opt, str):
+                clean_options.append(opt.strip().lower())
+            elif isinstance(opt, dict):
+                content = opt.get('content') or opt.get('text') or opt.get('value', '')
+                if content:
+                    clean_options.append(str(content).strip().lower())
+        
         if len(clean_options) != len(set(clean_options)):
             errors.append("选项不能重复")
         
