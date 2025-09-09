@@ -16,22 +16,14 @@
       <el-card class="filter-card" shadow="never" style="margin-bottom: 20px;">
         <el-form :inline="true" :model="filterForm" class="filter-form">
           <el-form-item label="分类">
-            <el-select 
-              v-model="filterForm.categoryId" 
-              @change="loadPapers" 
-              clearable 
+            <CategorySelector
+              v-model="filterForm.categoryId"
+              @change="loadPapers"
+              :categories="categories"
+              :auto-load="false"
               placeholder="选择分类"
               style="width: 150px;"
-            >
-              <el-option label="全部分类" value=""></el-option>
-              <el-option 
-                v-for="category in categories" 
-                :key="category.id" 
-                :label="category.name" 
-                :value="category.id"
-              >
-              </el-option>
-            </el-select>
+            />
           </el-form-item>
           
           <el-form-item label="试卷类型">
@@ -213,20 +205,15 @@
         </el-form-item>
         
         <el-form-item label="所属分类" prop="categories">
-          <el-select
+          <CategorySelector
             v-model="editForm.categories"
-            multiple
+            :categories="categories"
+            :auto-load="false"
+            :multiple="true"
+            :show-all-option="false"
             placeholder="请选择分类"
             style="width: 100%"
-          >
-            <el-option
-              v-for="category in categories"
-              :key="category.id"
-              :label="category.name"
-              :value="category.id"
-            >
-            </el-option>
-          </el-select>
+          />
         </el-form-item>
         
         <el-form-item label="考试时长" prop="duration">
@@ -303,20 +290,15 @@
         </el-form-item>
         
         <el-form-item label="所属分类" prop="categories">
-          <el-select
+          <CategorySelector
             v-model="createForm.categories"
-            multiple
+            :categories="categories"
+            :auto-load="false"
+            :multiple="true"
+            :show-all-option="false"
             placeholder="请选择分类"
             style="width: 100%"
-          >
-            <el-option
-              v-for="category in categories"
-              :key="category.id"
-              :label="category.name"
-              :value="category.id"
-            >
-            </el-option>
-          </el-select>
+          />
         </el-form-item>
         
         <el-form-item label="考试时长" prop="duration">
@@ -365,9 +347,13 @@
 <script>
 import api from '@/pages/admin/api'
 import { mapGetters } from 'vuex'
+import CategorySelector from '@/pages/admin/components/CategorySelector.vue'
 
 export default {
   name: 'ExamPaperList',
+  components: {
+    CategorySelector
+  },
   data() {
     return {
       loading: false,
