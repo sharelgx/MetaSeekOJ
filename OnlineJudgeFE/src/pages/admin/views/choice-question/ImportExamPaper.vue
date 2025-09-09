@@ -77,15 +77,23 @@
               <i class="el-icon-document"></i>
               试卷标题 *
             </label>
-            <el-input
-              v-model="examPaperTitle"
-              placeholder="请输入试卷标题"
+            <el-select
+              v-model="selectedExistingPaper"
+              placeholder="请选择现有试卷标题"
               style="width: 100%"
-              maxlength="100"
-              show-word-limit
-              @input="validateTitle"
+              filterable
+              allow-create
+              default-first-option
+              @change="onPaperTitleChange"
             >
-            </el-input>
+              <el-option
+                v-for="paper in existingPapers"
+                :key="paper.id"
+                :label="paper.title"
+                :value="paper.title"
+              >
+              </el-option>
+            </el-select>
             <div v-if="titleWarning" class="title-warning">
               <i class="el-icon-warning"></i>
               {{ titleWarning }}
@@ -283,6 +291,9 @@ export default {
       
       // 试卷标题
       examPaperTitle: '',
+      // 现有试卷列表
+      existingPapers: [],
+      selectedExistingPaper: null,
       
       // 导入方式
       activeTab: 'file',
@@ -336,10 +347,6 @@ export default {
       
       return result
     }
-  },
-  
-  mounted() {
-    this.getCategories()
   },
   
   methods: {
@@ -685,7 +692,34 @@ export default {
       } else {
         this.titleWarning = ''
       }
+    },
+    
+    // 处理试卷标题选择变化
+    onPaperTitleChange(value) {
+      this.examPaperTitle = value
+      this.validateTitle()
+    },
+    
+    // 加载现有试卷列表
+    async loadExistingPapers() {
+      try {
+        const response = await api.getExamPaperList({ page: 1, limit: 100 })
+        console.log('API响应:', response)
+        if (response && response.data) {
+          // 根据实际API响应结构调整数据路径
+          this.existingPapers = response.data.data || response.data || []
+          console.log('加载的试卷列表:', this.existingPapers)
+        }
+      } catch (error) {
+        console.error('加载试卷列表失败:', error)
+      }
     }
+  },
+  
+  // 组件挂载时加载数据
+  async mounted() {
+    await this.getCategories()
+    await this.loadExistingPapers()
   }
 }
 </script>
@@ -1043,22 +1077,10 @@ export default {
 
 .title-warning i {
   margin-right: 5px;
-  color: #f39c12;
-}
-</style> #ffc107;
-  color: #212529;
-  padding: 2px 6px;
-  border-radius: 3px;
-  font-size: 12px;
-  font-weight: 500;
 }
 
-.question-content {
-  font-size: 14px;
-  line-height: 1.5;
-  margin-bottom: 10px;
-  color: #212529;
-  font-weight: 500;
+.title-warning {
+  color: #f39c12;
 }
 
 .question-options {

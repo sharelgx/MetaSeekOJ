@@ -11,6 +11,7 @@ from django.utils.decorators import method_decorator
 from django.utils import timezone
 from django.db import transaction
 from django.core.cache import cache
+from django.core.paginator import Paginator
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -172,8 +173,24 @@ class ExamPaperAPI(CSRFExemptAPIView):
                     else:
                         queryset = queryset.order_by('-create_time')
                 
-                serializer = ExamPaperSerializer(queryset, many=True)
-                return self.success(serializer.data)
+                # 分页处理
+                page = int(request.GET.get('page', 1))
+                page_size = int(request.GET.get('page_size', 20))
+                
+                paginator = Paginator(queryset, page_size)
+                try:
+                    page_obj = paginator.page(page)
+                except:
+                    page_obj = paginator.page(1)
+                
+                serializer = ExamPaperSerializer(page_obj.object_list, many=True)
+                return self.success({
+                    'results': serializer.data,
+                    'total': paginator.count,
+                    'page': page,
+                    'page_size': page_size,
+                    'total_pages': paginator.num_pages
+                })
                 
         except Exception as e:
             logger.exception(f"获取试卷失败: {e}")
@@ -182,12 +199,16 @@ class ExamPaperAPI(CSRFExemptAPIView):
     @transaction.atomic
     def post(self, request, paper_id=None):
         """
-        创建试卷或生成预览
+        创建试卷、生成预览或批量删除
         """
         try:
             # 处理生成预览请求
             if 'generate-preview' in request.path:
                 return self.generate_preview(request)
+                
+            # 处理批量删除请求
+            if 'batch-delete' in request.path:
+                return self.delete(request, paper_id)
                 
             data = request.data
             
@@ -236,6 +257,133 @@ class ExamPaperAPI(CSRFExemptAPIView):
         except Exception as e:
             logger.exception(f"创建试卷失败: {e}")
             return self.error("创建试卷失败")
+    
+    @transaction.atomic
+    def put(self, request, paper_id=None):
+        """
+        更新试卷信息
+        """
+        try:
+            # 验证用户权限
+            if not request.user.is_authenticated:
+                return self.error("请先登录")
+            
+            if not paper_id:
+                return self.error("缺少试卷ID")
+            
+            # 获取试卷
+            try:
+                paper = ExamPaper.objects.get(id=paper_id, is_active=True)
+            except ExamPaper.DoesNotExist:
+                return self.error("试卷不存在")
+            
+            data = request.data
+            
+            # 验证必需字段
+            if 'title' in data and not data['title']:
+                return self.error("试卷标题不能为空")
+            
+            # 验证数值字段
+            numeric_fields = ['duration', 'question_count', 'total_score']
+            for field in numeric_fields:
+                if field in data:
+                    try:
+                        value = int(data[field])
+                        if value <= 0:
+                            return self.error(f"{field}必须大于0")
+                    except (ValueError, TypeError):
+                        return self.error(f"{field}格式不正确")
+            
+            # 更新基本字段
+            updatable_fields = ['title', 'description', 'duration', 'question_count', 'total_score', 'difficulty_distribution']
+            for field in updatable_fields:
+                if field in data:
+                    setattr(paper, field, data[field])
+            
+            # 更新分类和标签
+            if 'categories' in data:
+                paper.categories.set(data['categories'])
+            if 'tags' in data:
+                paper.tags.set(data['tags'])
+            
+            # 更新时间戳
+            paper.last_update_time = timezone.now()
+            paper.save()
+            
+            serializer = ExamPaperSerializer(paper)
+            return self.success(serializer.data)
+            
+        except Exception as e:
+            logger.exception(f"更新试卷失败: {e}")
+            return self.error("更新试卷失败")
+    
+    @transaction.atomic
+    def delete(self, request, paper_id=None):
+        """
+        批量删除试卷
+        """
+        try:
+            # 验证用户权限
+            if not request.user.is_authenticated:
+                return self.error("请先登录")
+            
+            # 获取要删除的试卷ID列表
+            if paper_id:
+                # 单个删除
+                paper_ids = [paper_id]
+            else:
+                # 批量删除
+                data = request.data
+                paper_ids = data.get('ids', [])
+                
+                if not paper_ids:
+                    return self.error("请选择要删除的试卷")
+                
+                if not isinstance(paper_ids, list):
+                    return self.error("参数格式错误")
+            
+            # 验证试卷存在性和权限
+            papers = ExamPaper.objects.filter(
+                id__in=paper_ids,
+                is_active=True
+            )
+            
+            if not papers.exists():
+                return self.error("未找到要删除的试卷")
+            
+            found_ids = list(papers.values_list('id', flat=True))
+            missing_ids = [pid for pid in paper_ids if pid not in found_ids]
+            
+            if missing_ids:
+                return self.error(f"试卷不存在或已删除: {missing_ids}")
+            
+            # 检查是否有正在进行的考试
+            active_sessions = ExamSession.objects.filter(
+                paper__in=papers,
+                status__in=['not_started', 'in_progress']
+            )
+            
+            if active_sessions.exists():
+                return self.error("存在正在进行的考试，无法删除试卷")
+            
+            # 执行软删除（只标记为非活跃状态，不删除试题数据）
+            deleted_count = papers.update(
+                is_active=False,
+                last_update_time=timezone.now()
+            )
+            
+            # 记录删除操作日志
+            logger.info(f"用户 {request.user.username} 批量删除了 {deleted_count} 份试卷: {paper_ids}")
+            
+            return self.success({
+                'message': f'成功删除 {deleted_count} 份试卷',
+                'deleted_count': deleted_count,
+                'deleted_ids': found_ids
+            })
+            
+        except Exception as e:
+            logger.exception(f"批量删除试卷失败: {e}")
+            return self.error("删除试卷失败，请稍后重试")
     
     def generate_preview(self, request):
         """

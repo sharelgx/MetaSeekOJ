@@ -9,25 +9,31 @@
       <p class="page-description">选择专题分类，开始你的学习之旅</p>
     </div>
 
+    <!-- 测试按钮 -->
+    <div style="margin-bottom: 20px; text-align: center;">
+      <el-button type="primary" @click="testClick">测试点击事件</el-button>
+    </div>
+    
     <!-- 分类网格 -->
     <div class="category-grid" v-loading="loading">
       <el-card 
-        v-for="category in categories" 
-        :key="category.id"
+        v-for="topic in categories" 
+        :key="topic.id"
         class="category-card"
         shadow="hover"
-        @click.native="navigateToCategory(category.id)"
+        style="cursor: pointer;"
+        @click="navigateToCategory(topic.id)"
       >
         <div class="category-content">
           <div class="category-icon">
             <i class="el-icon-collection"></i>
           </div>
-          <h3 class="category-title">{{ category.name }}</h3>
-          <p class="category-description">{{ category.description }}</p>
+          <h3 class="category-title">{{ topic.name }}</h3>
+          <p class="category-description">{{ topic.description }}</p>
           <div class="category-stats">
             <span class="problem-count">
               <i class="el-icon-document"></i>
-              {{ category.question_count }} 道题
+              {{ topic.question_count || 0 }} 道题
             </span>
           </div>
         </div>
@@ -115,9 +121,10 @@ export default {
     async loadData() {
       this.loading = true
       try {
+        // 获取专题练习首页数据（包含分类和最近记录）
         const res = await api.getTopicPracticeHome()
-        this.categories = res.data.categories || []
-        this.recentRecords = res.data.recent_records || []
+        this.categories = res.data.data.categories || []
+        this.recentRecords = res.data.data.recent_records || []
       } catch (error) {
         console.error('加载专题数据失败:', error)
         this.$error('加载数据失败')
@@ -128,11 +135,29 @@ export default {
         this.loading = false
       }
     },
-    navigateToCategory(categoryId) {
+    testClick() {
+      console.log('测试按钮被点击了！')
+      alert('测试按钮被点击了！')
+    },
+    navigateToCategory(topicId) {
+      // 跳转到专题练习页面
+      console.log('点击了分类，ID:', topicId)
+      console.log('即将跳转到:', `/topics/${topicId}/practice`)
+      alert(`点击了分类 ID: ${topicId}`)
       this.$router.push({
-        name: 'TopicPracticeDetail',
-        params: { categoryId }
+        path: `/topics/${topicId}/practice`
       })
+    },
+    
+    getDifficultyText(level) {
+      const difficultyMap = {
+        1: '入门',
+        2: '简单', 
+        3: '中等',
+        4: '困难',
+        5: '专家'
+      }
+      return difficultyMap[level] || '未知'
     },
     getStatusType(status) {
       const typeMap = {

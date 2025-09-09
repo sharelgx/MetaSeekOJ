@@ -49,25 +49,7 @@
       KatexEditor,
       ScreenFull
     },
-    beforeRouteEnter (to, from, next) {
-    console.log('Home.vue beforeRouteEnter triggered, target:', to.path)
-    api.getProfile().then(res => {
-    console.log('Profile response in route guard:', res.data)
-    if (!res.data.data) {
-      console.log('No profile data, redirecting to login with redirect:', to.fullPath)
-    // 不管是什么路径，都保存为重定向参数
-    next({name: 'login', query: {redirect: to.fullPath}})
-    } else {
-      console.log('Profile data found, proceeding to route')
-        next(vm => {
-            vm.$store.commit(types.CHANGE_PROFILE, {profile: res.data.data})
-        })
-      }
-    }).catch(err => {
-      console.error('Profile API error in route guard:', err)
-      next({name: 'login', query: {redirect: to.fullPath}})
-    })
-  },
+    // 路由守卫已移至全局路由守卫处理
     methods: {
       handleCommand (command) {
         if (command === 'logout') {

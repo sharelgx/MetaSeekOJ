@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Login</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 50px; }
+        .form-group { margin: 15px 0; }
+        input { padding: 10px; width: 200px; }
+        button { padding: 10px 20px; background: #409EFF; color: white; border: none; cursor: pointer; }
+        .result { margin: 20px 0; padding: 10px; border: 1px solid #ccc; }
+    </style>
+</head>
+<body>
+    <h1>管理员登录测试</h1>
+    <div class="form-group">
+        <label>用户名:</label><br>
+        <input type="text" id="username" value="root" placeholder="输入用户名">
+    </div>
+    <div class="form-group">
+        <label>密码:</label><br>
+        <input type="password" id="password" value="rootroot" placeholder="输入密码">
+    </div>
+    <div class="form-group">
+        <button onclick="testLogin()">登录</button>
+        <button onclick="testProfile()">获取Profile</button>
+        <button onclick="goToExamPapers()">跳转到试卷管理</button>
+    </div>
+    <div id="result" class="result"></div>
+    
+    <script>
+    function log(message) {
+        const result = document.getElementById('result');
+        result.innerHTML += '<p>' + new Date().toLocaleTimeString() + ': ' + message + '</p>';
+        console.log(message);
+    }
+    
+    async function testLogin() {
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        
+        log('开始登录测试...');
+        
+        try {
+            const response = await fetch('/api/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include', // 重要：包含cookies
+                body: JSON.stringify({
+                    username: username,
+                    password: password
+                })
+            });
+            
+            const data = await response.json();
+            log('登录响应: ' + JSON.stringify(data));
+            
+            if (data.error === null) {
+                log('✅ 登录成功！');
+                // 登录成功后自动获取profile
+                setTimeout(testProfile, 1000);
+            } else {
+                log('❌ 登录失败: ' + data.data);
+            }
+        } catch (error) {
+            log('❌ 登录错误: ' + error.message);
+        }
+    }
+    
+    async function testProfile() {
+        log('获取用户profile...');
+        
+        try {
+            const response = await fetch('/api/profile', {
+                method: 'GET',
+                credentials: 'include' // 重要：包含cookies
+            });
+            
+            const data = await response.json();
+            log('Profile响应: ' + JSON.stringify(data));
+            
+            if (data.error === null && data.data) {
+                log('✅ Profile获取成功！用户: ' + data.data.username + ', 角色: ' + data.data.admin_type);
+            } else {
+                log('❌ Profile获取失败或用户未登录');
+            }
+        } catch (error) {
+            log('❌ Profile错误: ' + error.message);
+        }
+    }
+    
+    function goToExamPapers() {
+        log('跳转到试卷管理页面...');
+        window.location.href = '/admin/exam-papers';
+    }
+    
+    // 页面加载时自动测试profile
+    window.onload = function() {
+        log('页面加载完成，测试当前登录状态...');
+        testProfile();
+    };
+    </script>
+</body>
+</html>

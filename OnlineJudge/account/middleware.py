@@ -26,7 +26,7 @@ class SessionRecordMiddleware(MiddlewareMixin):
             session = request.session
             session["user_agent"] = request.META.get("HTTP_USER_AGENT", "")
             session["ip"] = request.ip
-            session["last_activity"] = now()
+            session["last_activity"] = now().isoformat()
             user_sessions = request.user.session_keys
             # Handle case where session_keys might be stored as string in database
             if isinstance(user_sessions, str):

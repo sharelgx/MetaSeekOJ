@@ -114,6 +114,27 @@ class TopicPracticeDetailAPI(APIView):
             }
             questions_data.append(question_data)
         
+        # 获取当前分类下的试卷列表
+        exam_papers = []
+        papers = ExamPaper.objects.filter(
+            categories=category,
+            is_active=True
+        ).order_by('-create_time')
+        
+        for paper in papers:
+            paper_data = {
+                'id': paper.id,
+                'title': paper.title,
+                'description': paper.description,
+                'question_count': paper.question_count,
+                'duration': paper.duration,
+                'total_score': paper.total_score,
+                'status': 'available',  # 默认状态，可以根据用户情况调整
+                'difficulty': getattr(paper, 'difficulty', 'mixed'),
+                'paper_type': getattr(paper, 'paper_type', 'dynamic')
+            }
+            exam_papers.append(paper_data)
+        
         # 构建面包屑导航
         breadcrumb = []
         for ancestor in category.get_ancestors(include_self=True):
@@ -132,6 +153,7 @@ class TopicPracticeDetailAPI(APIView):
             },
             'child_categories': child_categories,
             'questions': questions_data,
+            'exam_papers': exam_papers,
             'breadcrumb': breadcrumb
         })
 

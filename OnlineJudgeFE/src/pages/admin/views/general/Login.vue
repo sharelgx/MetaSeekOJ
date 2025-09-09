@@ -1,7 +1,7 @@
 <template>
   <el-form :model="ruleForm2" :rules="rules2" ref="ruleForm2" label-position="left" label-width="0px"
            class="demo-ruleForm login-container">
-    <h3 class="title">{{$t('m.Welcome_to_Login')}}</h3>
+    <h3 class="title">{{$t('m.Welcome_to_Login')}} - 管理员登录</h3>
     <el-form-item prop="account">
       <el-input type="text" v-model="ruleForm2.account" auto-complete="off" :placeholder="$t('m.username')" @keyup.enter.native="handleLogin"></el-input>
     </el-form-item>
@@ -17,6 +17,7 @@
 
 <script>
   import api from '../../api'
+  import types from '@/store/types'
 
   export default {
     data () {
@@ -42,11 +43,27 @@
         this.$refs.ruleForm2.validate((valid) => {
           if (valid) {
             this.logining = true
-            api.login(this.ruleForm2.account, this.ruleForm2.password).then(data => {
-              this.logining = false
-              // 检查是否有重定向路径，如果有则跳转到原来的页面，否则跳转到dashboard
-              const redirect = this.$route.query.redirect || '/'
-              this.$router.push(redirect)
+            // 调用登录API - 测试登录功能
+            api.login(this.ruleForm2.account, this.ruleForm2.password).then(async (data) => {
+              try {
+                // 登录成功后获取用户profile并更新store状态
+                const profileRes = await api.getProfile()
+                if (profileRes.data.data) {
+                  this.$store.commit(types.CHANGE_PROFILE, {profile: profileRes.data.data})
+                  console.log('Login successful, profile updated:', profileRes.data.data)
+                }
+                
+                this.logining = false
+                // 检查是否有重定向路径，如果有则跳转到原来的页面，否则跳转到dashboard
+                const redirect = this.$route.query.redirect || '/'
+                this.$router.push(redirect)
+              } catch (err) {
+                console.error('Failed to get profile after login:', err)
+                this.logining = false
+                // 即使获取profile失败，也跳转到目标页面，让页面自己处理认证
+                const redirect = this.$route.query.redirect || '/'
+                this.$router.push(redirect)
+              }
             }, () => {
               this.logining = false
             })

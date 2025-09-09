@@ -21,7 +21,7 @@ import TopicPracticeManagement from './choice-question/TopicPracticeManagement.v
 import TopicManagement from './general/TopicManagement.vue'
 import CreateTopic from './general/CreateTopic.vue'
 
-import ExamPaperList from './choice/ExamPaperList.vue'
+import ExamPaperList from './choice-question/ExamPaperList.vue'
 import ExamStatistics from './ExamStatistics.vue'
 
 export {

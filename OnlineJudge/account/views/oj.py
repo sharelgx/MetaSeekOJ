@@ -346,8 +346,13 @@ class SessionManagementAPI(APIView):
         if isinstance(session_keys, str):
             import json
             try:
-                session_keys = json.loads(session_keys)
-            except (json.JSONDecodeError, TypeError):
+                # Try JSON first, then Python literal eval
+                try:
+                    session_keys = json.loads(session_keys)
+                except json.JSONDecodeError:
+                    import ast
+                    session_keys = ast.literal_eval(session_keys)
+            except (json.JSONDecodeError, TypeError, ValueError, SyntaxError):
                 session_keys = []
         elif session_keys is None:
             session_keys = []
@@ -367,7 +372,12 @@ class SessionManagementAPI(APIView):
                 s["current_session"] = True
             s["ip"] = session["ip"]
             s["user_agent"] = session["user_agent"]
-            s["last_activity"] = datetime2str(session["last_activity"])
+            # Handle case where last_activity might already be a string
+            last_activity = session["last_activity"]
+            if isinstance(last_activity, str):
+                s["last_activity"] = last_activity
+            else:
+                s["last_activity"] = datetime2str(last_activity)
             s["session_key"] = key
             result.append(s)
         if modified:
@@ -387,8 +397,13 @@ class SessionManagementAPI(APIView):
         if isinstance(session_keys, str):
             import json
             try:
-                session_keys = json.loads(session_keys)
-            except (json.JSONDecodeError, TypeError):
+                # Try JSON first, then Python literal eval
+                try:
+                    session_keys = json.loads(session_keys)
+                except json.JSONDecodeError:
+                    import ast
+                    session_keys = ast.literal_eval(session_keys)
+            except (json.JSONDecodeError, TypeError, ValueError, SyntaxError):
                 session_keys = []
         elif session_keys is None:
             session_keys = []

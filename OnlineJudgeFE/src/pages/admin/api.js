@@ -7,6 +7,56 @@ Vue.prototype.$http = axios
 axios.defaults.baseURL = '/api'
 axios.defaults.xsrfHeaderName = 'X-CSRFToken'
 axios.defaults.xsrfCookieName = 'csrftoken'
+axios.defaults.withCredentials = true
+
+// 添加请求拦截器
+axios.interceptors.request.use(
+  config => {
+    // 确保发送 cookies
+    config.withCredentials = true
+    
+    // 如果有 token，添加到 header（如果后端支持）
+    const token = localStorage.getItem('token')
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`
+    }
+    
+    console.log(`Request: ${config.method.toUpperCase()} ${config.url}`, config)
+    return config
+  },
+  error => {
+    console.error('Request error:', error)
+    return Promise.reject(error)
+  }
+)
+
+// 添加响应拦截器统一处理认证错误
+axios.interceptors.response.use(
+  response => {
+    console.log(`Response: ${response.config.method.toUpperCase()} ${response.config.url}`, response.data)
+    return response
+  },
+  error => {
+    console.error('Response error:', error)
+    
+    if (error.response) {
+      if (error.response.status === 401 || error.response.status === 403) {
+        // 认证失败，清除用户状态并跳转到登录页
+        console.log('Authentication error, redirecting to login')
+        
+        // 避免重复跳转
+        if (router.currentRoute.name !== 'login') {
+          Vue.prototype.$error('认证已过期，请重新登录')
+          router.push({
+            name: 'login',
+            query: { redirect: router.currentRoute.fullPath }
+          })
+        }
+      }
+    }
+    return Promise.reject(error)
+  }
+)
 
 export default {
   // 登录
@@ -438,12 +488,15 @@ export default {
   // 试卷管理相关API
   // 获取试卷列表
   getExamPaperList (params) {
+    // 注意：试卷API使用plugin路径而不是admin路径
     return ajax('plugin/choice/exam-papers/', 'get', {
       params
     })
   },
   // 创建试卷
   createExamPaper (data) {
+    // 注意：试卷API使用plugin路径而不是admin路径
+    console.log('Creating exam paper with data:', data)
     return ajax('plugin/choice/exam-papers/', 'post', {
       data
     })
@@ -836,7 +889,7 @@ function ajax (url, method, options) {
     params = data = {}
   }
   
-  console.log(`API: ${method.toUpperCase()} ${url}`, {params, data})
+  console.log(`API: ${method.toUpperCase()} /api/${url}`, {params, data})
   
   return new Promise((resolve, reject) => {
     axios({
@@ -844,17 +897,18 @@ function ajax (url, method, options) {
       method,
       params,
       data,
-      timeout: 30000 // 增加超时时间到30秒
+      timeout: 30000, // 增加超时时间到30秒
+      withCredentials: true // 允许发送cookie
     }).then(res => {
-      console.log(`API: ${method.toUpperCase()} ${url} - Success:`, res.data)
+      console.log(`API: ${method.toUpperCase()} /api/${url} - Success:`, res.data)
       
       // API正常返回(status=20x), 是否错误通过有无error判断
       if (res.data.error !== null) {
-        console.error(`API: ${method.toUpperCase()} ${url} - Error:`, res.data.data)
+        console.error(`API: ${method.toUpperCase()} /api/${url} - Error:`, res.data.data)
         
         // 检查是否是登录相关错误
         if (res.data.data && typeof res.data.data === 'string' && 
-            res.data.data.startsWith('Please login')) {
+            (res.data.data.startsWith('Please login') || res.data.data.includes('请先登录'))) {
           console.log('API: Authentication error detected')
           // 不在这里直接跳转，而是抛出特殊错误让组件处理
           const authError = new Error('Authentication required')
@@ -872,7 +926,7 @@ function ajax (url, method, options) {
         }
       }
     }).catch(err => {
-      console.error(`API: ${method.toUpperCase()} ${url} - Network/Server Error:`, err)
+      console.error(`API: ${method.toUpperCase()} /api/${url} - Network/Server Error:`, err)
       
       // API请求异常，一般为Server error 或 network error
       if (err.response) {
@@ -880,14 +934,18 @@ function ajax (url, method, options) {
         console.error('API: Error response:', err.response.status, err.response.data)
         
         if (err.response.status === 401 || err.response.status === 403) {
-          // 认证或权限错误
-          const authError = new Error('Authentication or permission error')
-          authError.isAuthError = true
-          authError.status = err.response.status
-          reject(authError)
+          // 认证或权限错误 - 不要在这里跳转，由拦截器处理
+          console.log('Authentication/Permission error, will be handled by interceptor')
+          reject(err)
+        } else if (err.response.status === 404) {
+          console.error('API endpoint not found:', url)
+          Vue.prototype.$error('API接口不存在')
+          reject(err)
         } else {
           if (err.response.data && err.response.data.data) {
             Vue.prototype.$error(err.response.data.data)
+          } else if (err.response.data && err.response.data.error) {
+            Vue.prototype.$error(err.response.data.error)
           } else {
             Vue.prototype.$error(`服务器错误 (${err.response.status})`)
           }

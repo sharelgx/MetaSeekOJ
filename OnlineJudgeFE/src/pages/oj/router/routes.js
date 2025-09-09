@@ -107,6 +107,12 @@ export default [
     component: ChoiceQuestion.TopicPracticeDetail
   },
   {
+    name: 'topic-practice',
+    path: '/topics/:id/practice',
+    meta: {title: 'Topic Practice'},
+    component: ChoiceQuestion.TopicPracticeDetail
+  },
+  {
     name: 'wrong-question-book',
     path: '/wrong-questions',
     meta: {title: 'Wrong Question Book'},

@@ -38,10 +38,18 @@ const mutations = {
 
 const actions = {
   getProfile ({commit}) {
-    api.getUserInfo().then(res => {
+    return api.getUserInfo().then(res => {
       commit(types.CHANGE_PROFILE, {
         profile: res.data.data || {}
       })
+      return res
+    }).catch(err => {
+      // 清除可能过期的认证信息
+      commit(types.CHANGE_PROFILE, {
+        profile: {}
+      })
+      // 重新抛出错误，让调用者处理
+      throw err
     })
   },
   clearProfile ({commit}) {

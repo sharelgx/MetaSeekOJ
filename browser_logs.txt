@@ -756,3 +756,1706 @@ Target URL: http://localhost:8080
 === ERRORS ===
 
 === End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T10:00:15.121Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/topic/TopicPracticeHome.vue
+Target URL: http://localhost:8080/topics
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T10:00:14.962Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/topic/TopicPracticeHome.vue
+Target URL: http://localhost:8080/topics
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T10:10:19.707Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/topic/TopicPracticeHome.vue
+Target URL: http://localhost:8080/topics
+=== CONSOLE LOGS ===
+[error] TypeError: Cannot read properties of undefined (reading '_wrapper')
+    at remove (http://localhost:8080/static/js/vendor.dll.b64803b.js:15626:13)
+    at updateListeners (http://localhost:8080/static/js/vendor.dll.b64803b.js:9182:13)
+    at Array.updateDOMListeners (http://localhost:8080/static/js/vendor.dll.b64803b.js:15638:5)
+    at patchVnode (http://localhost:8080/static/js/vendor.dll.b64803b.js:14518:30)
+    at updateChildren (http://localhost:8080/static/js/vendor.dll.b64803b.js:14399:17)
+    at patchVnode (http://localhost:8080/static/js/vendor.dll.b64803b.js:14525:21)
+    at updateChildren (http://localhost:8080/static/js/vendor.dll.b64803b.js:14399:17)
+    at patchVnode (http://localhost:8080/static/js/vendor.dll.b64803b.js:14525:21)
+    at VueComponent.patch [as __patch__] (http://localhost:8080/static/js/vendor.dll.b64803b.js:14689:17)
+    at Vue._update (http://localhost:8080/static/js/vendor.dll.b64803b.js:10573:25)
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T10:10:20.835Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/topic/TopicPracticeHome.vue
+Target URL: http://localhost:8080/topics
+=== CONSOLE LOGS ===
+[error] TypeError: Cannot read properties of undefined (reading '_wrapper')
+    at remove (http://localhost:8080/static/js/vendor.dll.b64803b.js:15626:13)
+    at updateListeners (http://localhost:8080/static/js/vendor.dll.b64803b.js:9182:13)
+    at Array.updateDOMListeners (http://localhost:8080/static/js/vendor.dll.b64803b.js:15638:5)
+    at patchVnode (http://localhost:8080/static/js/vendor.dll.b64803b.js:14518:30)
+    at updateChildren (http://localhost:8080/static/js/vendor.dll.b64803b.js:14399:17)
+    at patchVnode (http://localhost:8080/static/js/vendor.dll.b64803b.js:14525:21)
+    at updateChildren (http://localhost:8080/static/js/vendor.dll.b64803b.js:14399:17)
+    at patchVnode (http://localhost:8080/static/js/vendor.dll.b64803b.js:14525:21)
+    at VueComponent.patch [as __patch__] (http://localhost:8080/static/js/vendor.dll.b64803b.js:14689:17)
+    at Vue._update (http://localhost:8080/static/js/vendor.dll.b64803b.js:10573:25)
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T10:10:34.389Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/topic/TopicPracticeHome.vue
+Target URL: http://localhost:8080/topics
+[CAPTURE ERROR] page.goto: Timeout 30000ms exceeded.
+Call log:
+[2m  - navigating to "http://localhost:8080/topics", waiting until "networkidle"[22m
+
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T10:10:34.501Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/topic/TopicPracticeHome.vue
+Target URL: http://localhost:8080/topics
+[CAPTURE ERROR] page.goto: Timeout 30000ms exceeded.
+Call log:
+[2m  - navigating to "http://localhost:8080/topics", waiting until "networkidle"[22m
+
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T10:11:45.460Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/topic/TopicPracticeDetail.vue
+Target URL: http://localhost:8080/topics
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T10:12:02.220Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/topic/TopicPracticeDetail.vue
+Target URL: http://localhost:8080/topics
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T10:12:06.164Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/topic/TopicPracticeDetail.vue
+Target URL: http://localhost:8080/topics
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T10:11:45.801Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/topic/TopicPracticeDetail.vue
+Target URL: http://localhost:8080/topics
+[CAPTURE ERROR] page.goto: Timeout 30000ms exceeded.
+Call log:
+[2m  - navigating to "http://localhost:8080/topics", waiting until "networkidle"[22m
+
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T10:12:19.186Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/topic/TopicPracticeDetail.vue
+Target URL: http://localhost:8080/topics
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T10:12:18.959Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/topic/TopicPracticeDetail.vue
+Target URL: http://localhost:8080/topics
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T10:12:19.013Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/topic/TopicPracticeDetail.vue
+Target URL: http://localhost:8080/topics
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T10:12:30.263Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/topic/TopicPracticeDetail.vue
+Target URL: http://localhost:8080/topics
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T10:12:29.780Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/topic/TopicPracticeDetail.vue
+Target URL: http://localhost:8080/topics
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T10:12:29.514Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/topic/TopicPracticeDetail.vue
+Target URL: http://localhost:8080/topics
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T10:12:52.171Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/topic/TopicPracticeDetail.vue
+Target URL: http://localhost:8080/topics
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T10:12:52.243Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/topic/TopicPracticeDetail.vue
+Target URL: http://localhost:8080/topics
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T10:12:59.668Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/topic/TopicPracticeDetail.vue
+Target URL: http://localhost:8080/topics
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T10:13:14.936Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/topic/TopicPracticeDetail.vue
+Target URL: http://localhost:8080/topics
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T10:13:24.214Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/topic/TopicPracticeDetail.vue
+Target URL: http://localhost:8080/topics
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T10:13:24.096Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/topic/TopicPracticeDetail.vue
+Target URL: http://localhost:8080/topics
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T10:13:46.365Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/topic/TopicPracticeDetail.vue
+Target URL: http://localhost:8080/topics
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T10:13:46.818Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/topic/TopicPracticeDetail.vue
+Target URL: http://localhost:8080/topics
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T10:29:14.091Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/topic/TopicPracticeDetail.vue
+Target URL: http://localhost:8080/topics
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T10:29:12.295Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/topic/TopicPracticeDetail.vue
+Target URL: http://localhost:8080/topics
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T10:31:29.368Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/topic/TopicPracticeDetail.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T10:31:29.736Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/topic/TopicPracticeDetail.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T10:33:45.975Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/topic/TopicPracticeDetail.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T10:33:46.306Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/topic/TopicPracticeDetail.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T10:34:40.662Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/topic/TopicPracticeDetail.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T10:34:41.282Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/topic/TopicPracticeDetail.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T10:34:57.674Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/topic/TopicPracticeDetail.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T10:35:00.377Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/topic/TopicPracticeDetail.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T10:35:14.404Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/topic/TopicPracticeDetail.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T10:35:13.772Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/topic/TopicPracticeDetail.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T10:42:44.688Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/topic/TopicPracticeDetail.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T10:42:44.092Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/topic/TopicPracticeDetail.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T10:43:33.580Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/topic/TopicPracticeDetail.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T10:43:47.133Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/topic/TopicPracticeDetail.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+[CAPTURE ERROR] page.goto: Timeout 30000ms exceeded.
+Call log:
+[2m  - navigating to "http://localhost:8080/#/topics/4/practice", waiting until "networkidle"[22m
+
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T10:45:10.830Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/topic/TopicPracticeDetail.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T10:45:16.996Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/topic/TopicPracticeDetail.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T10:47:21.977Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/topic/TopicPracticeDetail.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T10:47:28.116Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/topic/TopicPracticeDetail.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T10:48:13.872Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/topic/TopicPracticeDetail.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T10:48:13.936Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/topic/TopicPracticeDetail.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T10:48:16.660Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/topic/TopicPracticeDetail.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T10:48:53.812Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/topic/TopicPracticeDetail.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T10:48:52.228Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/topic/TopicPracticeDetail.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T10:49:05.332Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/topic/TopicPracticeDetail.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T10:49:08.161Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/topic/TopicPracticeDetail.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T10:56:58.365Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/topic/TopicPracticeDetail.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T10:56:59.631Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/topic/TopicPracticeDetail.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T10:57:30.647Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/topic/TopicPracticeDetail.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T10:57:28.212Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/topic/TopicPracticeDetail.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T10:59:18.473Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/topic/TopicPracticeDetail.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T10:59:38.353Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/topic/TopicPracticeDetail.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T10:59:38.225Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/topic/TopicPracticeDetail.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T10:59:19.273Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/topic/TopicPracticeDetail.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+[CAPTURE ERROR] page.goto: Timeout 30000ms exceeded.
+Call log:
+[2m  - navigating to "http://localhost:8080/#/topics/4/practice", waiting until "networkidle"[22m
+
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T10:59:50.900Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/topic/TopicPracticeDetail.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T10:59:51.051Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/topic/TopicPracticeDetail.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T11:08:16.890Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/topic/TopicPracticeDetail.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T11:08:16.467Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/topic/TopicPracticeDetail.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+[CAPTURE ERROR] page.goto: Timeout 30000ms exceeded.
+Call log:
+[2m  - navigating to "http://localhost:8080/#/topics/4/practice", waiting until "networkidle"[22m
+
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T11:09:53.440Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/topic/TopicPracticeDetail.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T11:09:53.244Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/topic/TopicPracticeDetail.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T11:21:47.143Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice-question/ImportExamPaper.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T11:21:48.868Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice-question/ImportExamPaper.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T11:22:04.826Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice-question/ImportExamPaper.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T11:22:07.789Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice-question/ImportExamPaper.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T11:22:31.120Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice-question/ImportExamPaper.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+[startGroup] %c[HMR] bundle has 1 errors color: #ff0000;
+[log] %c./node_modules/babel-loader/lib!./node_modules/vue-loader/lib/selector.js?type=script&index=0!./src/pages/admin/views/choice-question/ImportExamPaper.vue
+Module build failed: SyntaxError: Unexpected token (725:0)
+
+  723 |   }
+  724 |   }
+> 725 | }
+      | ^
+  726 | 
+ color: #ff0000;
+[endGroup] console.groupEnd
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T11:22:29.594Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice-question/ImportExamPaper.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+[startGroup] %c[HMR] bundle has 1 errors color: #ff0000;
+[log] %c./node_modules/babel-loader/lib!./node_modules/vue-loader/lib/selector.js?type=script&index=0!./src/pages/admin/views/choice-question/ImportExamPaper.vue
+Module build failed: SyntaxError: Unexpected token (725:0)
+
+  723 |   }
+  724 |   }
+> 725 | }
+      | ^
+  726 | 
+ color: #ff0000;
+[endGroup] console.groupEnd
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T11:22:48.256Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice-question/ImportExamPaper.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T11:22:47.230Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice-question/ImportExamPaper.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T11:23:18.285Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/topic/TopicPracticeDetail.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T11:23:23.288Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/topic/TopicPracticeDetail.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T11:23:40.940Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/topic/TopicPracticeDetail.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T11:23:42.720Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/oj/views/choice-question/topic/TopicPracticeDetail.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T11:24:55.984Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice-question/ImportExamPaper.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T11:24:59.428Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice-question/ImportExamPaper.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T11:25:09.368Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice-question/ImportExamPaper.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T11:25:10.718Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice-question/ImportExamPaper.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T11:33:10.473Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice-question/ImportExamPaper.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T11:33:11.786Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice-question/ImportExamPaper.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T11:34:57.329Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice-question/ImportExamPaper.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T11:34:56.742Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice-question/ImportExamPaper.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T11:35:11.357Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice-question/ImportExamPaper.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T11:35:09.315Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice-question/ImportExamPaper.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T11:35:31.282Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice-question/ImportExamPaper.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T11:35:29.365Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice-question/ImportExamPaper.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+[CAPTURE ERROR] page.goto: Timeout 30000ms exceeded.
+Call log:
+[2m  - navigating to "http://localhost:8080/#/topics/4/practice", waiting until "networkidle"[22m
+
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T11:35:49.230Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice-question/ImportExamPaper.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T11:35:47.374Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice-question/ImportExamPaper.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T11:36:17.438Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice-question/ImportExamPaper.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T11:36:16.661Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice-question/ImportExamPaper.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T11:36:42.367Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice-question/ImportExamPaper.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+[startGroup] %c[HMR] bundle has 1 errors color: #ff0000;
+[log] %c./node_modules/css-loader?{"minimize":false,"sourceMap":false}!./node_modules/vue-loader/lib/style-compiler?{"vue":true,"id":"data-v-85d33a94","scoped":true,"hasInlineConfig":false}!./node_modules/less-loader/dist/cjs.js?{"sourceMap":false}!./node_modules/vue-loader/lib/selector.js?type=styles&index=0!./src/pages/admin/views/choice-question/ImportExamPaper.vue
+Module build failed: 
+
+}
+}
+^
+Unrecognised input. Possibly missing opening '{'
+      in /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice-question/ImportExamPaper.vue (line 1082, column 0) color: #ff0000;
+[endGroup] console.groupEnd
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T11:36:40.869Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice-question/ImportExamPaper.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+[startGroup] %c[HMR] bundle has 1 errors color: #ff0000;
+[log] %c./node_modules/css-loader?{"minimize":false,"sourceMap":false}!./node_modules/vue-loader/lib/style-compiler?{"vue":true,"id":"data-v-85d33a94","scoped":true,"hasInlineConfig":false}!./node_modules/less-loader/dist/cjs.js?{"sourceMap":false}!./node_modules/vue-loader/lib/selector.js?type=styles&index=0!./src/pages/admin/views/choice-question/ImportExamPaper.vue
+Module build failed: 
+
+}
+}
+^
+Unrecognised input. Possibly missing opening '{'
+      in /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice-question/ImportExamPaper.vue (line 1082, column 0) color: #ff0000;
+[endGroup] console.groupEnd
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T11:36:59.782Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice-question/ImportExamPaper.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T11:37:00.802Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice-question/ImportExamPaper.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T11:43:56.651Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice-question/ImportExamPaper.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+[startGroup] %c[HMR] bundle has 1 errors color: #ff0000;
+[log] %c./node_modules/css-loader?{"minimize":false,"sourceMap":false}!./node_modules/vue-loader/lib/style-compiler?{"vue":true,"id":"data-v-85d33a94","scoped":true,"hasInlineConfig":false}!./node_modules/less-loader/dist/cjs.js?{"sourceMap":false}!./node_modules/vue-loader/lib/selector.js?type=styles&index=0!./src/pages/admin/views/choice-question/ImportExamPaper.vue
+Module build failed: 
+
+}
+
+^
+Unrecognised input. Possibly missing something
+      in /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice-question/ImportExamPaper.vue (line 1140, column 0) color: #ff0000;
+[endGroup] console.groupEnd
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T11:44:01.222Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice-question/ImportExamPaper.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+[startGroup] %c[HMR] bundle has 1 errors color: #ff0000;
+[log] %c./node_modules/css-loader?{"minimize":false,"sourceMap":false}!./node_modules/vue-loader/lib/style-compiler?{"vue":true,"id":"data-v-85d33a94","scoped":true,"hasInlineConfig":false}!./node_modules/less-loader/dist/cjs.js?{"sourceMap":false}!./node_modules/vue-loader/lib/selector.js?type=styles&index=0!./src/pages/admin/views/choice-question/ImportExamPaper.vue
+Module build failed: 
+
+}
+
+^
+Unrecognised input. Possibly missing something
+      in /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice-question/ImportExamPaper.vue (line 1140, column 0) color: #ff0000;
+[endGroup] console.groupEnd
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T11:44:35.731Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice-question/ImportExamPaper.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T11:44:30.730Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice-question/ImportExamPaper.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T11:44:31.371Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice-question/ImportExamPaper.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T12:02:34.849Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice/ExamPaperList.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T12:02:33.166Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice/ExamPaperList.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T12:08:37.039Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice/ExamPaperList.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T12:08:37.234Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice/ExamPaperList.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T12:10:44.467Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice/ExamPaperList.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T12:10:46.700Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice/ExamPaperList.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T12:13:48.447Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice/ExamPaperList.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T12:13:48.781Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice/ExamPaperList.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T12:17:01.473Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice/ExamPaperList.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T12:16:56.588Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice/ExamPaperList.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T12:33:50.235Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice-question/ExamPaperList.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T12:33:52.530Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice-question/ExamPaperList.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+[CAPTURE ERROR] page.goto: Timeout 30000ms exceeded.
+Call log:
+[2m  - navigating to "http://localhost:8080/#/topics/4/practice", waiting until "networkidle"[22m
+
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T12:34:16.027Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice-question/ExamPaperList.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T12:34:17.450Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice-question/ExamPaperList.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T12:34:43.376Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice-question/ExamPaperList.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T12:34:45.102Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice-question/ExamPaperList.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T12:35:07.462Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice-question/ExamPaperList.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T12:35:09.051Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice-question/ExamPaperList.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T12:35:27.583Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice-question/ExamPaperList.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T12:35:27.814Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice-question/ExamPaperList.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T12:35:43.337Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice-question/ExamPaperList.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T12:35:44.436Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice-question/ExamPaperList.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T12:39:14.642Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice-question/ExamPaperList.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T12:39:14.894Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice-question/ExamPaperList.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T12:40:08.525Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice-question/ExamPaperList.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T12:40:09.072Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice-question/ExamPaperList.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T12:41:16.153Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice-question/ExamPaperList.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T12:41:17.151Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice-question/ExamPaperList.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T12:41:28.790Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice-question/ExamPaperList.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T12:41:29.714Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice-question/ExamPaperList.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T12:41:45.234Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice-question/ExamPaperList.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T12:41:47.328Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice-question/ExamPaperList.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T12:42:10.786Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice-question/ExamPaperList.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T12:42:10.051Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice-question/ExamPaperList.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T12:42:30.663Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice-question/ExamPaperList.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T12:42:31.262Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice-question/ExamPaperList.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T12:50:10.035Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice-question/ExamPaperList.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T12:50:12.115Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice-question/ExamPaperList.vue
+Target URL: http://localhost:8080/#/topics/4/practice
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T12:51:41.834Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice-question/ExamPaperList.vue
+Target URL: http://localhost:8080/admin/exam-papers
+=== CONSOLE LOGS ===
+[log] Home.vue beforeRouteEnter triggered, target: /exam-papers
+[log] API: GET profile {params: Object, data: Object}
+[log] API: GET profile - Success: {error: null, data: null}
+[log] Profile response in route guard: {error: null, data: null}
+[log] No profile data, redirecting to login with redirect: /exam-papers
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T12:51:42.002Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice-question/ExamPaperList.vue
+Target URL: http://localhost:8080/admin/exam-papers
+=== CONSOLE LOGS ===
+[log] Home.vue beforeRouteEnter triggered, target: /exam-papers
+[log] API: GET profile {params: Object, data: Object}
+[log] API: GET profile - Success: {error: null, data: null}
+[log] Profile response in route guard: {error: null, data: null}
+[log] No profile data, redirecting to login with redirect: /exam-papers
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T12:53:17.761Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice-question/ExamPaperList.vue
+Target URL: http://localhost:8080/admin/exam-papers
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T12:53:19.497Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice-question/ExamPaperList.vue
+Target URL: http://localhost:8080/admin/exam-papers
+=== CONSOLE LOGS ===
+[log] Home.vue beforeRouteEnter triggered, target: /exam-papers
+[log] API: GET profile {params: Object, data: Object}
+[log] API: GET profile - Success: {error: null, data: null}
+[log] Profile response in route guard: {error: null, data: null}
+[log] No profile data, redirecting to login with redirect: /exam-papers
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T12:55:25.824Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/general/Login.vue
+Target URL: http://localhost:8080/admin/exam-papers
+=== CONSOLE LOGS ===
+[log] Home.vue beforeRouteEnter triggered, target: /exam-papers
+[log] API: GET profile {params: Object, data: Object}
+[log] API: GET profile - Success: {error: null, data: null}
+[log] Profile response in route guard: {error: null, data: null}
+[log] No profile data, redirecting to login with redirect: /exam-papers
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T12:55:26.063Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/general/Login.vue
+Target URL: http://localhost:8080/admin/exam-papers
+=== CONSOLE LOGS ===
+[log] Home.vue beforeRouteEnter triggered, target: /exam-papers
+[log] API: GET profile {params: Object, data: Object}
+[log] API: GET profile - Success: {error: null, data: null}
+[log] Profile response in route guard: {error: null, data: null}
+[log] No profile data, redirecting to login with redirect: /exam-papers
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T12:56:21.983Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice-question/ExamPaperList.vue
+Target URL: http://localhost:8080/admin/exam-papers
+=== CONSOLE LOGS ===
+[log] Home.vue beforeRouteEnter triggered, target: /exam-papers
+[log] API: GET profile {params: Object, data: Object}
+[log] API: GET profile - Success: {error: null, data: null}
+[log] Profile response in route guard: {error: null, data: null}
+[log] No profile data, redirecting to login with redirect: /exam-papers
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T12:56:23.222Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/choice-question/ExamPaperList.vue
+Target URL: http://localhost:8080/admin/exam-papers
+=== CONSOLE LOGS ===
+[log] Home.vue beforeRouteEnter triggered, target: /exam-papers
+[log] API: GET profile {params: Object, data: Object}
+[log] API: GET profile - Success: {error: null, data: null}
+[log] Profile response in route guard: {error: null, data: null}
+[log] No profile data, redirecting to login with redirect: /exam-papers
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T12:57:52.155Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/general/Login.vue
+Target URL: http://localhost:8080/admin/exam-papers
+=== CONSOLE LOGS ===
+[log] Home.vue beforeRouteEnter triggered, target: /exam-papers
+[log] API: GET profile {params: Object, data: Object}
+[log] API: GET profile - Success: {error: null, data: null}
+[log] Profile response in route guard: {error: null, data: null}
+[log] No profile data, redirecting to login with redirect: /exam-papers
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T12:57:57.736Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/general/Login.vue
+Target URL: http://localhost:8080/admin/exam-papers
+=== CONSOLE LOGS ===
+[log] Home.vue beforeRouteEnter triggered, target: /exam-papers
+[log] API: GET profile {params: Object, data: Object}
+[log] API: GET profile - Success: {error: null, data: null}
+[log] Profile response in route guard: {error: null, data: null}
+[log] No profile data, redirecting to login with redirect: /exam-papers
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T12:59:51.621Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/general/Login.vue
+Target URL: http://localhost:8080/admin/exam-papers
+=== CONSOLE LOGS ===
+[log] Home.vue beforeRouteEnter triggered, target: /exam-papers
+[log] API: GET profile {params: Object, data: Object}
+[log] API: GET profile - Success: {error: null, data: null}
+[log] Profile response in route guard: {error: null, data: null}
+[log] No profile data, redirecting to login with redirect: /exam-papers
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T12:59:53.173Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/general/Login.vue
+Target URL: http://localhost:8080/admin/exam-papers
+=== CONSOLE LOGS ===
+[log] Home.vue beforeRouteEnter triggered, target: /exam-papers
+[log] API: GET profile {params: Object, data: Object}
+[log] API: GET profile - Success: {error: null, data: null}
+[log] Profile response in route guard: {error: null, data: null}
+[log] No profile data, redirecting to login with redirect: /exam-papers
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T13:07:34.875Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/index.js
+Target URL: http://localhost:8080/admin/exam-papers
+=== CONSOLE LOGS ===
+[log] API: GET profile {params: Object, data: Object}
+[log] API: GET profile - Success: {error: null, data: null}
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T13:07:37.209Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/index.js
+Target URL: http://localhost:8080/admin/exam-papers
+=== CONSOLE LOGS ===
+[log] API: GET profile {params: Object, data: Object}
+[log] API: GET profile - Success: {error: null, data: null}
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T13:08:21.446Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/index.js
+Target URL: http://localhost:8080/admin/exam-papers
+=== CONSOLE LOGS ===
+[log] API: GET profile {params: Object, data: Object}
+[log] API: GET profile - Success: {error: null, data: null}
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T13:08:17.260Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/index.js
+Target URL: http://localhost:8080/admin/exam-papers
+=== CONSOLE LOGS ===
+[log] API: GET profile {params: Object, data: Object}
+[log] API: GET profile - Success: {error: null, data: null}
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T13:08:43.744Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/Home.vue
+Target URL: http://localhost:8080/admin/exam-papers
+=== CONSOLE LOGS ===
+[log] API: GET profile {params: Object, data: Object}
+[log] API: GET profile - Success: {error: null, data: null}
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T13:08:41.864Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/views/Home.vue
+Target URL: http://localhost:8080/admin/exam-papers
+=== CONSOLE LOGS ===
+[log] API: GET profile {params: Object, data: Object}
+[log] API: GET profile - Success: {error: null, data: null}
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T13:09:59.804Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/index.js
+Target URL: http://localhost:8080/admin/exam-papers
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T13:09:58.263Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/index.js
+Target URL: http://localhost:8080/admin/exam-papers
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T13:10:58.027Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/index.js
+Target URL: http://localhost:8080/admin/exam-papers
+=== CONSOLE LOGS ===
+[log] Global route guard triggered, target: /exam-papers name: exam-paper-list
+[log] Checking user profile...
+[log] API: GET profile {params: Object, data: Object}
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T13:11:02.318Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/index.js
+Target URL: http://localhost:8080/admin/exam-papers
+=== CONSOLE LOGS ===
+[log] Global route guard triggered, target: /exam-papers name: exam-paper-list
+[log] Checking user profile...
+[log] API: GET profile {params: Object, data: Object}
+[log] API: GET profile - Success: {error: null, data: null}
+[log] Profile API response: {error: null, data: null}
+[log] No profile data, redirecting to login with redirect: /exam-papers
+[log] Global route guard triggered, target: /login name: login
+[log] Accessing login page, allowing access
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T13:14:09.466Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/api.js
+Target URL: http://localhost:8080/admin/exam-papers
+=== CONSOLE LOGS ===
+[log] Global route guard triggered, target: /exam-papers name: exam-paper-list
+[log] Checking user profile...
+[log] API: GET profile {params: Object, data: Object}
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T13:14:09.740Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/api.js
+Target URL: http://localhost:8080/admin/exam-papers
+=== CONSOLE LOGS ===
+[log] Global route guard triggered, target: /exam-papers name: exam-paper-list
+[log] Checking user profile...
+[log] API: GET profile {params: Object, data: Object}
+[log] API: GET profile - Success: {error: null, data: null}
+[log] Profile API response: {error: null, data: null}
+[log] No profile data, redirecting to login with redirect: /exam-papers
+[log] Global route guard triggered, target: /login name: login
+[log] Accessing login page, allowing access
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T13:14:30.995Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/api.js
+Target URL: http://localhost:8080/admin/exam-papers
+=== CONSOLE LOGS ===
+[log] Global route guard triggered, target: /exam-papers name: exam-paper-list
+[log] Checking user profile...
+[log] API: GET profile {params: Object, data: Object}
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T13:14:25.781Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/api.js
+Target URL: http://localhost:8080/admin/exam-papers
+=== CONSOLE LOGS ===
+=== ERRORS ===
+
+=== End Log Capture ===
+
+=== Browser Log Capture ===
+Timestamp: 2025-09-08T13:14:30.676Z
+Changed File: /home/metaspeekoj/OnlineJudgeFE/src/pages/admin/api.js
+Target URL: http://localhost:8080/admin/exam-papers
+=== CONSOLE LOGS ===
+[log] Global route guard triggered, target: /exam-papers name: exam-paper-list
+[log] Checking user profile...
+[log] API: GET profile {params: Object, data: Object}
+[log] API: GET profile - Success: {error: null, data: null}
+[log] Profile API response: {error: null, data: null}
+[log] No profile data, redirecting to login with redirect: /exam-papers
+[log] Global route guard triggered, target: /login name: login
+[log] Accessing login page, allowing access
+=== ERRORS ===
+
+=== End Log Capture ===

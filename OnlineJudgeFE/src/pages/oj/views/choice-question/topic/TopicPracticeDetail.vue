@@ -57,6 +57,32 @@
       </div>
     </div>
 
+    <!-- 数据状态调试 -->
+    <div style="background: #f0f0f0; padding: 10px; margin: 10px 0; border: 1px solid #ccc;">
+      <p>调试信息: loading={{ loading }}, examPapers数量={{ examPapers.length }}, childCategories数量={{ childCategories.length }}, questions数量={{ questions.length }}</p>
+    </div>
+    
+    <!-- 试卷列表 -->
+    <div v-if="examPapers.length > 0" class="exam-papers-section">
+      <h2 class="section-title">
+        <i class="el-icon-document"></i>
+        试卷列表
+      </h2>
+      <div class="exam-papers-grid">
+        <el-card 
+          v-for="paper in examPapers" 
+          :key="paper.id"
+          class="exam-paper-card simple-card"
+          shadow="hover"
+          @click="startExam(paper.id)"
+        >
+          <div class="exam-paper-content">
+            <h3 class="paper-title-only">{{ paper.title }}</h3>
+          </div>
+        </el-card>
+      </div>
+    </div>
+
     <!-- 题目列表 -->
     <div v-if="questions.length > 0" class="questions-section">
       <div class="section-header">
@@ -112,7 +138,7 @@
     </div>
 
     <!-- 空状态 -->
-    <div v-if="!loading && childCategories.length === 0 && questions.length === 0" class="empty-state">
+    <div v-if="!loading && childCategories.length === 0 && examPapers.length === 0 && questions.length === 0" class="empty-state">
       <i class="el-icon-document-remove"></i>
       <p>该分类下暂无内容</p>
       <el-button @click="$router.go(-1)">返回上级</el-button>
@@ -131,6 +157,7 @@ export default {
       startLoading: false,
       currentCategory: {},
       childCategories: [],
+      examPapers: [],
       questions: [],
       breadcrumb: []
     }
@@ -145,7 +172,8 @@ export default {
   },
   methods: {
     async loadCategoryData() {
-      const categoryId = this.$route.params.categoryId
+      const categoryId = this.$route.params.categoryId || this.$route.params.id
+      
       if (!categoryId) {
         this.$error('分类ID无效')
         return
@@ -154,16 +182,25 @@ export default {
       this.loading = true
       try {
         const res = await api.getTopicPracticeDetail(categoryId)
-        this.currentCategory = res.data.category || {}
-        this.childCategories = res.data.child_categories || []
-        this.questions = res.data.questions || []
-        this.breadcrumb = res.data.breadcrumb || []
+        
+        if (res.data && res.data.data) {
+          this.currentCategory = res.data.data.category || {}
+          this.childCategories = res.data.data.child_categories || []
+          this.examPapers = res.data.data.exam_papers || []
+          this.questions = res.data.data.questions || []
+          this.breadcrumb = res.data.data.breadcrumb || []
+          
+
+        } else {
+          console.error('API响应数据结构异常:', res.data)
+        }
       } catch (error) {
         console.error('加载分类数据失败:', error)
         this.$error('加载分类数据失败')
         // 确保即使出错也有默认值
         this.currentCategory = {}
         this.childCategories = []
+        this.examPapers = []
         this.questions = []
         this.breadcrumb = []
         this.$router.back()
@@ -225,6 +262,31 @@ export default {
         'hard': '困难'
       }
       return textMap[difficulty] || difficulty
+    },
+    
+    startExam(paperId) {
+      // 跳转到考试页面，复用现有的考试系统
+      this.$router.push(`/exam/${paperId}`)
+    },
+    
+    getPaperStatusType(status) {
+      const typeMap = {
+        'available': 'success',
+        'completed': 'info',
+        'locked': 'warning',
+        'expired': 'danger'
+      }
+      return typeMap[status] || 'info'
+    },
+    
+    getPaperStatusText(status) {
+      const textMap = {
+        'available': '可考试',
+        'completed': '已完成',
+        'locked': '未解锁',
+        'expired': '已过期'
+      }
+      return textMap[status] || status
     }
   }
 }
@@ -352,6 +414,82 @@ export default {
   margin-right: 4px;
 }
 
+.exam-papers-section {
+  margin-bottom: 40px;
+}
+
+.exam-papers-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 20px;
+}
+
+.exam-paper-card {
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 1px solid #e4e7ed;
+}
+
+.exam-paper-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  border-color: #409eff;
+}
+
+.exam-paper-content {
+  padding: 20px;
+}
+
+.paper-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.paper-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0;
+  flex: 1;
+  margin-right: 10px;
+  line-height: 1.4;
+}
+
+.paper-description {
+  font-size: 14px;
+  color: #606266;
+  margin-bottom: 15px;
+  line-height: 1.5;
+  min-height: 42px;
+}
+
+.paper-stats {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+  padding: 10px;
+  background: #f8f9fa;
+  border-radius: 4px;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  font-size: 13px;
+  color: #909399;
+}
+
+.stat-item i {
+  margin-right: 4px;
+  color: #409eff;
+}
+
+.paper-actions {
+  text-align: center;
+}
+
 .questions-section {
   margin-bottom: 40px;
 }
@@ -409,10 +547,35 @@ export default {
     grid-template-columns: 1fr;
   }
   
+  .exam-papers-grid {
+    grid-template-columns: 1fr;
+  }
+  
   .section-header {
     flex-direction: column;
     gap: 15px;
     align-items: stretch;
   }
+}
+
+/* 简化试卷卡片样式 */
+.simple-card {
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.simple-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.paper-title-only {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500;
+  color: #303133;
+  text-align: center;
+  padding: 10px;
+  line-height: 1.4;
 }
 </style>
