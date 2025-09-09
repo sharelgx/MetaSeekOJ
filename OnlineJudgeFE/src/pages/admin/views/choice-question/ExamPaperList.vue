@@ -290,15 +290,44 @@
         </el-form-item>
         
         <el-form-item label="所属分类" prop="categories">
-          <CategorySelector
-            v-model="createForm.categories"
-            :categories="categories"
-            :auto-load="false"
-            :multiple="true"
-            :show-all-option="false"
-            placeholder="请选择分类"
-            style="width: 100%"
-          />
+          <!-- 统一的分类选择器 -->
+          <div class="category-selector-wrapper">
+            <div 
+              class="category-display" 
+              :class="{ active: showCategoryDropdown }"
+              @click="toggleCategoryDropdown"
+            >
+              <span 
+                class="selected-text" 
+                :class="{ placeholder: !selectedCategoriesText }"
+              >
+                {{ selectedCategoriesText || '请选择分类' }}
+              </span>
+              <i 
+                class="el-icon-arrow-down" 
+                :class="{ rotate: showCategoryDropdown }"
+              ></i>
+            </div>
+            
+            <div v-if="showCategoryDropdown" class="category-dropdown">
+              <ul class="category-list">
+                <li 
+                  v-for="category in flattenedCategories" 
+                  :key="category.id"
+                  class="category-item"
+                  :class="[
+                    `level-${category.level}`,
+                    { selected: createForm.categories.includes(category.id) }
+                  ]"
+                  @click="toggleCategorySelection(category)"
+                >
+                  <span class="category-indent" v-for="i in category.level" :key="i"></span>
+                  <i class="category-icon el-icon-folder"></i>
+                  <span class="category-name">{{ category.name }}</span>
+                </li>
+              </ul>
+            </div>
+          </div>
         </el-form-item>
         
         <el-form-item label="考试时长" prop="duration">
@@ -347,12 +376,12 @@
 <script>
 import api from '@/pages/admin/api'
 import { mapGetters } from 'vuex'
-import CategorySelector from '@/pages/admin/components/CategorySelector.vue'
+// import CategorySelector from '@/pages/admin/components/CategorySelector.vue' // 已替换为自定义ul列表
 
 export default {
   name: 'ExamPaperList',
   components: {
-    CategorySelector
+    // CategorySelector // 已替换为自定义ul列表
   },
   data() {
     return {
@@ -361,6 +390,7 @@ export default {
       categories: [],
       selectedPapers: [],
       isDeleting: false,
+      showCategoryDropdown: false, // 控制分类下拉菜单显示
       
       // 获取分类列表的方法已在 getCategories() 中实现
       // 打开创建对话框的方法已在模板中通过 @click="createDialogVisible = true" 实现,
@@ -444,7 +474,74 @@ export default {
   },
   
   computed: {
-    ...mapGetters(['user', 'isAuthenticated', 'isAdminRole'])
+    ...mapGetters(['user', 'isAuthenticated', 'isAdminRole']),
+    
+    // 扁平化分类数据，支持层级显示
+    flattenedCategories() {
+      if (!this.categories || this.categories.length === 0) {
+        return []
+      }
+      
+      // 递归去重处理
+      const globalSeenIds = new Set()
+      const deepDeduplication = (cats) => {
+        const result = []
+        cats.forEach(cat => {
+          if (!globalSeenIds.has(cat.id)) {
+            globalSeenIds.add(cat.id)
+            const cleanCat = { ...cat }
+            if (cleanCat.children && cleanCat.children.length > 0) {
+              cleanCat.children = deepDeduplication(cleanCat.children)
+            }
+            result.push(cleanCat)
+          }
+        })
+        return result
+      }
+      
+      const deduplicatedCategories = deepDeduplication(this.categories)
+      
+      // 扁平化处理，使用与分类管理页面相同的排序逻辑
+      const flatten = (cats, level = 0, parentName = '') => {
+        let result = []
+        // 按sort_order排序
+        const sortedCats = [...cats].sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0))
+        
+        sortedCats.forEach(cat => {
+          const displayName = level > 0 ? `${'  '.repeat(level)}${cat.name}` : cat.name
+          result.push({
+            ...cat,
+            level,
+            displayName,
+            parentName
+          })
+          if (cat.children && cat.children.length > 0) {
+            result = result.concat(flatten(cat.children, level + 1, cat.name))
+          }
+        })
+        return result
+      }
+      
+      return flatten(deduplicatedCategories)
+    },
+    
+    // 获取选中分类的文本显示
+    selectedCategoriesText() {
+      if (!this.createForm.categories || this.createForm.categories.length === 0) {
+        return ''
+      }
+      
+      const selectedNames = this.createForm.categories.map(id => {
+        const category = this.flattenedCategories.find(cat => cat.id === id)
+        return category ? category.name : ''
+      }).filter(name => name)
+      
+      if (selectedNames.length <= 2) {
+        return selectedNames.join(', ')
+      } else {
+        return `${selectedNames.slice(0, 2).join(', ')} 等${selectedNames.length}个分类`
+      }
+    }
   },
   
   async mounted() {
@@ -462,6 +559,23 @@ export default {
   },
   
   methods: {
+    // 切换分类下拉菜单显示状态
+    toggleCategoryDropdown() {
+      this.showCategoryDropdown = !this.showCategoryDropdown
+    },
+    
+    // 切换分类选择状态（支持多选）
+    toggleCategorySelection(category) {
+      const index = this.createForm.categories.indexOf(category.id)
+      if (index > -1) {
+        // 如果已选中，则取消选择
+        this.createForm.categories.splice(index, 1)
+      } else {
+        // 如果未选中，则添加选择
+        this.createForm.categories.push(category.id)
+      }
+    },
+    
     async checkAuth() {
       try {
         // 如果 store 中没有用户信息，尝试获取
@@ -862,5 +976,125 @@ export default {
 
 .dialog-footer {
   text-align: right;
+}
+
+/* 统一的分类选择器样式 */
+.category-selector-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.category-display {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border: 1px solid #dcdfe6;
+  border-radius: 4px;
+  background-color: #fff;
+  cursor: pointer;
+  transition: border-color 0.2s;
+  min-height: 32px;
+}
+
+.category-display:hover {
+  border-color: #c0c4cc;
+}
+
+.category-display.active {
+  border-color: #409eff;
+}
+
+.selected-text {
+  flex: 1;
+  color: #606266;
+}
+
+.selected-text.placeholder {
+  color: #c0c4cc;
+}
+
+.el-icon-arrow-down {
+  margin-left: 8px;
+  transition: transform 0.3s;
+  color: #c0c4cc;
+}
+
+.el-icon-arrow-down.rotate {
+  transform: rotate(180deg);
+}
+
+.category-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #e4e7ed;
+  border-radius: 4px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.category-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.category-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  border-bottom: 1px solid #f5f7fa;
+}
+
+.category-item:last-child {
+  border-bottom: none;
+}
+
+.category-item:hover {
+  background-color: #f5f7fa;
+}
+
+.category-item.selected {
+  background-color: #ecf5ff;
+  color: #409eff;
+}
+
+/* 层级样式 */
+.category-item.level-0 {
+  padding-left: 12px;
+  font-weight: 500;
+}
+
+.category-item.level-1 {
+  padding-left: 28px;
+}
+
+.category-item.level-2 {
+  padding-left: 44px;
+}
+
+.category-item.level-3 {
+  padding-left: 60px;
+}
+
+.category-indent {
+  width: 16px;
+  height: 1px;
+}
+
+.category-icon {
+  margin-right: 6px;
+  color: #909399;
+}
+
+.category-name {
+  flex: 1;
 }
 </style>

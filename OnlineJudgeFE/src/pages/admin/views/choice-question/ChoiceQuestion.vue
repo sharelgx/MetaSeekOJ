@@ -23,14 +23,37 @@
           </el-col>
           <el-col :span="8">
             <el-form-item prop="category" :label="$t('m.Category')">
-              <el-select v-model="choiceQuestion.category" :placeholder="$t('m.Select_Category')" clearable>
-                <el-option
-                  v-for="category in categories"
-                  :key="category.id"
-                  :label="category.name"
-                  :value="category.id">
-                </el-option>
-              </el-select>
+              <div class="category-selector-wrapper">
+                <div 
+                  class="category-display" 
+                  @click="toggleCategoryDropdown"
+                  :class="{ 'active': showCategoryDropdown }"
+                >
+                  <span class="selected-text">
+                    {{ selectedCategoryName || $t('m.Select_Category') }}
+                  </span>
+                  <i class="el-icon-arrow-down" :class="{ 'rotate': showCategoryDropdown }"></i>
+                </div>
+                
+                <div v-if="showCategoryDropdown" class="category-dropdown">
+                  <ul class="category-list">
+                    <li 
+                      v-for="category in flattenedCategories" 
+                      :key="category.id"
+                      class="category-item"
+                      :class="{ 
+                         'selected': choiceQuestion.category === category.id,
+                         ['level-' + category.level]: true 
+                       }"
+                      @click="selectCategory(category)"
+                    >
+                      <span class="category-indent" v-for="n in category.level" :key="n"></span>
+                      <i class="el-icon-folder category-icon"></i>
+                      <span class="category-name">{{ category.name }}</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
             </el-form-item>
           </el-col>
           <el-col :span="8">
@@ -160,6 +183,7 @@
         submitting: false,
         categories: [],
         tags: [],
+        showCategoryDropdown: false,
         choiceQuestion: {
           title: '',
           description: '',
@@ -189,6 +213,56 @@
             {required: true, message: this.$t('m.Difficulty_is_required'), trigger: 'change'}
           ]
         }
+      }
+    },
+    computed: {
+      // 扁平化分类数据，支持层级显示
+      flattenedCategories() {
+        if (!this.categories || this.categories.length === 0) {
+          return []
+        }
+        
+        // 递归去重处理
+        const globalSeenIds = new Set()
+        const deepDeduplication = (cats) => {
+          const result = []
+          cats.forEach(cat => {
+            if (!globalSeenIds.has(cat.id)) {
+              globalSeenIds.add(cat.id)
+              const cleanCat = { ...cat }
+              if (cleanCat.children && cleanCat.children.length > 0) {
+                cleanCat.children = deepDeduplication(cleanCat.children)
+              }
+              result.push(cleanCat)
+            }
+          })
+          return result
+        }
+        
+        const cleanCategories = deepDeduplication(this.categories)
+        
+        // 扁平化处理
+        const flatten = (categories, level = 0) => {
+          let result = []
+          categories.forEach(category => {
+            result.push({
+              ...category,
+              level: level
+            })
+            if (category.children && category.children.length > 0) {
+              result = result.concat(flatten(category.children, level + 1))
+            }
+          })
+          return result
+        }
+        
+        return flatten(cleanCategories)
+      },
+      // 获取选中分类的名称
+      selectedCategoryName() {
+        if (!this.choiceQuestion.category) return ''
+        const category = this.flattenedCategories.find(cat => cat.id === this.choiceQuestion.category)
+        return category ? category.name : ''
       }
     },
     mounted () {
@@ -431,6 +505,14 @@
           option.is_correct = false
         })
         this.choiceQuestion.correct_answer = 'A'
+      },
+      // 分类选择器相关方法
+      toggleCategoryDropdown() {
+        this.showCategoryDropdown = !this.showCategoryDropdown
+      },
+      selectCategory(category) {
+        this.choiceQuestion.category = category.id
+        this.showCategoryDropdown = false
       }
     },
     watch: {
@@ -500,5 +582,125 @@
       font-weight: 500;
       color: #606266;
     }
+  }
+
+  /* 分类选择器样式 */
+  .category-selector-wrapper {
+    position: relative;
+    width: 100%;
+  }
+
+  .category-display {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    border: 1px solid #dcdfe6;
+    border-radius: 4px;
+    background-color: #fff;
+    cursor: pointer;
+    transition: border-color 0.2s;
+    min-height: 32px;
+
+    &:hover {
+      border-color: #c0c4cc;
+    }
+
+    &.active {
+      border-color: #409eff;
+    }
+  }
+
+  .selected-text {
+    flex: 1;
+    color: #606266;
+    
+    &.placeholder {
+      color: #c0c4cc;
+    }
+  }
+
+  .el-icon-arrow-down {
+    margin-left: 8px;
+    transition: transform 0.3s;
+    color: #c0c4cc;
+    
+    &.rotate {
+      transform: rotate(180deg);
+    }
+  }
+
+  .category-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #e4e7ed;
+    border-radius: 4px;
+    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    max-height: 200px;
+    overflow-y: auto;
+  }
+
+  .category-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .category-item {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    border-bottom: 1px solid #f5f7fa;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    &:hover {
+      background-color: #f5f7fa;
+    }
+
+    &.selected {
+      background-color: #ecf5ff;
+      color: #409eff;
+    }
+
+    /* 层级样式 */
+    &.level-0 {
+      padding-left: 12px;
+      font-weight: 500;
+    }
+
+    &.level-1 {
+      padding-left: 28px;
+    }
+
+    &.level-2 {
+      padding-left: 44px;
+    }
+
+    &.level-3 {
+      padding-left: 60px;
+    }
+  }
+
+  .category-indent {
+    width: 16px;
+    height: 1px;
+  }
+
+  .category-icon {
+    margin-right: 6px;
+    color: #909399;
+  }
+
+  .category-name {
+    flex: 1;
   }
 </style>

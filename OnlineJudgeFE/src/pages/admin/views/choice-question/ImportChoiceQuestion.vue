@@ -12,20 +12,44 @@
                   <i class="el-icon-folder"></i>
                   选择分类
                 </label>
-                <el-select 
-                  v-model="selectedCategory" 
-                  placeholder="请选择分类" 
-                  clearable 
-                  style="width: 100%;"
-                >
-                  <el-option
-                    v-for="category in categories"
-                    :key="category.id"
-                    :label="getCategoryDisplayName(category)"
-                    :value="category.id"
+                <!-- 自定义分类选择器 -->
+                <div class="category-selector-wrapper">
+                  <div 
+                    class="category-display" 
+                    :class="{ active: showCategoryDropdown }"
+                    @click="toggleCategoryDropdown"
                   >
-                  </el-option>
-                </el-select>
+                    <span 
+                      class="selected-text" 
+                      :class="{ placeholder: !selectedCategoryName }"
+                    >
+                      {{ selectedCategoryName || '请选择分类' }}
+                    </span>
+                    <i 
+                      class="el-icon-arrow-down" 
+                      :class="{ rotate: showCategoryDropdown }"
+                    ></i>
+                  </div>
+                  
+                  <div v-if="showCategoryDropdown" class="category-dropdown">
+                    <ul class="category-list">
+                      <li 
+                        v-for="category in flattenedCategories" 
+                        :key="category.id"
+                        class="category-item"
+                        :class="[
+                          `level-${category.level}`,
+                          { selected: selectedCategory === category.id }
+                        ]"
+                        @click="selectCategory(category)"
+                      >
+                        <span class="category-indent" v-for="i in category.level" :key="i"></span>
+                        <i class="category-icon el-icon-folder"></i>
+                        <span class="category-name">{{ category.name }}</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
               </div>
             </el-col>
             
@@ -197,6 +221,7 @@ export default {
       fileList: [],
       jsonText: '',
       previewData: [],
+      showCategoryDropdown: false,
       formatGuide: {
         example: [
           {
@@ -219,6 +244,54 @@ export default {
     canParse() {
       return (this.activeTab === 'file' && this.fileList.length > 0) || 
              (this.activeTab === 'text' && this.jsonText.trim())
+    },
+    // 扁平化分类数据，支持层级显示
+    flattenedCategories() {
+      if (!this.categories || this.categories.length === 0) {
+        return []
+      }
+      
+      // 递归去重处理
+      const globalSeenIds = new Set()
+      const deepDeduplication = (cats) => {
+        const result = []
+        cats.forEach(cat => {
+          if (!globalSeenIds.has(cat.id)) {
+            globalSeenIds.add(cat.id)
+            const cleanCat = { ...cat }
+            if (cleanCat.children && cleanCat.children.length > 0) {
+              cleanCat.children = deepDeduplication(cleanCat.children)
+            }
+            result.push(cleanCat)
+          }
+        })
+        return result
+      }
+      
+      const cleanCategories = deepDeduplication(this.categories)
+      
+      // 扁平化处理
+      const flatten = (categories, level = 0) => {
+        let result = []
+        categories.forEach(category => {
+          result.push({
+            ...category,
+            level: level
+          })
+          if (category.children && category.children.length > 0) {
+            result = result.concat(flatten(category.children, level + 1))
+          }
+        })
+        return result
+      }
+      
+      return flatten(cleanCategories)
+    },
+    // 获取选中分类的名称
+    selectedCategoryName() {
+      if (!this.selectedCategory) return ''
+      const category = this.flattenedCategories.find(cat => cat.id === this.selectedCategory)
+      return category ? category.name : ''
     }
   },
   mounted() {
@@ -275,6 +348,14 @@ export default {
     },
     removeTag(tagId) {
       this.selectedTags = this.selectedTags.filter(id => id !== tagId)
+    },
+    // 分类选择器相关方法
+    toggleCategoryDropdown() {
+      this.showCategoryDropdown = !this.showCategoryDropdown
+    },
+    selectCategory(category) {
+      this.selectedCategory = category.id
+      this.showCategoryDropdown = false
     },
     handleTabClick(tab) {
       this.activeTab = tab.name
@@ -649,5 +730,125 @@ export default {
   border-radius: 4px;
   font-size: 12px;
   color: #0277bd;
+}
+
+/* 分类选择器样式 */
+.category-selector-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.category-display {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border: 1px solid #dcdfe6;
+  border-radius: 4px;
+  background-color: #fff;
+  cursor: pointer;
+  transition: border-color 0.2s;
+  min-height: 32px;
+}
+
+.category-display:hover {
+  border-color: #c0c4cc;
+}
+
+.category-display.active {
+  border-color: #409eff;
+}
+
+.selected-text {
+  flex: 1;
+  color: #606266;
+}
+
+.selected-text.placeholder {
+  color: #c0c4cc;
+}
+
+.el-icon-arrow-down {
+  margin-left: 8px;
+  transition: transform 0.3s;
+  color: #c0c4cc;
+}
+
+.el-icon-arrow-down.rotate {
+  transform: rotate(180deg);
+}
+
+.category-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #e4e7ed;
+  border-radius: 4px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.category-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.category-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  border-bottom: 1px solid #f5f7fa;
+}
+
+.category-item:last-child {
+  border-bottom: none;
+}
+
+.category-item:hover {
+  background-color: #f5f7fa;
+}
+
+.category-item.selected {
+  background-color: #ecf5ff;
+  color: #409eff;
+}
+
+/* 层级样式 */
+.category-item.level-0 {
+  padding-left: 12px;
+  font-weight: 500;
+}
+
+.category-item.level-1 {
+  padding-left: 28px;
+}
+
+.category-item.level-2 {
+  padding-left: 44px;
+}
+
+.category-item.level-3 {
+  padding-left: 60px;
+}
+
+.category-indent {
+  width: 16px;
+  height: 1px;
+}
+
+.category-icon {
+  margin-right: 6px;
+  color: #909399;
+}
+
+.category-name {
+  flex: 1;
 }
 </style>

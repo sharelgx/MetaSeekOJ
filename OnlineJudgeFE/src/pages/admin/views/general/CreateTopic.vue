@@ -34,14 +34,27 @@
         </div>
         
         <el-form-item label="一级分类" prop="category_id">
-          <el-select v-model="topicForm.category_id" placeholder="请选择一级分类作为专题" @change="onCategoryChange">
-            <el-option 
-              v-for="category in rootCategories" 
-              :key="category.id" 
-              :label="category.name" 
-              :value="category.id">
-            </el-option>
-          </el-select>
+          <!-- 分类选择器 -->
+          <div class="category-selector-wrapper">
+            <div class="category-display" @click="toggleCategoryDropdown">
+              <span v-if="selectedCategoryName">{{ selectedCategoryName }}</span>
+              <span v-else class="placeholder">请选择一级分类作为专题</span>
+              <i :class="['el-icon-arrow-down', { 'rotate': showCategoryDropdown }]"></i>
+            </div>
+            
+            <div v-if="showCategoryDropdown" class="category-dropdown">
+              <ul class="category-list">
+                <li 
+                  v-for="category in rootCategories" 
+                  :key="category.id"
+                  :class="['category-item', { 'selected': topicForm.category_id === category.id }]"
+                  @click="selectCategory(category)"
+                >
+                  {{ category.name }}
+                </li>
+              </ul>
+            </div>
+          </div>
         </el-form-item>
         
         <!-- 显示选中分类的信息 -->
@@ -133,7 +146,8 @@ export default {
       // 分类数据
       rootCategories: [], // 一级分类列表
       selectedCategory: null, // 选中的分类
-      subcategories: [] // 二级分类列表
+      subcategories: [], // 二级分类列表
+      showCategoryDropdown: false // 控制分类下拉菜单显示
     }
   },
 
@@ -163,10 +177,31 @@ export default {
     // 判断是否为编辑模式
     isEdit() {
       return !!this.topicId
+    },
+    
+    // 获取选中分类的名称
+    selectedCategoryName() {
+      if (!this.topicForm.category_id || !this.rootCategories.length) {
+        return ''
+      }
+      const category = this.rootCategories.find(cat => cat.id === this.topicForm.category_id)
+      return category ? category.name : ''
     }
   },
 
   methods: {
+    // 切换分类下拉菜单显示状态
+    toggleCategoryDropdown() {
+      this.showCategoryDropdown = !this.showCategoryDropdown
+    },
+    
+    // 选择分类
+    selectCategory(category) {
+      this.topicForm.category_id = category.id
+      this.showCategoryDropdown = false
+      this.onCategoryChange(category.id)
+    },
+    
     // 加载一级分类
     async loadRootCategories () {
       try {

@@ -94,15 +94,52 @@
         </el-form-item>
         
         <el-form-item label="父级分类">
-          <el-select v-model="categoryForm.parent" placeholder="不选择则为顶级分类" clearable style="width: 100%">
-            <el-option
-              v-for="category in parentOptions"
-              :key="category.id"
-              :label="category.name"
-              :value="category.id"
-              :disabled="category.id === editingCategoryId">
-            </el-option>
-          </el-select>
+          <!-- 统一的分类选择器 -->
+          <div class="category-selector-wrapper">
+            <div 
+              class="category-display" 
+              :class="{ active: showParentDropdown }"
+              @click="toggleParentDropdown"
+            >
+              <span 
+                class="selected-text" 
+                :class="{ placeholder: !selectedParentName }"
+              >
+                {{ selectedParentName || '不选择则为顶级分类' }}
+              </span>
+              <i 
+                class="el-icon-arrow-down" 
+                :class="{ rotate: showParentDropdown }"
+              ></i>
+            </div>
+            
+            <div v-if="showParentDropdown" class="category-dropdown">
+              <ul class="category-list">
+                <li 
+                  class="category-item level-0"
+                  :class="{ selected: !categoryForm.parent }"
+                  @click="selectParentCategory(null)"
+                >
+                  <i class="category-icon el-icon-folder"></i>
+                  <span class="category-name">顶级分类</span>
+                </li>
+                <li 
+                  v-for="category in parentOptions" 
+                  :key="category.id"
+                  class="category-item"
+                  :class="[
+                    `level-${category.level || 0}`,
+                    { selected: categoryForm.parent === category.id }
+                  ]"
+                  @click="selectParentCategory(category)"
+                >
+                  <span class="category-indent" v-for="i in (category.level || 0)" :key="i"></span>
+                  <i class="category-icon el-icon-folder"></i>
+                  <span class="category-name">{{ category.name }}</span>
+                </li>
+              </ul>
+            </div>
+          </div>
         </el-form-item>
         
         <el-form-item label="分类描述">
@@ -156,6 +193,7 @@ export default {
       dialogVisible: false,
       editingCategoryId: null,
       submitting: false,
+      showParentDropdown: false,
       dragOptions: {
         animation: 200,
         group: 'categories',
@@ -181,6 +219,12 @@ export default {
   computed: {
     dialogTitle() {
       return this.editingCategoryId ? '编辑分类' : '创建分类'
+    },
+    // 获取选中父级分类的名称
+    selectedParentName() {
+      if (!this.categoryForm.parent) return ''
+      const parent = this.parentOptions.find(cat => cat.id === this.categoryForm.parent)
+      return parent ? parent.name : ''
     },
     
     flattenCategories() {
@@ -454,6 +498,16 @@ export default {
       this.getCategories()
     },
     
+    // 分类选择器相关方法
+    toggleParentDropdown() {
+      this.showParentDropdown = !this.showParentDropdown
+    },
+    
+    selectParentCategory(category) {
+      this.categoryForm.parent = category ? category.id : null
+      this.showParentDropdown = false
+    },
+    
     showCreateDialog() {
       this.editingCategoryId = null
       this.resetForm()
@@ -623,8 +677,128 @@ export default {
     margin-left: 8px;
   }
   
-  // 对话框样式
-  /deep/ .el-dialog {
+  // 统一的分类选择器样式
+  .category-selector-wrapper {
+    position: relative;
+    width: 100%;
+  }
+
+  .category-display {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    border: 1px solid #dcdfe6;
+    border-radius: 4px;
+    background-color: #fff;
+    cursor: pointer;
+    transition: border-color 0.2s;
+    min-height: 32px;
+
+    &:hover {
+      border-color: #c0c4cc;
+    }
+
+    &.active {
+      border-color: #409eff;
+    }
+  }
+
+  .selected-text {
+    flex: 1;
+    color: #606266;
+    
+    &.placeholder {
+      color: #c0c4cc;
+    }
+  }
+
+  .el-icon-arrow-down {
+    margin-left: 8px;
+    transition: transform 0.3s;
+    color: #c0c4cc;
+    
+    &.rotate {
+      transform: rotate(180deg);
+    }
+  }
+
+  .category-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #e4e7ed;
+    border-radius: 4px;
+    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    max-height: 200px;
+    overflow-y: auto;
+  }
+
+  .category-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .category-item {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    border-bottom: 1px solid #f5f7fa;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    &:hover {
+      background-color: #f5f7fa;
+    }
+
+    &.selected {
+      background-color: #ecf5ff;
+      color: #409eff;
+    }
+
+    // 层级样式
+    &.level-0 {
+      padding-left: 12px;
+      font-weight: 500;
+    }
+
+    &.level-1 {
+      padding-left: 28px;
+    }
+
+    &.level-2 {
+      padding-left: 44px;
+    }
+
+    &.level-3 {
+      padding-left: 60px;
+    }
+  }
+
+  .category-indent {
+    width: 16px;
+    height: 1px;
+  }
+
+  .category-icon {
+    margin-right: 6px;
+    color: #909399;
+  }
+
+  .category-name {
+     flex: 1;
+   }
+   
+   // 对话框样式
+   /deep/ .el-dialog {
     .el-dialog__header {
       background-color: #f8f9fa;
       border-bottom: 1px solid #e9ecef;
