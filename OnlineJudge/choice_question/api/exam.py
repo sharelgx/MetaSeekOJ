@@ -23,6 +23,7 @@ from datetime import timedelta
 from typing import Dict, Any
 
 from ..models import ExamPaper, ExamSession, ChoiceQuestion, WrongQuestion, Category
+from django.db import models
 from ..serializers import ExamPaperSerializer, ExamSessionSerializer
 from ..utils.importer import QuestionImporter
 
@@ -527,6 +528,17 @@ class ExamPaperImportAPI(CSRFExemptAPIView):
                 if not questions_data:
                     return self.error("题目数据不能为空")
                 
+                # 检查是否选择了现有试卷
+                existing_paper = None
+                try:
+                    existing_paper = ExamPaper.objects.get(
+                        title=paper_title,
+                        created_by=request.user,
+                        is_active=True
+                    )
+                except ExamPaper.DoesNotExist:
+                    pass
+                
                 # 获取分类
                 category = None
                 if category_id:
@@ -549,36 +561,68 @@ class ExamPaperImportAPI(CSRFExemptAPIView):
                     question = importer._import_single_question_for_paper(converted_data)
                     imported_questions.append(question)
                 
-                # 创建试卷
-                from ..models import ExamPaper, ExamPaperQuestion
+                from ..models import ExamPaperQuestion
                 
-                paper = ExamPaper.objects.create(
-                    title=paper_title,
-                    description=description,
-                    duration=duration,
-                    total_score=total_score or sum(q.score for q in imported_questions),
-                    question_count=len(imported_questions),
-                    paper_type='fixed',
-                    use_import_order=use_import_order,
-                    is_active=True,
-                    created_by=request.user
-                )
-                
-                # 建立试卷题目关联
-                for i, question in enumerate(imported_questions):
-                    ExamPaperQuestion.objects.create(
-                        paper=paper,
-                        question=question,
-                        order=i + 1,
-                        score=question.score
+                if existing_paper:
+                    # 向现有试卷添加题目
+                    paper = existing_paper
+                    
+                    # 获取当前试卷中题目的最大序号
+                    max_order = ExamPaperQuestion.objects.filter(paper=paper).aggregate(
+                        max_order=models.Max('order')
+                    )['max_order'] or 0
+                    
+                    # 添加新题目到现有试卷
+                    for i, question in enumerate(imported_questions):
+                        ExamPaperQuestion.objects.create(
+                            paper=paper,
+                            question=question,
+                            order=max_order + i + 1,
+                            score=question.score
+                        )
+                    
+                    # 更新试卷统计信息
+                    paper.question_count += len(imported_questions)
+                    paper.total_score += sum(q.score for q in imported_questions)
+                    paper.save()
+                    
+                    # 关联分类（如果指定了新分类）
+                    if category and category not in paper.categories.all():
+                        paper.categories.add(category)
+                        
+                    action_message = f"成功向现有试卷\"{paper_title}\"添加了 {len(imported_questions)} 道题目"
+                    
+                else:
+                    # 创建新试卷
+                    paper = ExamPaper.objects.create(
+                        title=paper_title,
+                        description=description,
+                        duration=duration,
+                        total_score=total_score or sum(q.score for q in imported_questions),
+                        question_count=len(imported_questions),
+                        paper_type='fixed',
+                        use_import_order=use_import_order,
+                        is_active=True,
+                        created_by=request.user
                     )
-                
-                # 关联分类
-                if category:
-                    paper.categories.add(category)
+                    
+                    # 建立试卷题目关联
+                    for i, question in enumerate(imported_questions):
+                        ExamPaperQuestion.objects.create(
+                            paper=paper,
+                            question=question,
+                            order=i + 1,
+                            score=question.score
+                        )
+                    
+                    # 关联分类
+                    if category:
+                        paper.categories.add(category)
+                        
+                    action_message = f"成功创建新试卷\"{paper_title}\"，包含 {len(imported_questions)} 道题目"
                 
                 return self.success({
-                    'message': '试卷导入成功',
+                    'message': action_message,
                     'paper_id': paper.id,
                     'paper_title': paper.title,
                     'imported_questions': len(imported_questions),
