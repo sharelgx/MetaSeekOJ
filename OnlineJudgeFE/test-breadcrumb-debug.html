@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>面包屑调试测试</title>
+    <meta charset="utf-8">
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
+        .debug-panel { 
+            background: #fff; 
+            border: 2px solid #007bff; 
+            border-radius: 8px;
+            padding: 20px; 
+            margin: 20px 0;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .console-output { 
+            background: #000; 
+            color: #0f0; 
+            padding: 15px; 
+            font-family: 'Courier New', monospace; 
+            height: 300px; 
+            overflow-y: auto; 
+            border: 1px solid #333;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+        .btn { 
+            background: #007bff; 
+            color: white; 
+            padding: 12px 24px; 
+            border: none; 
+            border-radius: 4px;
+            cursor: pointer; 
+            margin: 5px;
+            font-size: 14px;
+        }
+        .btn:hover { background: #0056b3; }
+        .status { 
+            padding: 10px; 
+            border-radius: 4px; 
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        .status.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .status.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .status.info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+    </style>
+</head>
+<body>
+    <div class="debug-panel">
+        <h1>🔍 面包屑导航调试工具</h1>
+        <p>这个工具帮助你监控面包屑导航的行为和调试信息。</p>
+        
+        <div class="status info" id="status">准备就绪 - 点击按钮开始测试</div>
+        
+        <button class="btn" onclick="goToTarget()">🎯 跳转到目标页面</button>
+        <button class="btn" onclick="clearConsole()">🧹 清空控制台</button>
+        <button class="btn" onclick="refreshPage()">🔄 刷新页面</button>
+        
+        <h3>📊 实时控制台输出:</h3>
+        <div class="console-output" id="console"></div>
+        
+        <div class="debug-panel">
+            <h3>🎯 测试步骤:</h3>
+            <ol>
+                <li>点击"跳转到目标页面"按钮</li>
+                <li>观察页面是否显示黄色调试信息框</li>
+                <li>点击面包屑导航的各个部分</li>
+                <li>查看控制台输出的调试信息</li>
+                <li>如果面包屑消失，观察控制台的错误信息</li>
+            </ol>
+        </div>
+    </div>
+    
+    <script>
+        const consoleDiv = document.getElementById('console');
+        const statusDiv = document.getElementById('status');
+        let logCount = 0;
+        
+        // 重写console方法来捕获输出
+        const originalLog = console.log;
+        const originalError = console.error;
+        const originalWarn = console.warn;
+        
+        function addToConsole(type, ...args) {
+            logCount++;
+            const timestamp = new Date().toLocaleTimeString();
+            const message = args.map(arg => {
+                if (typeof arg === 'object') {
+                    try {
+                        return JSON.stringify(arg, null, 2);
+                    } catch (e) {
+                        return String(arg);
+                    }
+                }
+                return String(arg);
+            }).join(' ');
+            
+            const div = document.createElement('div');
+            div.style.marginBottom = '2px';
+            div.style.padding = '2px 0';
+            
+            let color = '#0f0';
+            if (type === 'error') color = '#f44';
+            if (type === 'warn') color = '#fa0';
+            
+            div.innerHTML = `<span style="color: #888;">[${timestamp}]</span> <span style="color: ${color};">[${type.toUpperCase()}]</span> <span style="color: #fff;">${message}</span>`;
+            consoleDiv.appendChild(div);
+            consoleDiv.scrollTop = consoleDiv.scrollHeight;
+            
+            // 更新状态
+            if (message.includes('面包屑点击事件')) {
+                statusDiv.className = 'status success';
+                statusDiv.textContent = '✅ 检测到面包屑点击事件！';
+            } else if (message.includes('API response')) {
+                statusDiv.className = 'status info';
+                statusDiv.textContent = '📡 API数据加载完成';
+            } else if (type === 'error') {
+                statusDiv.className = 'status error';
+                statusDiv.textContent = '❌ 检测到错误 - 查看控制台详情';
+            }
+        }
+        
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            addToConsole('log', ...args);
+        };
+        
+        console.error = function(...args) {
+            originalError.apply(console, args);
+            addToConsole('error', ...args);
+        };
+        
+        console.warn = function(...args) {
+            originalWarn.apply(console, args);
+            addToConsole('warn', ...args);
+        };
+        
+        function goToTarget() {
+            console.log('🎯 准备跳转到目标页面: /topics/4/practice');
+            statusDiv.className = 'status info';
+            statusDiv.textContent = '🔄 正在跳转到目标页面...';
+            
+            setTimeout(() => {
+                window.location.href = '/topics/4/practice';
+            }, 1000);
+        }
+        
+        function clearConsole() {
+            consoleDiv.innerHTML = '';
+            logCount = 0;
+            statusDiv.className = 'status info';
+            statusDiv.textContent = '🧹 控制台已清空';
+            console.log('🧹 控制台已清空，准备新的调试会话');
+        }
+        
+        function refreshPage() {
+            console.log('🔄 刷新页面');
+            window.location.reload();
+        }
+        
+        // 捕获错误
+        window.addEventListener('error', function(e) {
+            console.error('🚨 页面错误:', e.error?.message || e.message, 'at', e.filename + ':' + e.lineno);
+        });
+        
+        // 捕获未处理的Promise拒绝
+        window.addEventListener('unhandledrejection', function(e) {
+            console.error('🚨 未处理的Promise拒绝:', e.reason);
+        });
+        
+        console.log('🔍 面包屑调试工具已启动');
+        console.log('📊 监控以下事件: 面包屑点击、API调用、路由变化、错误信息');
+    </script>
+</body>
+</html>

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Route Test</title>
+    <script>
+        // 测试前端路由是否正常工作
+        console.log('Testing route access...');
+        
+        // 检查页面加载
+        window.addEventListener('load', function() {
+            console.log('Page loaded');
+            
+            // 检查Vue是否加载
+            setTimeout(function() {
+                if (window.Vue) {
+                    console.log('Vue is loaded');
+                } else {
+                    console.log('Vue is not loaded');
+                }
+                
+                // 检查是否有错误
+                if (window.console && window.console.error) {
+                    console.log('Console available for error checking');
+                }
+            }, 2000);
+        });
+        
+        // 捕获所有错误
+        window.addEventListener('error', function(e) {
+            console.error('JavaScript Error:', e.error);
+        });
+    </script>
+</head>
+<body>
+    <h1>Route Test Page</h1>
+    <p>This page tests if the frontend routing is working correctly.</p>
+    <p>Check the browser console for debug information.</p>
+    
+    <div id="test-links">
+        <h2>Test Links:</h2>
+        <ul>
+            <li><a href="/topics/4/practice">Topics 4 Practice</a></li>
+            <li><a href="/topics">Topics Home</a></li>
+            <li><a href="/choice-questions">Choice Questions</a></li>
+        </ul>
+    </div>
+</body>
+</html>

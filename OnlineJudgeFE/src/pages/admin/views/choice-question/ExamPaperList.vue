@@ -107,9 +107,12 @@
           </template>
         </el-table-column>
         
-        <el-table-column prop="category" label="分类" width="120">
+        <el-table-column prop="categories" label="分类" width="120">
           <template slot-scope="scope">
-            {{ scope.row.category ? scope.row.category.name : '-' }}
+            <span v-if="scope.row.categories && scope.row.categories.length > 0">
+              {{ scope.row.categories.map(cat => cat.name).join(', ') }}
+            </span>
+            <span v-else>-</span>
           </template>
         </el-table-column>
         
@@ -158,16 +161,13 @@
       
       <!-- 分页 -->
       <div class="pagination-container">
-        <el-pagination
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
+        <PaginationComponent
           :current-page="currentPage"
-          :page-sizes="[10, 20, 50, 100]"
           :page-size="pageSize"
-          layout="total, sizes, prev, pager, next, jumper"
           :total="total"
-        >
-        </el-pagination>
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange">
+        </PaginationComponent>
       </div>
     </Panel>
     
@@ -205,15 +205,44 @@
         </el-form-item>
         
         <el-form-item label="所属分类" prop="categories">
-          <CategorySelector
-            v-model="editForm.categories"
-            :categories="categories"
-            :auto-load="false"
-            :multiple="true"
-            :show-all-option="false"
-            placeholder="请选择分类"
-            style="width: 100%"
-          />
+          <!-- 统一的分类选择器 -->
+          <div class="category-selector-wrapper">
+            <div 
+              class="category-display" 
+              :class="{ active: showEditCategoryDropdown }"
+              @click="toggleEditCategoryDropdown"
+            >
+              <span 
+                class="selected-text" 
+                :class="{ placeholder: !selectedEditCategoriesText }"
+              >
+                {{ selectedEditCategoriesText || '请选择分类' }}
+              </span>
+              <i 
+                class="el-icon-arrow-down" 
+                :class="{ rotate: showEditCategoryDropdown }"
+              ></i>
+            </div>
+            
+            <div v-if="showEditCategoryDropdown" class="category-dropdown">
+              <ul class="category-list">
+                <li 
+                  v-for="category in flattenedCategories" 
+                  :key="category.id"
+                  class="category-item"
+                  :class="[
+                    `level-${category.level}`,
+                    { selected: editForm.categories.includes(category.id) }
+                  ]"
+                  @click="toggleEditCategorySelection(category)"
+                >
+                  <span class="category-indent" v-for="i in category.level" :key="i"></span>
+                  <i class="category-icon el-icon-folder"></i>
+                  <span class="category-name">{{ category.name }}</span>
+                </li>
+              </ul>
+            </div>
+          </div>
         </el-form-item>
         
         <el-form-item label="考试时长" prop="duration">
@@ -375,12 +404,14 @@
 
 <script>
 import api from '@/pages/admin/api'
-import { mapGetters } from 'vuex'
+  import { mapGetters } from 'vuex'
+  import PaginationComponent from '@/components/PaginationComponent.vue'
 // import CategorySelector from '@/pages/admin/components/CategorySelector.vue' // 已替换为自定义ul列表
 
 export default {
   name: 'ExamPaperList',
   components: {
+    PaginationComponent
     // CategorySelector // 已替换为自定义ul列表
   },
   data() {
@@ -390,7 +421,8 @@ export default {
       categories: [],
       selectedPapers: [],
       isDeleting: false,
-      showCategoryDropdown: false, // 控制分类下拉菜单显示
+      showCategoryDropdown: false, // 控制创建对话框分类下拉菜单显示
+      showEditCategoryDropdown: false, // 控制编辑对话框分类下拉菜单显示
       
       // 获取分类列表的方法已在 getCategories() 中实现
       // 打开创建对话框的方法已在模板中通过 @click="createDialogVisible = true" 实现,
@@ -422,6 +454,9 @@ export default {
         title: [
           { required: true, message: '请输入试卷标题', trigger: 'blur' },
           { min: 1, max: 200, message: '标题长度在 1 到 200 个字符', trigger: 'blur' }
+        ],
+        categories: [
+          { required: true, message: '请选择分类', trigger: 'change' }
         ],
         duration: [
           { required: true, message: '请输入考试时长', trigger: 'blur' },
@@ -504,8 +539,8 @@ export default {
       // 扁平化处理，使用与分类管理页面相同的排序逻辑
       const flatten = (cats, level = 0, parentName = '') => {
         let result = []
-        // 按sort_order排序
-        const sortedCats = [...cats].sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0))
+        // 按order排序
+        const sortedCats = [...cats].sort((a, b) => (a.order || 0) - (b.order || 0))
         
         sortedCats.forEach(cat => {
           const displayName = level > 0 ? `${'  '.repeat(level)}${cat.name}` : cat.name
@@ -525,13 +560,31 @@ export default {
       return flatten(deduplicatedCategories)
     },
     
-    // 获取选中分类的文本显示
+    // 获取选中分类的文本显示（创建对话框）
     selectedCategoriesText() {
       if (!this.createForm.categories || this.createForm.categories.length === 0) {
         return ''
       }
       
       const selectedNames = this.createForm.categories.map(id => {
+        const category = this.flattenedCategories.find(cat => cat.id === id)
+        return category ? category.name : ''
+      }).filter(name => name)
+      
+      if (selectedNames.length <= 2) {
+        return selectedNames.join(', ')
+      } else {
+        return `${selectedNames.slice(0, 2).join(', ')} 等${selectedNames.length}个分类`
+      }
+    },
+    
+    // 获取选中分类的文本显示（编辑对话框）
+    selectedEditCategoriesText() {
+      if (!this.editForm.categories || this.editForm.categories.length === 0) {
+        return ''
+      }
+      
+      const selectedNames = this.editForm.categories.map(id => {
         const category = this.flattenedCategories.find(cat => cat.id === id)
         return category ? category.name : ''
       }).filter(name => name)
@@ -573,6 +626,23 @@ export default {
       } else {
         // 如果未选中，则添加选择
         this.createForm.categories.push(category.id)
+      }
+    },
+    
+    // 切换编辑对话框分类下拉菜单显示状态
+    toggleEditCategoryDropdown() {
+      this.showEditCategoryDropdown = !this.showEditCategoryDropdown
+    },
+    
+    // 切换编辑对话框分类选择状态（支持多选）
+    toggleEditCategorySelection(category) {
+      const index = this.editForm.categories.indexOf(category.id)
+      if (index > -1) {
+        // 如果已选中，则取消选择
+        this.editForm.categories.splice(index, 1)
+      } else {
+        // 如果未选中，则添加选择
+        this.editForm.categories.push(category.id)
       }
     },
     
@@ -779,16 +849,21 @@ export default {
     openEditDialog(paper) {
       console.log('打开编辑对话框，试卷信息:', paper)
       
+      // 重置编辑对话框的分类下拉状态
+      this.showEditCategoryDropdown = false
+      
       // 填充表单数据
       this.editForm = {
         id: paper.id,
         title: paper.title || '',
         description: paper.description || '',
-        categories: paper.categories ? paper.categories.map(c => c.id) : [],
+        categories: paper.category ? [paper.category.id] : [],
         duration: paper.duration || 60,
         question_count: paper.question_count || 10,
         total_score: paper.total_score || 100
       }
+      
+      console.log('编辑表单数据:', this.editForm)
       
       this.editDialogVisible = true
       
@@ -815,7 +890,7 @@ export default {
         const updateData = {
           title: this.editForm.title,
           description: this.editForm.description,
-          categories: this.editForm.categories,
+          categories: this.editForm.categories || [],
           duration: this.editForm.duration,
           question_count: this.editForm.question_count,
           total_score: this.editForm.total_score
@@ -863,7 +938,7 @@ export default {
         const createData = {
           title: this.createForm.title,
           description: this.createForm.description,
-          categories: this.createForm.categories,
+          categories: this.createForm.categories || [],
           duration: this.createForm.duration,
           question_count: this.createForm.question_count,
           total_score: this.createForm.total_score

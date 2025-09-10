@@ -165,7 +165,7 @@ export default {
         // 递归扁平化
         const flatten = (categories, level = 0) => {
           let result = []
-          const sortedCategories = [...categories].sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0))
+          const sortedCategories = [...categories].sort((a, b) => (a.order || 0) - (b.order || 0))
           
           sortedCategories.forEach(category => {
             const flatCategory = {
@@ -191,7 +191,7 @@ export default {
         
         const flatten = (categories, level = 0) => {
           let result = []
-          const sortedCategories = [...categories].sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0))
+          const sortedCategories = [...categories].sort((a, b) => (a.order || 0) - (b.order || 0))
           
           sortedCategories.forEach(category => {
             const flatCategory = {

@@ -273,7 +273,10 @@ export default {
       // 扁平化处理
       const flatten = (categories, level = 0) => {
         let result = []
-        categories.forEach(category => {
+        // 按order排序
+        const sortedCategories = [...categories].sort((a, b) => (a.order || 0) - (b.order || 0))
+        
+        sortedCategories.forEach(category => {
           result.push({
             ...category,
             level: level

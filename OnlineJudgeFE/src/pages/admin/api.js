@@ -362,26 +362,6 @@ export default {
     })
   },
   
-  // 分类管理 API
-  createChoiceQuestionCategory (data) {
-    return ajax('admin/choice_question/categories', 'post', {
-      data
-    })
-  },
-  
-  updateChoiceQuestionCategory (id, data) {
-    return ajax('admin/choice_question/categories', 'put', {
-      params: { id },
-      data
-    })
-  },
-  
-  deleteChoiceQuestionCategory (id) {
-    return ajax('admin/choice_question/categories', 'delete', {
-      params: { id }
-    })
-  },
-  
   // 分类排序 API
   updateCategoryOrder (data) {
     return ajax('admin/choice_question/categories/order', 'put', {
@@ -461,22 +441,6 @@ export default {
   // Choice Question Tags
   getChoiceQuestionTags () {
     return ajax('admin/choice_question/tags', 'get')
-  },
-  createChoiceQuestionTag (data) {
-    return ajax('admin/choice_question/tags', 'post', {
-      data
-    })
-  },
-  updateChoiceQuestionTag (id, data) {
-    return ajax('admin/choice_question/tags', 'put', {
-      params: { id },
-      data
-    })
-  },
-  deleteChoiceQuestionTag (id) {
-    return ajax('admin/choice_question/tags', 'delete', {
-      params: { id }
-    })
   },
   // Choice Question Import// 导入选择题
   importChoiceQuestions (data) {
@@ -854,10 +818,7 @@ export default {
   
   // 选择题分类管理 API - 已删除重复定义，使用第377行的版本
   
-  // 选择题标签管理 API  
-  getChoiceQuestionTags () {
-    return ajax('admin/choice_question/tags', 'get')
-  },
+
   
   // 选择题列表 API
   getChoiceQuestionList (offset, limit, keyword) {

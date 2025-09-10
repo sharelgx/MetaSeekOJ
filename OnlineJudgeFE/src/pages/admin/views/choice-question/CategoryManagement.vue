@@ -153,7 +153,7 @@
         
         <el-form-item label="排序值">
           <el-input-number 
-            v-model="categoryForm.sort_order" 
+            v-model="categoryForm.order" 
             :min="0" 
             :max="9999"
             placeholder="排序值，数字越小越靠前">
@@ -204,7 +204,7 @@ export default {
         name: '',
         description: '',
         parent: null,
-        sort_order: 0,
+        order: 0,
         is_enabled: true
       },
       formRules: {
@@ -231,8 +231,8 @@ export default {
       // 扁平化分类数据用于表格显示，确保按sort_order排序
       const flatten = (categories, level = 0) => {
         let result = []
-        // 先按sort_order排序
-        const sortedCategories = [...categories].sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0))
+        // 先按order排序
+        const sortedCategories = [...categories].sort((a, b) => (a.order || 0) - (b.order || 0))
         
         sortedCategories.forEach(category => {
           const flatCategory = {
@@ -304,7 +304,7 @@ export default {
         
         // 然后更新到数据库
         await api.updateChoiceQuestionCategory(category.id, {
-          sort_order: category.sort_order
+          order: category.sort_order
         })
         this.$message.success('排序更新成功')
       } catch (error) {
@@ -383,7 +383,7 @@ export default {
          const updatePromises = updatedCategories.map((category, index) => {
            const newSortOrder = index * 10
            return api.updateChoiceQuestionCategory(category.id, {
-             sort_order: newSortOrder
+             order: newSortOrder
            })
          })
          
@@ -479,9 +479,9 @@ export default {
         }
       })
       
-      // 按sort_order排序
+      // 按order排序
       const sortCategories = (categories) => {
-        categories.sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0))
+        categories.sort((a, b) => (a.order || 0) - (b.order || 0))
         categories.forEach(category => {
           if (category.children && category.children.length > 0) {
             sortCategories(category.children)
@@ -520,7 +520,7 @@ export default {
         name: category.name,
         description: category.description || '',
         parent: category.parent,
-        sort_order: category.sort_order || 0,
+        order: category.sort_order || 0,
         is_enabled: category.is_enabled
       }
       this.dialogVisible = true
@@ -532,7 +532,7 @@ export default {
         name: '',
         description: '',
         parent: parentCategory.id,
-        sort_order: 0,
+        order: 0,
         is_enabled: true
       }
       this.dialogVisible = true
@@ -595,7 +595,7 @@ export default {
         name: '',
         description: '',
         parent: null,
-        sort_order: 0,
+        order: 0,
         is_enabled: true
       }
       if (this.$refs.categoryForm) {

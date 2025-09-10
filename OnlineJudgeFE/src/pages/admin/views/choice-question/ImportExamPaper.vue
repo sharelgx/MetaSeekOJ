@@ -435,9 +435,11 @@ export default {
     },
     
     // 选择分类
-    selectCategory(category) {
+    async selectCategory(category) {
       this.selectedCategory = category.id
       this.showCategoryDropdown = false
+      // 选择分类后重新加载对应分类的试卷列表
+      await this.loadExistingPapers()
     },
     
     // 加载分类数据
@@ -606,7 +608,7 @@ export default {
     },
     
     async importPaper() {
-      if (!this.canImport) return
+      if (!this.canImport || this.importing) return
       
       this.importing = true
       try {
@@ -622,6 +624,7 @@ export default {
         
         if (!cleanTitle) {
           this.$message.error('请输入有效的试卷标题')
+          this.importing = false
           return
         }
         
@@ -664,7 +667,14 @@ export default {
           if (response.data.error === null) {
             const result = response.data.data
             this.$message.success(`成功导入试卷"${cleanTitle}"，包含 ${paperData.questions.length} 道题目！`)
-            this.clearAll()
+            
+            // 延迟清空状态，防止用户立即重复操作
+            setTimeout(() => {
+              this.clearAll()
+            }, 1500)
+            
+            // 可选：跳转到试卷列表页面
+            // this.$router.push({name: 'exam-paper-list'})
           } else {
             // 显示详细的错误信息
             let errorMsg = '导入失败：'
@@ -793,12 +803,27 @@ export default {
     // 加载现有试卷列表
     async loadExistingPapers() {
       try {
-        const response = await api.getExamPaperList({ page: 1, limit: 100 })
+        // 构建查询参数，如果选择了分类则按分类筛选
+        const params = { page: 1, limit: 100 }
+        if (this.selectedCategory) {
+          params.category = this.selectedCategory
+        }
+        
+        const response = await api.getExamPaperList(params)
         console.log('API响应:', response)
         if (response && response.data) {
           // 根据实际API响应结构调整数据路径
-          this.existingPapers = response.data.data || response.data || []
-          console.log('加载的试卷列表:', this.existingPapers)
+          const responseData = response.data.data || response.data
+          this.existingPapers = responseData.results || responseData || []
+          console.log('API原始响应:', response.data)
+          console.log('解析后的试卷列表:', this.existingPapers)
+          console.log('试卷列表长度:', this.existingPapers.length)
+          console.log('第一个试卷数据:', this.existingPapers[0])
+          
+          // 如果当前选择的试卷标题不在新的列表中，清空选择
+          if (this.examPaperTitle && !this.existingPapers.some(paper => paper.title === this.examPaperTitle)) {
+            this.examPaperTitle = ''
+          }
         }
       } catch (error) {
         console.error('加载试卷列表失败:', error)

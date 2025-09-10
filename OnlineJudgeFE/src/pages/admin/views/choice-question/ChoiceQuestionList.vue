@@ -72,13 +72,13 @@
         </el-table-column>
       </el-table>
       <div class="panel-options">
-        <el-pagination
-          class="page"
-          layout="prev, pager, next"
-          @current-change="currentChange"
+        <PaginationComponent
+          :current-page="currentPage"
           :page-size="pageSize"
-          :total="total">
-        </el-pagination>
+          :total="total"
+          @size-change="handleSizeChange"
+          @current-change="currentChange">
+        </PaginationComponent>
       </div>
     </Panel>
     
@@ -267,9 +267,13 @@
 
 <script>
   import api from '../../api.js'
+  import PaginationComponent from '@/components/PaginationComponent.vue'
 
   export default {
     name: 'ChoiceQuestionList',
+    components: {
+      PaginationComponent
+    },
     data () {
       return {
         pageSize: 10,
@@ -333,6 +337,12 @@
       currentChange (page) {
         this.currentPage = page
         this.getChoiceQuestionList(page)
+      },
+      // 每页条数改变回调
+      handleSizeChange (size) {
+        this.pageSize = size
+        this.currentPage = 1
+        this.getChoiceQuestionList(1)
       },
       getChoiceQuestionList (page) {
         this.loadingTable = true

@@ -1,0 +1,466 @@
+<html lang="zh-CN"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GESP 等级考试 - 在线评测平台</title>
+  <!-- 引入Font Awesome图标库 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* 基础样式 */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Helvetica Neue", "Microsoft Yahei", sans-serif;
+    }
+    
+    body {
+      background-color: #f5f7fa;
+      color: #333;
+      line-height: 1.6;
+      padding: 20px;
+    }
+    
+    /* 导航栏样式 */
+    .navbar {
+      background-color: #fff;
+      border-radius: 4px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      padding: 12px 20px;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .navbar-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 18px;
+      font-weight: 600;
+      color: #1890ff;
+    }
+    
+    .navbar-logo i {
+      font-size: 22px;
+    }
+    
+    .navbar-menu {
+      display: flex;
+      gap: 20px;
+    }
+    
+    .navbar-menu a {
+      color: #666;
+      text-decoration: none;
+      transition: color 0.2s;
+      font-size: 14px;
+    }
+    
+    .navbar-menu a:hover, .navbar-menu a.active {
+      color: #1890ff;
+    }
+    
+    /* 页面标题区 */
+    .page-header {
+      background-color: #fff;
+      border-radius: 4px;
+      padding: 16px 20px;
+      margin-bottom: 20px;
+      border-left: 4px solid #1890ff;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+    
+    .page-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #1f2329;
+    }
+    
+    .page-desc {
+      font-size: 14px;
+      color: #666;
+      margin-top: 5px;
+    }
+    
+    /* 等级选择区 */
+    .level-section {
+      background-color: #fff;
+      border-radius: 4px;
+      padding: 16px 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+    
+    .section-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: #1f2329;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .section-title i {
+      color: #1890ff;
+    }
+    
+    .level-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    
+    .level-btn {
+      padding: 8px 16px;
+      background-color: #f5f7fa;
+      border: 1px solid #e5e6eb;
+      border-radius: 4px;
+      color: #333;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .level-btn:hover {
+      background-color: #e6f7ff;
+      border-color: #91d5ff;
+    }
+    
+    .level-btn.active {
+      background-color: #1890ff;
+      color: #fff;
+      border-color: #1890ff;
+    }
+    
+    /* 试题列表区域 */
+    .question-section {
+      background-color: #fff;
+      border-radius: 4px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      overflow: hidden;
+    }
+    
+    .question-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    
+    .question-table th, 
+    .question-table td {
+      padding: 12px 16px;
+      text-align: left;
+      border-bottom: 1px solid #e5e6eb;
+      font-size: 14px;
+    }
+    
+    .question-table th {
+      background-color: #f5f7fa;
+      font-weight: 600;
+      color: #666;
+    }
+    
+    .question-table tbody tr:hover {
+      background-color: #f5f7fa;
+      transition: background-color 0.2s;
+    }
+    
+    .question-id {
+      color: #1890ff;
+      font-weight: 600;
+      width: 80px;
+    }
+    
+    .question-title {
+      color: #1f2329;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    
+    .question-title:hover {
+      color: #1890ff;
+      text-decoration: underline;
+    }
+    
+    .difficulty {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    
+    .difficulty-easy {
+      background-color: #f6ffed;
+      color: #52c41a;
+      border: 1px solid #b7eb8f;
+    }
+    
+    .difficulty-medium {
+      background-color: #fffbe6;
+      color: #faad14;
+      border: 1px solid #ffe58f;
+    }
+    
+    .difficulty-hard {
+      background-color: #fff2f3;
+      color: #f5222d;
+      border: 1px solid #ffccc7;
+    }
+    
+    .pass-rate {
+      color: #666;
+    }
+    
+    /* 分页控件 */
+    .pagination {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      padding: 16px;
+    }
+    
+    .pagination-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 4px;
+      border: 1px solid #e5e6eb;
+      background-color: #fff;
+      color: #666;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 14px;
+    }
+    
+    .pagination-btn:hover {
+      border-color: #1890ff;
+      color: #1890ff;
+    }
+    
+    .pagination-btn.active {
+      background-color: #1890ff;
+      color: #fff;
+      border-color: #1890ff;
+    }
+    
+    .pagination-btn:disabled {
+      cursor: not-allowed;
+      opacity: 0.6;
+      border-color: #e5e6eb;
+      color: #ccc;
+    }
+    
+    /* 响应式设计 */
+    @media (max-width: 768px) {
+      body {
+        padding: 10px;
+      }
+      
+      .navbar {
+        flex-direction: column;
+        gap: 10px;
+        padding: 10px;
+      }
+      
+      .question-table th:nth-child(4),
+      .question-table td:nth-child(4) {
+        display: none;
+      }
+      
+      .level-btn {
+        padding: 6px 12px;
+        font-size: 13px;
+      }
+      
+      .pagination {
+        flex-wrap: wrap;
+        padding: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- 顶部导航栏 -->
+  <nav class="navbar">
+    <div class="navbar-logo">
+      <i class="fas fa-code"></i>
+      <span>QingdaoOJ</span>
+    </div>
+    <div class="navbar-menu">
+      <a href="#" class="active">首页</a>
+      <a href="#">题库</a>
+      <a href="#">比赛</a>
+      <a href="#">GESP等级考试</a>
+      <a href="#">帮助</a>
+    </div>
+  </nav>
+  
+  <!-- 页面标题区 -->
+  <div class="page-header">
+    <div class="page-title">GESP等级考试试题库</div>
+    <div class="page-desc">全国青少年软件编程等级考试官方授权模拟题库</div>
+  </div>
+  
+  <!-- 等级选择区 -->
+  <div class="level-section">
+    <div class="section-title">
+      <i class="fas fa-layer-group"></i>
+      选择等级
+    </div>
+    <div class="level-buttons">
+      <div class="level-btn active" data-level="1">一级</div>
+      <div class="level-btn" data-level="2">二级</div>
+      <div class="level-btn" data-level="3">三级</div>
+      <div class="level-btn" data-level="4">四级</div>
+      <div class="level-btn" data-level="5">五级</div>
+      <div class="level-btn" data-level="6">六级</div>
+      <div class="level-btn" data-level="7">七级</div>
+      <div class="level-btn" data-level="8">八级</div>
+    </div>
+  </div>
+  
+  <!-- 试题列表区域 -->
+  <div class="question-section">
+    <table class="question-table">
+      <thead>
+        <tr>
+          <th>题号</th>
+          <th>试卷名称</th>
+          <th>难度</th>
+          <th>通过率</th>
+        </tr>
+      </thead>
+      <tbody id="questionList">
+        <!-- 试题列表将通过JS动态生成 -->
+      </tbody>
+    </table>
+  </div>
+  
+  <!-- 分页导航 -->
+  <div class="pagination">
+    <button class="pagination-btn" id="prevPage" disabled="">
+      <i class="fas fa-chevron-left"></i>
+    </button>
+    <button class="pagination-btn active">1</button>
+    <button class="pagination-btn">2</button>
+    <button class="pagination-btn">3</button>
+    <button class="pagination-btn">4</button>
+    <button class="pagination-btn">5</button>
+    <button class="pagination-btn" id="nextPage">
+      <i class="fas fa-chevron-right"></i>
+    </button>
+  </div>
+
+  <script>
+    // 模拟试题数据
+    const questionData = {
+      1: [
+        { id: "GESP1001", title: "Hello World", difficulty: "easy", passRate: "92.5%" },
+        { id: "GESP1002", title: "整数求和", difficulty: "easy", passRate: "88.3%" },
+        { id: "GESP1003", title: "计算长方形面积", difficulty: "easy", passRate: "85.7%" },
+        { id: "GESP1004", title: "判断奇偶数", difficulty: "easy", passRate: "89.1%" },
+        { id: "GESP1005", title: "简单排序", difficulty: "medium", passRate: "72.4%" }
+      ],
+      2: [
+        { id: "GESP2001", title: "斐波那契数列", difficulty: "medium", passRate: "76.2%" },
+        { id: "GESP2002", title: "最大公约数", difficulty: "medium", passRate: "71.5%" },
+        { id: "GESP2003", title: "素数判断", difficulty: "medium", passRate: "68.3%" },
+        { id: "GESP2004", title: "数组反转", difficulty: "medium", passRate: "79.8%" },
+        { id: "GESP2005", title: "简单字符串处理", difficulty: "medium", passRate: "65.9%" }
+      ],
+      3: [
+        { id: "GESP3001", title: "二叉树遍历", difficulty: "hard", passRate: "52.7%" },
+        { id: "GESP3002", title: "动态规划入门", difficulty: "hard", passRate: "48.3%" },
+        { id: "GESP3003", title: "贪心算法应用", difficulty: "hard", passRate: "51.9%" },
+        { id: "GESP3004", title: "递归求解", difficulty: "medium", passRate: "63.2%" },
+        { id: "GESP3005", title: "哈希表应用", difficulty: "hard", passRate: "45.6%" }
+      ]
+    };
+
+    // 初始化页面
+    document.addEventListener('DOMContentLoaded', function() {
+      // 默认加载一级试题
+      renderQuestions(1);
+      
+      // 等级按钮点击事件
+      const levelBtns = document.querySelectorAll('.level-btn');
+      levelBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          // 更新按钮状态
+          levelBtns.forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          
+          // 渲染对应等级的试题
+          const level = this.getAttribute('data-level');
+          renderQuestions(level);
+        });
+      });
+      
+      // 分页按钮事件
+      const paginationBtns = document.querySelectorAll('.pagination-btn:not(#prevPage):not(#nextPage)');
+      paginationBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          paginationBtns.forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          // 实际项目中这里会加载对应页的试题
+        });
+      });
+      
+      // 上一页/下一页事件
+      document.getElementById('prevPage').addEventListener('click', function() {
+        // 实际项目中实现上一页逻辑
+      });
+      
+      document.getElementById('nextPage').addEventListener('click', function() {
+        // 实际项目中实现下一页逻辑
+      });
+    });
+    
+    // 渲染试题列表
+    function renderQuestions(level) {
+      const questionList = document.getElementById('questionList');
+      // 获取对应等级的试题数据，如果没有则使用空数组
+      const questions = questionData[level] || [];
+      
+      // 清空列表
+      questionList.innerHTML = '';
+      
+      // 如果没有试题数据
+      if (questions.length === 0) {
+        const emptyRow = document.createElement('tr');
+        emptyRow.innerHTML = `<td colspan="4" style="text-align: center; padding: 40px 0;">
+          暂无该等级的试题数据
+        </td>`;
+        questionList.appendChild(emptyRow);
+        return;
+      }
+      
+      // 生成试题列表
+      questions.forEach(question => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td class="question-id">${question.id}</td>
+          <td>
+            <a href="#" class="question-title">${question.title}</a>
+          </td>
+          <td>
+            <span class="difficulty difficulty-${question.difficulty}">
+              ${question.difficulty === 'easy' ? '简单' : 
+                question.difficulty === 'medium' ? '中等' : '困难'}
+            </span>
+          </td>
+          <td class="pass-rate">${question.passRate}</td>
+        `;
+        questionList.appendChild(row);
+      });
+    }
+  </script>
+
+
+</body></html>
