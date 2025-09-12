@@ -106,8 +106,18 @@ class BaseProblemSerializer(serializers.ModelSerializer):
 
     def get_public_template(self, obj):
         ret = {}
-        for lang, code in obj.template.items():
-            ret[lang] = parse_problem_template(code)["template"]
+        # 处理template字段可能是字符串的情况
+        template = obj.template
+        if isinstance(template, str):
+            try:
+                import json
+                template = json.loads(template)
+            except (json.JSONDecodeError, TypeError):
+                template = {}
+        
+        if isinstance(template, dict):
+            for lang, code in template.items():
+                ret[lang] = parse_problem_template(code)["template"]
         return ret
 
 
@@ -182,8 +192,18 @@ class ExportProblemSerializer(serializers.ModelSerializer):
 
     def get_template(self, obj):
         ret = {}
-        for k, v in obj.template.items():
-            ret[k] = parse_problem_template(v)
+        # 处理template字段可能是字符串的情况
+        template = obj.template
+        if isinstance(template, str):
+            try:
+                import json
+                template = json.loads(template)
+            except (json.JSONDecodeError, TypeError):
+                template = {}
+        
+        if isinstance(template, dict):
+            for k, v in template.items():
+                ret[k] = parse_problem_template(v)
         return ret
 
     def get_source(self, obj):

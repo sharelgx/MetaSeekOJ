@@ -1,0 +1,95 @@
+{
+  "server_name": "mcp.config.usrremotemcp.project-restart",
+  "description": "",
+  "tools": [
+    {
+      "name": "restart_full_project",
+      "description": "\u5168\u9762\u91cd\u542f\u9879\u76ee - \u5305\u542bRedis\u3001\u524d\u7aef\u3001\u540e\u7aef\u7b49\u6240\u6709\u670d\u52a1",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "verbose": {
+            "type": "boolean",
+            "description": "\u662f\u5426\u663e\u793a\u8be6\u7ec6\u8f93\u51fa",
+            "default": true
+          },
+          "check_status": {
+            "type": "boolean",
+            "description": "\u542f\u52a8\u540e\u662f\u5426\u68c0\u67e5\u670d\u52a1\u72b6\u6001",
+            "default": true
+          }
+        }
+      }
+    },
+    {
+      "name": "solo_mode_restart",
+      "description": "SOLO\u6a21\u5f0f\u542f\u52a8 - \u63d0\u4f9b\u547d\u4ee4\u800c\u4e0d\u662f\u81ea\u52a8\u542f\u52a8\u670d\u52a1",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "verbose": {
+            "type": "boolean",
+            "description": "\u662f\u5426\u663e\u793a\u8be6\u7ec6\u8f93\u51fa",
+            "default": true
+          }
+        }
+      }
+    },
+    {
+      "name": "quick_restart",
+      "description": "\u5feb\u901f\u91cd\u542f - \u4f7f\u7528\u73b0\u6709\u7684restart.sh\u811a\u672c",
+      "inputSchema": {
+        "type": "object",
+        "properties": {}
+      }
+    },
+    {
+      "name": "python_restart",
+      "description": "Python\u7248\u672c\u91cd\u542f - \u4f7f\u7528restart_project.py\u811a\u672c",
+      "inputSchema": {
+        "type": "object",
+        "properties": {}
+      }
+    },
+    {
+      "name": "check_project_status",
+      "description": "\u68c0\u67e5\u9879\u76ee\u72b6\u6001 - \u67e5\u770b\u6240\u6709\u670d\u52a1\u8fd0\u884c\u72b6\u6001",
+      "inputSchema": {
+        "type": "object",
+        "properties": {}
+      }
+    },
+    {
+      "name": "stop_all_services",
+      "description": "\u505c\u6b62\u6240\u6709\u670d\u52a1 - \u505c\u6b62\u524d\u7aef\u3001\u540e\u7aef\u3001Redis\u7b49\u6240\u6709\u670d\u52a1",
+      "inputSchema": {
+        "type": "object",
+        "properties": {}
+      }
+    },
+    {
+      "name": "start_redis_only",
+      "description": "\u4ec5\u542f\u52a8Redis\u670d\u52a1",
+      "inputSchema": {
+        "type": "object",
+        "properties": {}
+      }
+    },
+    {
+      "name": "start_backend_only",
+      "description": "\u4ec5\u542f\u52a8\u540e\u7aef\u670d\u52a1\uff08Django\uff09",
+      "inputSchema": {
+        "type": "object",
+        "properties": {}
+      }
+    },
+    {
+      "name": "start_frontend_only",
+      "description": "\u4ec5\u542f\u52a8\u524d\u7aef\u670d\u52a1\uff08Vue.js\uff09",
+      "inputSchema": {
+        "type": "object",
+        "properties": {}
+      }
+    }
+  ]
+}

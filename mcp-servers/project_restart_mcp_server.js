@@ -58,6 +58,20 @@ class ProjectRestartServer {
             }
           },
           {
+            name: 'solo_mode_restart',
+            description: 'SOLO模式启动 - 提供命令而不是自动启动服务',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                verbose: {
+                  type: 'boolean',
+                  description: '是否显示详细输出',
+                  default: true
+                }
+              }
+            }
+          },
+          {
             name: 'quick_restart',
             description: '快速重启 - 使用现有的restart.sh脚本',
             inputSchema: {
@@ -143,6 +157,8 @@ class ProjectRestartServer {
         switch (name) {
           case 'restart_full_project':
             return await this.restartFullProject(args);
+          case 'solo_mode_restart':
+            return await this.soloModeRestart(args);
           case 'quick_restart':
             return await this.quickRestart();
           case 'python_restart':
@@ -401,6 +417,67 @@ class ProjectRestartServer {
         {
           type: 'text',
           text: `前端服务启动: ${result.success ? '命令执行成功' : '命令执行失败'}\n前端状态: ${checkResult.success ? '✓ 运行中 (端口8080)' : '✗ 未运行'}\n访问地址: http://localhost:8080\n查看日志: tail -f /tmp/frontend.log`
+        }
+      ]
+    };
+  }
+
+  async soloModeRestart(args = {}) {
+    const { verbose = true } = args;
+    let output = [];
+
+    output.push('=== MetaSeekOJ 项目 SOLO 模式启动 ===\n');
+
+    // 1. 停止现有服务
+    output.push('1. 停止现有服务...');
+    const stopResult = await this.executeCommand(
+      "pkill -f 'python.*manage.py.*runserver' || true && pkill -f 'node.*dev-server' || true && pkill -f 'npm.*dev' || true"
+    );
+    if (verbose) {
+      output.push(`停止服务结果: ${stopResult.success ? '成功' : '部分成功'}\n`);
+    }
+
+    // 2. 提供启动命令而不是自动启动服务
+    output.push('2. SOLO 模式启动说明');
+    output.push('在 SOLO 模式下，您需要手动启动各个服务。以下是启动命令：\n');
+
+    // Redis 启动命令
+    output.push('=== Redis 服务启动命令 ===');
+    output.push('redis-server --daemonize yes');
+    output.push('# 或者在后台运行：');
+    output.push('nohup redis-server > /tmp/redis.log 2>&1 &\n');
+
+    // 后端启动命令
+    output.push('=== 后端服务启动命令 ===');
+    output.push('cd /home/metaspeekoj/OnlineJudge');
+    output.push('source django_env/bin/activate  # 或 source venv/bin/activate');
+    output.push('python manage.py runserver 0.0.0.0:8086\n');
+
+    // 前端启动命令
+    output.push('=== 前端服务启动命令 ===');
+    output.push('cd /home/metaspeekoj/OnlineJudgeFE');
+    output.push('export NODE_OPTIONS="--openssl-legacy-provider"');
+    output.push('npm run dev -- --port 8080\n');
+
+    // 3. 提供检查状态命令
+    output.push('=== 检查服务状态命令 ===');
+    output.push('# 检查Redis服务');
+    output.push('redis-cli ping');
+    output.push('# 检查后端服务');
+    output.push('netstat -tuln | grep ":8086 "');
+    output.push('# 检查前端服务');
+    output.push('netstat -tuln | grep ":8080 "\n');
+
+    output.push('=== 访问地址 ===');
+    output.push('前端: http://localhost:8080');
+    output.push('后端API: http://localhost:8086');
+    output.push('\n🎉 SOLO 模式准备就绪! 请按照上述说明在终端中启动服务');
+
+    return {
+      content: [
+        {
+          type: 'text',
+          text: output.join('\n')
         }
       ]
     };

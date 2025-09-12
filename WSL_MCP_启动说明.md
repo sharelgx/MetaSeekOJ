@@ -39,9 +39,31 @@
 - **test-file-manager**: 测试文件管理工具
 - **browser-log-monitor**: 浏览器日志监控工具
 - **project-restart**: 项目重启工具
+  - 全面重启项目（包含Redis、前端、后端等所有服务）
+  - SOLO模式启动（提供命令而不是自动启动服务）
+  - 快速重启（使用现有的restart.sh脚本）
+  - Python版本重启（使用restart_project.py脚本）
+  - 检查项目状态、启动/停止单个服务等
 - **playwright**: 浏览器自动化工具
 - **postgresql**: PostgreSQL数据库工具
 - **GitHub**: GitHub代码仓库工具
+
+## SOLO模式启动说明
+
+SOLO模式是一种特殊的项目启动模式，它提供启动命令而不是自动启动服务，适用于需要手动控制服务启动过程的场景。
+
+### 使用方法
+1. 在Trae IDE中，使用MCP工具面板
+2. 选择 **project-restart** 服务器
+3. 选择 **solo_mode_restart** 工具
+4. 设置参数（如需要）并执行
+5. 系统将返回启动命令，您可以根据需要手动执行这些命令
+
+### 适用场景
+- 需要自定义启动参数
+- 需要单独启动某些服务
+- 需要按特定顺序启动服务
+- 调试启动过程中的问题
 
 ## 故障排除
 
