@@ -205,11 +205,20 @@ class ChoiceQuestionCreateSerializer(serializers.ModelSerializer):
                     }
                     if option.get('is_correct'):
                         correct_answers.append(option_key)
-                else:
-                    # 后端格式：{key, text} 或 {key, value}
+                elif 'text' in option:
+                    # 后端格式：{key, text} 或导入格式：{text, is_correct}
                     converted_option = {
                         'key': option.get('key', option_key),
-                        'text': option.get('text') or option.get('value', '')
+                        'text': option.get('text')
+                    }
+                    # 检查is_correct字段（用于导入功能）
+                    if option.get('is_correct'):
+                        correct_answers.append(option_key)
+                else:
+                    # 其他格式：{key, value}
+                    converted_option = {
+                        'key': option.get('key', option_key),
+                        'text': option.get('value', '')
                     }
                 
                 converted_options.append(converted_option)
@@ -275,7 +284,9 @@ class ExamSessionSerializer(serializers.ModelSerializer):
     accuracy_rate = serializers.SerializerMethodField()
     duration = serializers.SerializerMethodField()
     max_score = serializers.SerializerMethodField()
+    total_score = serializers.SerializerMethodField()
     exam_paper_title = serializers.SerializerMethodField()
+    question_details = serializers.SerializerMethodField()
     
     class Meta:
         model = ExamSession
@@ -304,9 +315,23 @@ class ExamSessionSerializer(serializers.ModelSerializer):
         """获取满分"""
         return obj.paper.total_score if obj.paper else 0
     
+    def get_total_score(self, obj):
+        """获取总分（与max_score相同，为了前端兼容性）"""
+        return obj.paper.total_score if obj.paper else 0
+    
     def get_exam_paper_title(self, obj):
         """获取试卷标题"""
         return obj.paper.title if obj.paper else ''
+    
+    def get_question_details(self, obj):
+        """获取题目详情列表"""
+        if not obj.questions:
+            return []
+        
+        from .models import ChoiceQuestion
+        question_ids = obj.questions if isinstance(obj.questions, list) else []
+        questions = ChoiceQuestion.objects.filter(id__in=question_ids).order_by('id')
+        return ChoiceQuestionListSerializer(questions, many=True).data
 
 
 class TopicSerializer(serializers.ModelSerializer):

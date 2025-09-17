@@ -172,6 +172,18 @@ class ChoiceQuestionImportItemSerializer(serializers.Serializer):
         options = data.get('options', [])
         correct_answer = data.get('correct_answer') or data.get('correct', '')
         
+        # 获取编程语言
+        language = data.get('language', '')
+        
+        # 处理题目描述中的代码块
+        if language:
+            description = process_html_with_language(description, language)
+        
+        # 处理解释中的代码块
+        explanation = data.get('explanation', '')
+        if explanation and language:
+            explanation = process_html_with_language(explanation, language)
+        
         # 转换选项格式
         converted_options = []
         if options and isinstance(options[0], str):
@@ -196,40 +208,24 @@ class ChoiceQuestionImportItemSerializer(serializers.Serializer):
             # 已经是字典格式
             converted_options = options
         
-        # 获取编程语言
-        language = data.get('language', '')
-        
-        # 处理题目描述中的代码块
-        if language:
-            description = process_html_with_language(description, language)
-        
-        # 处理解释中的代码块
-        explanation = data.get('explanation', '')
-        if explanation and language:
-            explanation = process_html_with_language(explanation, language)
-        
         # 处理选项格式，并处理选项中的代码块
-        options = []
-        for i, option in enumerate(data['options']):
+        final_options = []
+        for i, option in enumerate(converted_options):
             option_letter = chr(ord('A') + i)
             
-            if isinstance(option, dict):
-                # 如果已经是字典格式（来自validate_options处理）
-                option_text = option.get('content') or option.get('text', '')
-                option_key = option.get('key', option_letter)
-            else:
-                # 如果是字符串格式（原始输入）
-                option_text = str(option)
-                option_key = option_letter
+            # 获取选项文本
+            option_text = option.get('content', '')
+            is_correct = option.get('is_correct', False)
             
             # 处理选项中的代码块
             if language:
                 option_text = process_html_with_language(option_text, language)
             
-            options.append({
-                'key': option_key,
+            final_options.append({
+                'key': option_letter,
                 'text': option_text,
-                'content': option_text  # 同时提供content字段以兼容不同版本
+                'content': option_text,  # 同时提供content字段以兼容不同版本
+                'is_correct': is_correct
             })
         
         # 转换题目类型 - 支持字符串和整数格式
@@ -242,22 +238,28 @@ class ChoiceQuestionImportItemSerializer(serializers.Serializer):
         difficulty_map = {'Easy': 'easy', 'Mid': 'medium', 'Hard': 'hard'}
         difficulty = difficulty_map.get(data.get('difficulty', 'Easy'), 'easy')
         
-        # 生成正确答案字符串 - 从correct或correct_answer字段获取
-        correct_answer_str = data.get('correct_answer') or data.get('correct', 'A')
+        # 生成正确答案字符串
+        correct_answers = []
+        for i, option in enumerate(final_options):
+            if option.get('is_correct', False):
+                correct_answers.append(chr(ord('A') + i))
         
-        # 如果正确答案是数字格式（0,1,2,3），转换为字母格式（A,B,C,D）
-        if correct_answer_str.isdigit():
-            correct_answer_str = chr(ord('A') + int(correct_answer_str))
+        # 如果没有正确答案，保持为空（不默认设为A）
+        if not correct_answers:
+            print(f"警告：题目 '{description}' 没有正确答案")
+            correct_answer_str = ''
+        else:
+            correct_answer_str = ''.join(correct_answers)
         
         # 返回转换后的数据
         return {
             '_id': data.get('id', ''),
-            'title': data.get('title', ''),
+            'title': data.get('title') or data.get('question', ''),  # 支持title或question字段
             'description': description,
             'question_type': question_type,
             'difficulty': difficulty,
             'score': data.get('score', 2),
-            'options': options,  # 保持为列表格式
+            'options': final_options,  # 保持为列表格式
             'correct_answer': correct_answer_str,
             'explanation': explanation,
             'visible': data.get('visible', True),

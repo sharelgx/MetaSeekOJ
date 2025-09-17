@@ -531,13 +531,16 @@ class QuestionImporter:
             )
         
         # 创建题目
+        # 处理答案字段：优先使用answer字段（前端转换后的格式），其次使用correct字段（直接JSON导入）
+        correct_answer = question_data.get('answer') or question_data.get('correct', 'A')
+        
         question = ChoiceQuestion.objects.create(
             _id=generate_question_id(),
             title=question_data['title'],
             description=question_data['description'],
             question_type=question_data['question_type'],
             options=question_data['options'],  # 直接传递对象数组，让JSONField自动处理序列化
-            correct_answer=question_data.get('correct', 'A'),
+            correct_answer=correct_answer,
             explanation=question_data['explanation'],
             difficulty=question_data['difficulty'],
             score=question_data['score'],

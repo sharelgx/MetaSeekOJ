@@ -1,0 +1,124 @@
+{
+    "spj": false,
+    "test_cases": {
+        "1": {
+            "stripped_output_md5": "aab3238922bcc25a6f606eb525ffdc56",
+            "input_size": 51,
+            "output_size": 2,
+            "input_name": "1.in",
+            "output_name": "1.out"
+        },
+        "2": {
+            "stripped_output_md5": "8e296a067a37563370ded05f5a3bf3ec",
+            "input_size": 45,
+            "output_size": 2,
+            "input_name": "2.in",
+            "output_name": "2.out"
+        },
+        "3": {
+            "stripped_output_md5": "9188905e74c28e489b44e954ec0b9bca",
+            "input_size": 142,
+            "output_size": 3,
+            "input_name": "3.in",
+            "output_name": "3.out"
+        },
+        "4": {
+            "stripped_output_md5": "ac627ab1ccbdb62ec96e702f07f6425b",
+            "input_size": 149,
+            "output_size": 2,
+            "input_name": "4.in",
+            "output_name": "4.out"
+        },
+        "5": {
+            "stripped_output_md5": "3d36c07721a0a5a96436d6c536a132ec",
+            "input_size": 793,
+            "output_size": 4,
+            "input_name": "5.in",
+            "output_name": "5.out"
+        },
+        "6": {
+            "stripped_output_md5": "8349745df60701b0fee9538dea0b93cf",
+            "input_size": 26776,
+            "output_size": 7,
+            "input_name": "6.in",
+            "output_name": "6.out"
+        },
+        "7": {
+            "stripped_output_md5": "2fdaae720bb1cf5208df5d7b03882e6f",
+            "input_size": 27061,
+            "output_size": 7,
+            "input_name": "7.in",
+            "output_name": "7.out"
+        },
+        "8": {
+            "stripped_output_md5": "077e29b11be80ab57e1a2ecabb7da330",
+            "input_size": 26783,
+            "output_size": 3,
+            "input_name": "8.in",
+            "output_name": "8.out"
+        },
+        "9": {
+            "stripped_output_md5": "e10457c93f0f7830fb6b3e23051d1b23",
+            "input_size": 54220,
+            "output_size": 6,
+            "input_name": "9.in",
+            "output_name": "9.out"
+        },
+        "10": {
+            "stripped_output_md5": "03746cb1d1d3b89f2d3200b116eea798",
+            "input_size": 54286,
+            "output_size": 6,
+            "input_name": "10.in",
+            "output_name": "10.out"
+        },
+        "11": {
+            "stripped_output_md5": "38e68b65e943486cc689f7417af4df18",
+            "input_size": 271970,
+            "output_size": 5,
+            "input_name": "11.in",
+            "output_name": "11.out"
+        },
+        "12": {
+            "stripped_output_md5": "d3ea1928852709bd06c72e4c30674c47",
+            "input_size": 362899,
+            "output_size": 8,
+            "input_name": "12.in",
+            "output_name": "12.out"
+        },
+        "13": {
+            "stripped_output_md5": "3bc71faebe42e1639eb6fded38d714cd",
+            "input_size": 1043770,
+            "output_size": 4,
+            "input_name": "13.in",
+            "output_name": "13.out"
+        },
+        "14": {
+            "stripped_output_md5": "6719c31277420a1f900429b9f7e14f05",
+            "input_size": 1671509,
+            "output_size": 7,
+            "input_name": "14.in",
+            "output_name": "14.out"
+        },
+        "15": {
+            "stripped_output_md5": "a4ebfb494bf57ba511938bdd97086890",
+            "input_size": 1692989,
+            "output_size": 10,
+            "input_name": "15.in",
+            "output_name": "15.out"
+        },
+        "16": {
+            "stripped_output_md5": "2385ea8c1c8fd6968f3baa0d929af3e2",
+            "input_size": 1543975,
+            "output_size": 10,
+            "input_name": "16.in",
+            "output_name": "16.out"
+        },
+        "17": {
+            "stripped_output_md5": "eb4499d265d1a5d59380f3e8ef1ca3d7",
+            "input_size": 1440133,
+            "output_size": 10,
+            "input_name": "17.in",
+            "output_name": "17.out"
+        }
+    }
+}

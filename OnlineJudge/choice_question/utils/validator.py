@@ -436,15 +436,33 @@ class QuestionValidator:
                 else:
                     answer_list = [parsed_answer]
             except json.JSONDecodeError:
-                # 尝试解析为索引
-                try:
-                    if ',' in answer:
-                        answer_list = [int(x.strip()) for x in answer.split(',')]
-                    else:
-                        answer_list = [int(answer.strip())]
-                except ValueError:
-                    errors.append("答案格式无效")
-                    return errors
+                # 尝试解析为字母答案（A、B、C、D等）
+                if answer.strip().upper() in ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']:
+                    answer_index = ord(answer.strip().upper()) - ord('A')
+                    answer_list = [answer_index]
+                elif ',' in answer:
+                    # 处理多个字母答案，如"A,C"
+                    answer_parts = [x.strip().upper() for x in answer.split(',')]
+                    answer_list = []
+                    for part in answer_parts:
+                        if part in ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']:
+                            answer_list.append(ord(part) - ord('A'))
+                        else:
+                            try:
+                                answer_list.append(int(part))
+                            except ValueError:
+                                errors.append(f"答案格式无效: {part}")
+                                return errors
+                else:
+                    # 尝试解析为数字索引
+                    try:
+                        if ',' in answer:
+                            answer_list = [int(x.strip()) for x in answer.split(',')]
+                        else:
+                            answer_list = [int(answer.strip())]
+                    except ValueError:
+                        errors.append(f"答案格式无效: {answer}，支持格式：A、B、C、D或数字索引0、1、2、3")
+                        return errors
         elif isinstance(answer, list):
             answer_list = answer
         elif isinstance(answer, int):
@@ -539,14 +557,32 @@ class QuestionValidator:
             try:
                 answer_list = json.loads(answer)
             except json.JSONDecodeError:
-                # 尝试解析为索引
-                try:
-                    if ',' in answer:
-                        answer_list = [int(x.strip()) for x in answer.split(',')]
-                    else:
-                        answer_list = [int(answer.strip())]
-                except ValueError:
+                # 尝试解析为字母答案（A、B、C、D等）
+                if answer.strip().upper() in ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']:
+                    answer_index = ord(answer.strip().upper()) - ord('A')
+                    answer_list = [answer_index]
+                elif ',' in answer:
+                    # 处理多个字母答案，如"A,C"
+                    answer_parts = [x.strip().upper() for x in answer.split(',')]
                     answer_list = []
+                    for part in answer_parts:
+                        if part in ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']:
+                            answer_list.append(ord(part) - ord('A'))
+                        else:
+                            try:
+                                answer_list.append(int(part))
+                            except ValueError:
+                                answer_list = []
+                                break
+                else:
+                    # 尝试解析为数字索引
+                    try:
+                        if ',' in answer:
+                            answer_list = [int(x.strip()) for x in answer.split(',')]
+                        else:
+                            answer_list = [int(answer.strip())]
+                    except ValueError:
+                        answer_list = []
         elif isinstance(answer, list):
             answer_list = answer
         elif isinstance(answer, int):

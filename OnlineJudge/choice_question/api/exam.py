@@ -9,7 +9,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.utils import timezone
-from django.db import transaction
+from django.db import transaction, IntegrityError
 from django.core.cache import cache
 from django.core.paginator import Paginator
 from rest_framework.views import APIView
@@ -235,6 +235,9 @@ class ExamPaperAPI(CSRFExemptAPIView):
             except (ValueError, TypeError):
                 return self.error("数值格式不正确")
             
+            # 处理难度分布数据
+            difficulty_distribution = data.get('difficulty_distribution', {})
+            
             # 创建试卷
             paper = ExamPaper.objects.create(
                 title=data['title'],
@@ -242,7 +245,7 @@ class ExamPaperAPI(CSRFExemptAPIView):
                 duration=duration,
                 question_count=question_count,
                 total_score=total_score,
-                difficulty_distribution=data.get('difficulty_distribution', {}),
+                difficulty_distribution=difficulty_distribution,
                 created_by=request.user
             )
             
@@ -666,29 +669,13 @@ class ExamPaperImportAPI(CSRFExemptAPIView):
         else:
             converted['options'] = []
         
-        # 转换答案格式 - 使用'answer'字段，转换为字符串格式以符合验证器schema
+        # 转换答案格式 - 保持原始correct字段值，不进行转换
         if 'correct' in question_data:
             correct_answer = question_data['correct']
-            if isinstance(correct_answer, str):
-                # 如果是字母格式，转换为数字索引字符串
-                if correct_answer.upper() in ['A', 'B', 'C', 'D', 'E', 'F']:
-                    index = ord(correct_answer.upper()) - 65  # A->0, B->1, C->2, D->3
-                    converted['answer'] = str(index)
-                else:
-                    # 如果是数字格式，确保是字符串
-                    try:
-                        index = int(correct_answer)
-                        converted['answer'] = str(index)
-                    except ValueError:
-                        # 如果不能转换为数字，默认为"0"
-                        converted['answer'] = "0"
-            elif isinstance(correct_answer, int):
-                # 如果是数字，转换为字符串
-                converted['answer'] = str(correct_answer)
-            else:
-                converted['answer'] = "0"  # 默认答案
+            # 直接使用correct字段的原始值，保持字母格式（A、B、C、D）
+            converted['correct'] = str(correct_answer)
         else:
-            converted['answer'] = "0"  # 默认答案
+            converted['correct'] = "A"  # 只有在没有correct字段时才使用默认值
         
         # 其他字段
         converted['explanation'] = question_data.get('explanation', '')
@@ -729,10 +716,18 @@ class ExamSessionAPI(CSRFExemptAPIView):
                         questions = ChoiceQuestion.objects.filter(id__in=session.questions)
                         question_data = []
                         for i, q in enumerate(questions):
+                            # 调试：打印题目的实际字段值
+                            logger.info(f"题目 {q.id} 的字段值:")
+                            logger.info(f"  title: {repr(q.title)}")
+                            logger.info(f"  description: {repr(q.description)}")
+                            logger.info(f"  options: {repr(q.options)}")
+                            logger.info(f"  question_type: {repr(q.question_type)}")
+                            logger.info(f"  difficulty: {repr(q.difficulty)}")
+                            
                             question_info = {
                                 'id': q.id,
                                 'title': getattr(q, 'title', ''),
-                                'content': getattr(q, 'content', ''),
+                                'content': getattr(q, 'description', ''),  # 使用description作为content
                                 'description': getattr(q, 'description', ''),
                                 'options': q.options,
                                 'question_type': q.question_type,
@@ -833,8 +828,8 @@ class ExamSessionAPI(CSRFExemptAPIView):
             except ExamPaper.DoesNotExist:
                 return self.error("试卷不存在")
             
-            # 检查用户是否已有未完成的会话
-            existing_session = ExamSession.objects.filter(
+            # 使用select_for_update防止并发创建重复会话
+            existing_session = ExamSession.objects.select_for_update().filter(
                 user=request.user,
                 paper=paper,
                 status__in=['created', 'started']
@@ -850,14 +845,30 @@ class ExamSessionAPI(CSRFExemptAPIView):
             if not questions:
                 return self.error("无法生成足够的题目")
             
-            # 创建考试会话
-            session = ExamSession.objects.create(
-                user=request.user,
-                paper=paper,
-                questions=[q.id for q in questions],
-                total_count=len(questions),
-                status='created'
-            )
+            # 创建考试会话，添加异常处理防止并发创建
+            try:
+                session = ExamSession.objects.create(
+                    user=request.user,
+                    paper=paper,
+                    questions=[q.id for q in questions],
+                    total_count=len(questions),
+                    status='created'
+                )
+            except IntegrityError:
+                # 如果仍然出现唯一约束错误，在新事务中查询现有会话
+                from django.db import transaction
+                with transaction.atomic():
+                    existing_session = ExamSession.objects.filter(
+                        user=request.user,
+                        paper=paper,
+                        status__in=['created', 'started']
+                    ).first()
+                    
+                    if existing_session:
+                        serializer = ExamSessionSerializer(existing_session)
+                        return self.success(serializer.data)
+                    else:
+                        return self.error("创建考试会话失败，请重试")
             
             serializer = ExamSessionSerializer(session)
             return self.success(serializer.data)

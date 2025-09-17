@@ -1,0 +1,46 @@
+{
+  "title": "测试答案格式导入",
+  "description": "测试各种答案格式的导入功能",
+  "questions": [
+    {
+      "title": "单选题测试 - 字母答案A",
+      "description": "这是一道测试题目，正确答案是A",
+      "question_type": "single",
+      "options": ["选项A", "选项B", "选项C", "选项D"],
+      "correct": "A",
+      "explanation": "正确答案是A"
+    },
+    {
+      "title": "单选题测试 - 字母答案B",
+      "description": "这是一道测试题目，正确答案是B",
+      "question_type": "single",
+      "options": ["选项A", "选项B", "选项C", "选项D"],
+      "correct": "B",
+      "explanation": "正确答案是B"
+    },
+    {
+      "title": "单选题测试 - 数字答案0",
+      "description": "这是一道测试题目，正确答案是0（对应A）",
+      "question_type": "single",
+      "options": ["选项A", "选项B", "选项C", "选项D"],
+      "correct": "0",
+      "explanation": "正确答案是0（对应A）"
+    },
+    {
+      "title": "多选题测试 - 字母答案A,C",
+      "description": "这是一道多选题，正确答案是A和C",
+      "question_type": "multiple",
+      "options": ["选项A", "选项B", "选项C", "选项D"],
+      "correct": "A,C",
+      "explanation": "正确答案是A和C"
+    },
+    {
+      "title": "多选题测试 - 数字答案0,2",
+      "description": "这是一道多选题，正确答案是0和2（对应A和C）",
+      "question_type": "multiple",
+      "options": ["选项A", "选项B", "选项C", "选项D"],
+      "correct": "0,2",
+      "explanation": "正确答案是0和2（对应A和C）"
+    }
+  ]
+}

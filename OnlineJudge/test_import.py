@@ -1,89 +1,61 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 import os
 import sys
 import django
+import json
 
-# 添加项目路径
-sys.path.append('/home/metaspeekoj/OnlineJudge')
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'OnlineJudge.settings')
+# 设置Django环境
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'oj.settings')
 django.setup()
 
 from choice_question.import_serializers import ChoiceQuestionImportSerializer
-from account.models import User
 from choice_question.models import ChoiceQuestion
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 def test_import():
-    # 获取管理员用户
-    admin_user = User.objects.filter(admin_type='Super Admin').first()
-    if not admin_user:
-        print('未找到管理员用户')
-        return
+    # 读取测试文件
+    test_file = '/home/metaspeekoj/TestCode/二级样题_标准模板.json'
+    with open(test_file, 'r', encoding='utf-8') as f:
+        questions_data = json.load(f)
     
-    print(f'找到管理员用户: {admin_user.username}')
+    # 测试所有题目
+    test_questions = questions_data
     
-    # 记录导入前的题目数量
-    before_count = ChoiceQuestion.objects.count()
-    print(f'导入前题目数量: {before_count}')
+    print(f"测试导入 {len(test_questions)} 道题目")
     
-    # 测试数据
-    test_data = {
-        'questions': [
-            {
-                'id': 'GESP_2_2024_3_1',
-                'type': 'single',
-                'question': '下列关于C++语言变量的叙述，正确的是( )｡',
-                'options': [
-                    'A. 变量可以没有定义',
-                    'B. 对一个没有定义的变量赋值，相当于定义了一个新变量',
-                    'C. 执行赋值语句后，变量的类型可能会变化',
-                    'D. 执行赋值语句后，变量的值可能不会变化'
-                ],
-                'correct': 'D',
-                'explanation': '变量需先定义后使用（排除A、B），赋值不改变类型（排除C）。若赋值前后值相同，值不变（如a=5; a=5;），故D正确。'
-            },
-            {
-                'id': 'GESP_2_2024_3_2',
-                'type': 'single',
-                'question': '代码执行完结果是：',
-                'options': [
-                    'A. array[min] > array[j]',
-                    'B. array[min] > array[i]',
-                    'C. min > array[j]',
-                    'D. min > array[i]'
-                ],
-                'correct': 'A',
-                'explanation': '本题属于考察选择排序算法；选择排序每次会从待排序的数据元素中选出最小的一个元素，存放在序列的起始位置，也就是对于所有的i+1<=j<n，找到最小的array[j]。'
-            }
-        ]
+    # 获取或创建用户
+    user, created = User.objects.get_or_create(username='admin', defaults={'email': 'admin@example.com'})
+    
+    # 准备导入数据
+    import_data = {
+        'questions': test_questions
     }
     
-    # 测试序列化器
-    print('开始测试导入...')
-    serializer = ChoiceQuestionImportSerializer(data=test_data, context={'request_user': admin_user})
-    
+    # 执行导入
+    serializer = ChoiceQuestionImportSerializer(data=import_data)
     if serializer.is_valid():
-        print('验证成功！')
-        try:
-            result = serializer.save()
-            print(f'导入结果: {result}')
+        result = serializer.save(created_by=user)
+        print(f"导入成功: {result['success_count']}/{result['total_count']}")
+        
+        if result['errors']:
+            print("导入错误:")
+            for error in result['errors']:
+                print(f"  题目 {error['index']}: {error['errors']}")
+        
+        # 检查导入的题目答案
+        print("\n检查导入的题目答案:")
+        for i, created_question in enumerate(result['created_questions']):
+            original_correct = test_questions[i]['correct']
+            imported_correct = created_question.correct_answer
+            print(f"题目 {i+1}: 原始答案={original_correct}, 导入答案={imported_correct}, 匹配={'✓' if original_correct == imported_correct else '✗'}")
             
-            # 检查导入后的题目数量
-            after_count = ChoiceQuestion.objects.count()
-            print(f'导入后题目数量: {after_count}')
-            print(f'新增题目数量: {after_count - before_count}')
-            
-            # 查看最新的几道题目
-            latest_questions = ChoiceQuestion.objects.order_by('-id')[:3]
-            print('\n最新的题目:')
-            for q in latest_questions:
-                print(f'ID: {q.id}, 标题: {q.title}, 描述: {q.description[:50]}..., 可见: {q.visible}')
-                
-        except Exception as e:
-            print(f'保存时出错: {e}')
-            import traceback
-            traceback.print_exc()
+            # 显示选项详情
+            options = json.loads(created_question.options) if isinstance(created_question.options, str) else created_question.options
+            print(f"  选项: {[opt['key'] + ': ' + opt['text'][:20] + '...' for opt in options]}")
     else:
-        print('验证失败:')
+        print("导入验证失败:")
         print(serializer.errors)
 
 if __name__ == '__main__':

@@ -1,0 +1,36 @@
+{
+  "title": "测试试卷",
+  "description": "用于验证导入功能的测试试卷",
+  "questions": [
+    {
+      "title": "测试题目1",
+      "description": "这是第一道测试题",
+      "question_type": "single_choice",
+      "options": ["选项A", "选项B", "选项C", "选项D"],
+      "correct": "B",
+      "explanation": "正确答案是B",
+      "difficulty": "easy",
+      "score": 10
+    },
+    {
+      "title": "测试题目2",
+      "description": "这是第二道测试题",
+      "question_type": "single_choice",
+      "options": ["选项A", "选项B", "选项C", "选项D"],
+      "correct": "C",
+      "explanation": "正确答案是C",
+      "difficulty": "medium",
+      "score": 15
+    },
+    {
+      "title": "测试题目3",
+      "description": "这是第三道测试题",
+      "question_type": "single_choice",
+      "options": ["选项A", "选项B", "选项C", "选项D"],
+      "correct": "D",
+      "explanation": "正确答案是D",
+      "difficulty": "hard",
+      "score": 20
+    }
+  ]
+}
