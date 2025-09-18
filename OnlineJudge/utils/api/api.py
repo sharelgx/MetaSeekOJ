@@ -45,7 +45,7 @@ class JSONResponse(object):
 
     @classmethod
     def response(cls, data):
-        resp = HttpResponse(json.dumps(data, indent=4), content_type=cls.content_type)
+        resp = HttpResponse(json.dumps(data, indent=4, ensure_ascii=False), content_type=cls.content_type)
         resp.data = data
         return resp
 

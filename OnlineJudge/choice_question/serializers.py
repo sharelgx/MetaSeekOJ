@@ -88,6 +88,7 @@ class ChoiceQuestionDetailSerializer(serializers.ModelSerializer):
     tags = ChoiceQuestionTagSerializer(many=True, read_only=True)
     created_by = UserSerializer(read_only=True)
     options = serializers.SerializerMethodField()
+    content = serializers.SerializerMethodField()
     
     class Meta:
         model = ChoiceQuestion
@@ -105,6 +106,10 @@ class ChoiceQuestionDetailSerializer(serializers.ModelSerializer):
             except (json.JSONDecodeError, TypeError):
                 return []
         return []
+    
+    def get_content(self, obj):
+        """将description字段映射为content字段，兼容前端期望"""
+        return obj.description
 
 
 class ChoiceQuestionCreateSerializer(serializers.ModelSerializer):
@@ -331,7 +336,7 @@ class ExamSessionSerializer(serializers.ModelSerializer):
         from .models import ChoiceQuestion
         question_ids = obj.questions if isinstance(obj.questions, list) else []
         questions = ChoiceQuestion.objects.filter(id__in=question_ids).order_by('id')
-        return ChoiceQuestionListSerializer(questions, many=True).data
+        return ChoiceQuestionDetailSerializer(questions, many=True).data
 
 
 class TopicSerializer(serializers.ModelSerializer):

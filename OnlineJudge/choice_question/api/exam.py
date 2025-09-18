@@ -726,13 +726,14 @@ class ExamSessionAPI(CSRFExemptAPIView):
                             
                             question_info = {
                                 'id': q.id,
-                                'title': getattr(q, 'title', ''),
-                                'content': getattr(q, 'description', ''),  # 使用description作为content
-                                'description': getattr(q, 'description', ''),
+                                'title': q.title,
+                                'content': q.description,  # 使用description作为content
+                                'description': q.description,
                                 'options': q.options,
                                 'question_type': q.question_type,
                                 'difficulty': q.difficulty,
                                 'score': q.score,
+                                'correct_answer': q.correct_answer,
                                 'order': i + 1  # 添加题目序号
                             }
                             

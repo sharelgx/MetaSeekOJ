@@ -53,7 +53,7 @@
           <el-input v-model="tagForm.description" type="textarea" :rows="3" placeholder="标签描述"></el-input>
         </el-form-item>
         <el-form-item label="颜色" prop="color">
-          <el-color-picker v-model="tagForm.color" show-alpha></el-color-picker>
+          <el-color-picker v-model="tagForm.color" :show-alpha="false"></el-color-picker>
           <span style="margin-left: 10px;">{{ tagForm.color || '#409EFF' }}</span>
         </el-form-item>
       </el-form>
@@ -143,16 +143,39 @@ export default {
         }
       }).catch(() => {})
     },
+    formatColor(color) {
+      // 确保颜色格式为 #RRGGBB
+      if (!color) return '#409EFF'
+      
+      // 如果包含透明度，去掉透明度部分
+      if (color.length === 9 && color.startsWith('#')) {
+        return color.substring(0, 7)
+      }
+      
+      // 如果是标准格式，直接返回
+      if (color.length === 7 && color.startsWith('#')) {
+        return color.toUpperCase()
+      }
+      
+      // 默认颜色
+      return '#409EFF'
+    },
     async handleSubmit() {
       this.$refs.tagForm.validate(async (valid) => {
         if (valid) {
           this.submitting = true
           try {
+            // 格式化颜色
+            const formData = {
+              ...this.tagForm,
+              color: this.formatColor(this.tagForm.color)
+            }
+            
             if (this.editingTag) {
-              await api.updateChoiceQuestionTag(this.editingTag.id, this.tagForm)
+              await api.updateChoiceQuestionTag(this.editingTag.id, formData)
               this.$message.success('更新成功')
             } else {
-              await api.createChoiceQuestionTag(this.tagForm)
+              await api.createChoiceQuestionTag(formData)
               this.$message.success('创建成功')
             }
             this.showCreateModal = false

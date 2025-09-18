@@ -10,7 +10,11 @@
 
 ## 项目结构说明
 
-### 后端服务 (OnlineJudge)
+**项目核心目录**：
+- **前端核心**: `/home/metaspeekoj/OnlineJudgeFE/` - Vue.js前端应用
+- **后端核心**: `/home/metaspeekoj/OnlineJudge/` - Django后端服务
+
+### 后端服务 (OnlineJudge) - 项目核心
 - **目录**: `/home/metaspeekoj/OnlineJudge`
 - **服务**: Django 后端服务
 - **端口**: 8086
@@ -20,7 +24,7 @@
 - **虚拟环境**: django_env
 - **当前状态**: 运行中 (Command ID: f49defab-0b81-4dde-a172-3b0e5d682ca5)
 
-### 前端服务 (OnlineJudgeFE)
+### 前端服务 (OnlineJudgeFE) - 项目核心
 - **目录**: `/home/metaspeekoj/OnlineJudgeFE`
 - **服务**: Webpack开发服务器
 - **端口**: 8080
@@ -64,15 +68,17 @@
 - `src/store/`: Vuex状态管理
 - `src/utils/`: 工具函数
 
-## 数据存储
+## 外部数据存储 (非项目核心文件)
 
-### 题目数据
+### 题目数据 (外部存储)
 - **位置**: `/home/metaspeekoj/data/`
+- **说明**: 外部题目数据存储，非项目核心文件
 - **分类**: level1, level2, level3, level4, level5, cspj, csps
 - **格式**: JSON文件存储题目信息
 
-### 备份数据
+### 备份数据 (外部存储)
 - **位置**: `/home/metaspeekoj/backups/`
+- **说明**: 外部备份文件存储，非项目核心文件
 - **内容**: 项目备份文件
 
 ## 开发环境配置
@@ -82,6 +88,9 @@
 - **Node.js**: v20.19.0
 - **Python**: 3.x (在django_env虚拟环境中)
 - **包管理器**: npm, pnpm, yarn
+
+### 依赖包目录
+- **node_modules**: 前端依赖包目录，由包管理器(npm/pnpm/yarn)自动生成和管理，无需手动维护
 
 ### 终端配置
 - **Terminal 2**: 前端服务 (webpack-dev-server)

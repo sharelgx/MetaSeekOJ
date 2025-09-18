@@ -127,7 +127,7 @@
                      @change="onRadioChange(option.key)" />
               <label :for="'radio_' + option.key" class="option-label">
                 <span class="option-key">{{ option.key }}.</span>
-                <div class="option-content" v-html="option.text"></div>
+                <div class="option-content" v-html="getOptionText(option)"></div>
               </label>
             </div>
           </div>
@@ -148,7 +148,7 @@
                      class="option-input" />
               <label :for="'checkbox_' + option.key" class="option-label">
                 <span class="option-key">{{ option.key }}.</span>
-                <div class="option-content" v-html="option.text"></div>
+                <div class="option-content" v-html="getOptionText(option)"></div>
               </label>
             </div>
           </div>
@@ -524,6 +524,31 @@ export default {
       } else {
         console.log('没有可用的选项进行测试')
       }
+    },
+    
+    // 获取选项显示文本
+    getOptionText(option) {
+      // 如果option是字符串，直接返回
+      if (typeof option === 'string') {
+        return option
+      }
+      
+      // 如果option是对象，优先使用text字段
+      if (option && typeof option === 'object') {
+        // 优先级：text > content > 直接显示key
+        if (option.text) {
+          return option.text
+        }
+        if (option.content) {
+          return option.content
+        }
+        if (option.key) {
+          return option.key
+        }
+      }
+      
+      // 如果都没有，返回空字符串
+      return ''
     },
     
     // 处理原生radio change事件

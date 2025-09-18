@@ -31,8 +31,8 @@ class ProblemAPI(APIView):
     def _add_problem_status(request, queryset_values):
         if request.user.is_authenticated:
             profile = request.user.userprofile
-            acm_problems_status = profile.acm_problems_status.get("problems", {})
-            oi_problems_status = profile.oi_problems_status.get("problems", {})
+            acm_problems_status = profile.get_acm_problems_status().get("problems", {})
+            oi_problems_status = profile.get_oi_problems_status().get("problems", {})
             # paginate data
             results = queryset_values.get("results")
             if results is not None:
@@ -88,9 +88,9 @@ class ContestProblemAPI(APIView):
         if request.user.is_authenticated:
             profile = request.user.userprofile
             if self.contest.rule_type == ContestRuleType.ACM:
-                problems_status = profile.acm_problems_status.get("contest_problems", {})
+                problems_status = profile.get_acm_problems_status().get("contest_problems", {})
             else:
-                problems_status = profile.oi_problems_status.get("contest_problems", {})
+                problems_status = profile.get_oi_problems_status().get("contest_problems", {})
             for problem in queryset_values:
                 problem["my_status"] = problems_status.get(str(problem["id"]), {}).get("status")
 

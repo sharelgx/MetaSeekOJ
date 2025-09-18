@@ -56,7 +56,7 @@
                       :disabled="examSession.status === 'submitted'"
                     >
                       <span class="option-label">{{ String.fromCharCode(65 + index) }}.</span>
-                      <span class="option-text" v-html="option.text || option"></span>
+                      <span class="option-text" v-html="getOptionText(option)"></span>
                     </Radio>
                     <Checkbox 
                       v-else
@@ -64,7 +64,7 @@
                       :disabled="examSession.status === 'submitted'"
                     >
                       <span class="option-label">{{ String.fromCharCode(65 + index) }}.</span>
-                      <span class="option-text" v-html="option.text || option"></span>
+                      <span class="option-text" v-html="getOptionText(option)"></span>
                     </Checkbox>
                   </div>
                 </div>
@@ -251,6 +251,24 @@ export default {
   },
   
   methods: {
+    // 获取选项文本的方法，处理不同格式的选项数据
+    getOptionText(option) {
+      if (typeof option === 'string') {
+        return option
+      }
+      if (typeof option === 'object' && option !== null) {
+        // 支持 {key: 'A', text: '选项内容'} 格式
+        if (option.text) {
+          return option.text
+        }
+        // 支持其他可能的格式
+        if (option.content) {
+          return option.content
+        }
+      }
+      return option || ''
+    },
+    
     // 代码高亮方法
     highlightCode() {
       try {
@@ -463,6 +481,15 @@ export default {
         
         // 验证和修复每个题目的options数据格式
         this.questions.forEach((question, questionIndex) => {
+          // 添加题目内容调试日志
+          console.log(`题目${questionIndex + 1}完整数据:`, {
+            id: question.id,
+            content: question.content,
+            question_type: question.question_type,
+            options: question.options,
+            correct_answer: question.correct_answer
+          })
+          
           if (question.options) {
             console.log(`题目${questionIndex + 1}原始options数据:`, question.options, '类型:', typeof question.options)
             
@@ -708,11 +735,20 @@ export default {
       }
     },
     
+    getOptionText(option) {
+      // 如果option是对象，返回text字段；如果是字符串，直接返回
+      if (typeof option === 'object' && option !== null) {
+        return option.text || option
+      }
+      return option
+    },
+    
     async autoSaveAnswer(questionId) {
       if (!questionId) return
       
       // 如果该题目正在保存，则跳过
       if (this.savingAnswers[questionId]) {
+        console.log('题目', questionId, '正在保存中，跳过本次保存')
         return
       }
       
@@ -730,29 +766,32 @@ export default {
           // 确保答案是纯数组，去除Vue的Observer包装
           const cleanAnswer = JSON.parse(JSON.stringify(answer))
           
-          const response = await this.$http.post(`/exam-session/${this.examSession.id}/answer/`, {
-            question_id: questionId,
-            answer: cleanAnswer
-          })
+          console.log('开始保存答案:', questionId, cleanAnswer)
+          const response = await api.submitAnswer(this.examSession.id, questionId, cleanAnswer)
           
-          // 检查响应是否真的成功
-          if (response.data && response.data.error !== null) {
-            console.error('保存失败:', response.data.data || response.data.error)
-            this.$Message.error('保存答案失败：' + (response.data.data || response.data.error))
-          } else {
-            // 静默保存，不显示成功消息
+          // 检查响应状态和内容
+          if (response && response.data) {
+            // ajax函数已经处理了error检查，如果到这里说明请求成功
             console.log('答案已自动保存:', questionId, cleanAnswer)
+          } else {
+            console.error('保存失败 - 无效的响应:', response)
           }
           
         } catch (err) {
           console.error('保存答案失败:', err)
-          // 只在失败时显示错误消息
-          this.$Message.error('保存答案失败，请稍后重试')
+          // 检查是否是重复提交错误
+          if (err.response && err.response.data && err.response.data.data && 
+              (err.response.data.data.includes('重复提交') || err.response.data.data.includes('duplicate'))) {
+            console.log('检测到重复提交错误，忽略')
+          } else {
+            // 只在非重复提交错误时显示错误消息
+            this.$Message.error('保存答案失败，请稍后重试')
+          }
         } finally {
           // 请求完成后移除标记
           delete this.savingAnswers[questionId]
         }
-      }, 500) // 延迟500ms
+      }, 800) // 增加延迟到800ms，减少请求频率
     },
     
     showSubmitConfirm() {
@@ -784,9 +823,7 @@ export default {
         // 清理答案数据，去除Vue的Observer包装
         const cleanAnswers = JSON.parse(JSON.stringify(this.answers))
         
-        await this.$http.post(`/exam-session/${this.examSession.id}/submit/`, {
-          answers: cleanAnswers
-        })
+        await api.submitExamSession(this.examSession.id)
         
         this.$Message.success('试卷提交成功')
         

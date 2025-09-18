@@ -37,7 +37,7 @@ MetaSpeekOJ 是一个基于 Django + Vue.js 的现代化在线判题系统，专
 ## 项目结构
 
 ```
-MetaSpeekOJ/
+MetaSeekOJ/
 ├── OnlineJudge/                 # 后端项目
 │   ├── account/                 # 用户账户模块
 │   ├── announcement/            # 公告模块
@@ -102,7 +102,7 @@ MetaSpeekOJ/
 
 ```bash
 # 克隆项目
-git clone https://github.com/sharelgx/MetaSpeekOJ.git
+git clone https://github.com/sharelgx/MetaSeekOJ.git
 cd MetaSpeekOJ/OnlineJudge
 
 # 创建虚拟环境
