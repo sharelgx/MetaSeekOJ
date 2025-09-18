@@ -146,17 +146,17 @@
                   :key="optionIndex"
                   class="option"
                   :class="{
-                    'correct': question.correct_answer.includes(optionIndex),
-                    'wrong': question.user_answer.includes(optionIndex) && !question.correct_answer.includes(optionIndex),
-                    'selected': question.user_answer.includes(optionIndex)
+                    'correct': isCorrectOption(question.correct_answer, optionIndex),
+                    'wrong': isUserSelectedOption(question.user_answer, optionIndex) && !isCorrectOption(question.correct_answer, optionIndex),
+                    'selected': isUserSelectedOption(question.user_answer, optionIndex)
                   }"
                 >
                   <span class="option-label">{{ String.fromCharCode(65 + optionIndex) }}.</span>
-                  <span class="option-text">{{ option }}</span>
-                  <span v-if="question.correct_answer.includes(optionIndex)" class="correct-mark">
+                  <span class="option-text">{{ getOptionText(option) }}</span>
+                  <span v-if="isCorrectOption(question.correct_answer, optionIndex)" class="correct-mark">
                     <Icon type="ios-checkmark" color="#52c41a" />
                   </span>
-                  <span v-else-if="question.user_answer.includes(optionIndex)" class="wrong-mark">
+                  <span v-else-if="isUserSelectedOption(question.user_answer, optionIndex)" class="wrong-mark">
                     <Icon type="ios-close" color="#f5222d" />
                   </span>
                 </div>
@@ -198,7 +198,7 @@
 </template>
 
 <script>
-// import api from '../../api'
+import api from '../../api'
 
 export default {
   name: 'ExamResult',
@@ -222,7 +222,7 @@ export default {
         const sessionId = this.$route.params.sessionId
         
         // 获取考试会话详情
-        const res = await this.$http.get(`/exam-session/${sessionId}/`)
+        const res = await api.getExamSessionDetail(sessionId)
         this.examSession = res.data.data || res.data
         
         // 处理统计数据
@@ -238,6 +238,8 @@ export default {
         this.loading = false
       }
     },
+    
+
     
     processStats() {
       // 处理题型统计
@@ -310,8 +312,62 @@ export default {
     },
     
     formatAnswer(answer) {
-      if (!answer || answer.length === 0) return ''
-      return answer.map(index => String.fromCharCode(65 + index)).join(', ')
+      if (!answer) return ''
+      
+      // 如果是数组，处理数组格式
+      if (Array.isArray(answer)) {
+        if (answer.length === 0) return ''
+        return answer.map(index => {
+          // 如果是数字索引，转换为字母
+          if (typeof index === 'number') {
+            return String.fromCharCode(65 + index)
+          }
+          // 如果已经是字母，直接返回
+          return index
+        }).join(', ')
+      }
+      
+      // 如果是字符串，直接返回
+      if (typeof answer === 'string') {
+        return answer
+      }
+      
+      // 其他情况返回空字符串
+      return ''
+    },
+    
+    isCorrectOption(correctAnswer, optionIndex) {
+      if (!correctAnswer) return false
+      
+      // 如果是数组格式
+      if (Array.isArray(correctAnswer)) {
+        return correctAnswer.includes(optionIndex)
+      }
+      
+      // 如果是字符串格式，转换为字母进行比较
+      if (typeof correctAnswer === 'string') {
+        const optionLetter = String.fromCharCode(65 + optionIndex)
+        return correctAnswer.includes(optionLetter)
+      }
+      
+      return false
+    },
+    
+    isUserSelectedOption(userAnswer, optionIndex) {
+      if (!userAnswer) return false
+      
+      // 如果是数组格式
+      if (Array.isArray(userAnswer)) {
+        return userAnswer.includes(optionIndex)
+      }
+      
+      // 如果是字符串格式，转换为字母进行比较
+      if (typeof userAnswer === 'string') {
+        const optionLetter = String.fromCharCode(65 + optionIndex)
+        return userAnswer.includes(optionLetter)
+      }
+      
+      return false
     },
     
     getScoreClass(percentage) {
@@ -343,6 +399,23 @@ export default {
         'hard': '困难'
       }
       return displays[difficulty] || difficulty
+    },
+    
+    getOptionText(option) {
+      if (typeof option === 'string') {
+        // 字符串格式: "A. 选项内容"
+        return option
+      } else if (option && option.key && option.text) {
+        // key-text 格式: {key: 'A', text: 'A. 正确'}
+        return option.text
+      } else if (option && option.content) {
+        // content 字段格式
+        return option.content
+      } else if (option && typeof option === 'object') {
+        // 其他对象格式，尝试获取text或content字段
+        return option.text || option.content || JSON.stringify(option)
+      }
+      return option || ''
     },
     
     goBack() {
