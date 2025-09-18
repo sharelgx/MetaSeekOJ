@@ -1,0 +1,98 @@
+
+.wrong-question-book[data-v-72987d80] {
+  padding: 20px;
+}
+.filter-section[data-v-72987d80] {
+  margin-bottom: 20px;
+  padding: 15px;
+  background: #f8f8f9;
+  border-radius: 4px;
+}
+.loading-container[data-v-72987d80] {
+  text-align: center;
+  padding: 50px;
+}
+.empty-container[data-v-72987d80] {
+  text-align: center;
+  padding: 50px;
+}
+.empty-content p[data-v-72987d80] {
+  margin-top: 15px;
+  color: #c5c8ce;
+  font-size: 14px;
+}
+.question-card[data-v-72987d80] {
+  margin-bottom: 15px;
+}
+.question-header[data-v-72987d80] {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+.question-title[data-v-72987d80] {
+  display: flex;
+  align-items: center;
+}
+.title-text[data-v-72987d80] {
+  margin-left: 10px;
+  font-weight: 500;
+  font-size: 16px;
+}
+.question-content[data-v-72987d80] {
+  margin-bottom: 15px;
+}
+.question-text[data-v-72987d80] {
+  margin-bottom: 15px;
+  line-height: 1.6;
+}
+.options[data-v-72987d80] {
+  margin-left: 20px;
+}
+.option-item[data-v-72987d80] {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 8px;
+  padding: 8px;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+.option-item.correct[data-v-72987d80] {
+  background-color: #f6ffed;
+  border: 1px solid #b7eb8f;
+}
+.option-item.wrong[data-v-72987d80] {
+  background-color: #fff2f0;
+  border: 1px solid #ffccc7;
+}
+.option-label[data-v-72987d80] {
+  font-weight: 500;
+  margin-right: 8px;
+  min-width: 20px;
+}
+.option-text[data-v-72987d80] {
+  flex: 1;
+  line-height: 1.5;
+}
+.question-meta[data-v-72987d80] {
+  display: flex;
+  justify-content: space-between;
+  color: #999;
+  font-size: 12px;
+  border-top: 1px solid #f0f0f0;
+  padding-top: 10px;
+}
+.meta-item[data-v-72987d80] {
+  display: flex;
+  align-items: center;
+}
+.meta-item i[data-v-72987d80] {
+  margin-right: 4px;
+}
+.pagination-container[data-v-72987d80] {
+  text-align: center;
+  margin-top: 20px;
+}
+
+
+/*# sourceMappingURL=455.dc383ef7a30aa559aec4.chunk.css.map*/

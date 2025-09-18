@@ -1,0 +1,279 @@
+// all routes here.
+import {
+  About,
+  ACMRank,
+  Announcements,
+  ApplyResetPassword,
+  FAQ,
+  Home,
+  Logout,
+  NotFound,
+  OIRank,
+  Problem,
+  ProblemList,
+  ResetPassword,
+  SubmissionDetails,
+  SubmissionList,
+  UnifiedSubmissionList,
+  UnifiedSubmissionDetails,
+  UserHome
+} from '../views'
+
+import * as Contest from '@oj/views/contest'
+import * as Setting from '@oj/views/setting'
+import * as ChoiceQuestion from '@oj/views/choice-question'
+
+export default [
+  {
+    name: 'home',
+    path: '/',
+    meta: {title: 'Home'},
+    component: Home
+  },
+  {
+    name: 'logout',
+    path: '/logout',
+    meta: {title: 'Logout'},
+    component: Logout
+  },
+  {
+    name: 'apply-reset-password',
+    path: '/apply-reset-password',
+    meta: {title: 'Apply Reset Password'},
+    component: ApplyResetPassword
+  },
+  {
+    name: 'reset-password',
+    path: '/reset-password/:token',
+    meta: {title: 'Reset Password'},
+    component: ResetPassword
+  },
+  {
+    name: 'problem-list',
+    path: '/problem',
+    meta: {title: 'Problem List'},
+    component: ProblemList
+  },
+  {
+    name: 'problem-details',
+    path: '/problem/:problemID',
+    meta: {title: 'Problem Details'},
+    component: Problem
+  },
+  {
+    name: 'choice-question-list',
+    path: '/choice-questions',
+    meta: {title: 'Choice Questions'},
+    component: ChoiceQuestion.ChoiceQuestionList
+  },
+  {
+    path: '/choice-question',
+    redirect: '/choice-questions'
+  },
+  {
+    name: 'choice-question-detail',
+    path: '/choice-question/:id',
+    meta: {title: 'Choice Question Details'},
+    component: ChoiceQuestion.ChoiceQuestionDetail
+  },
+  {
+    name: 'choice-question-practice',
+    path: '/choice-question-practice',
+    redirect: (to) => {
+      // 从查询参数中获取分类ID，如果有的话
+      const category = to.query.category
+      if (category) {
+        // 重定向到题目列表页面，保持分类筛选
+        return {
+          path: '/choice-questions',
+          query: { category: category }
+        }
+      } else {
+        // 没有分类参数，重定向到题目列表首页
+        return '/choice-questions'
+      }
+    }
+  },
+  {
+    name: 'TopicPracticeHome',
+    path: '/topics',
+    meta: {title: 'Topic Practice'},
+    component: ChoiceQuestion.TopicPracticeHome
+  },
+  {
+    name: 'TopicPracticeDetail',
+    path: '/topics/category/:categoryId',
+    meta: {title: 'Topic Category'},
+    component: ChoiceQuestion.TopicPracticeDetail
+  },
+  {
+    name: 'topic-practice',
+    path: '/topics/:id/practice',
+    meta: {title: 'Topic Practice'},
+    component: ChoiceQuestion.TopicPracticeDetail
+  },
+  {
+    name: 'wrong-question-book',
+    path: '/wrong-questions',
+    meta: {title: 'Wrong Question Book'},
+    component: ChoiceQuestion.WrongQuestionBook
+  },
+  {
+    name: 'exam-history',
+    path: '/exam-history',
+    meta: {title: 'Exam History', requiresAuth: true},
+    component: ChoiceQuestion.ExamHistory
+  },
+  {
+    name: 'exam-paper',
+    path: '/exam/:paperId',  // 确保路径参数名称是paperId
+    meta: {title: 'Exam Paper'},
+    component: ChoiceQuestion.ExamPaper,
+    props: true  // 允许将路由参数作为props传递
+  },
+  {
+    name: 'exam-result',
+    path: '/exam-result/:sessionId',
+    meta: {title: 'Exam Result'},
+    component: ChoiceQuestion.ExamResult
+  },
+  {
+    name: 'exam-review',
+    path: '/exam-review/:sessionId',
+    meta: {title: 'Exam Review'},
+    component: ChoiceQuestion.ExamReview
+  },
+  {
+    name: 'submission-list',
+    path: '/status',
+    meta: {title: 'Submission List'},
+    component: SubmissionList
+  },
+  {
+    name: 'submission-details',
+    path: '/status/:id/',
+    meta: {title: 'Submission Details'},
+    component: SubmissionDetails
+  },
+  {
+    name: 'unified-submission-list',
+    path: '/unified-status',
+    meta: {title: 'Unified Submission List'},
+    component: UnifiedSubmissionList
+  },
+  {
+    name: 'unified-submission-details',
+    path: '/unified-status/:id/',
+    meta: {title: 'Unified Submission Details'},
+    component: UnifiedSubmissionDetails
+  },
+  {
+    name: 'contest-list',
+    path: '/contest',
+    meta: {title: 'Contest List'},
+    component: Contest.ContestList
+  },
+  {
+    name: 'contest-details',
+    path: '/contest/:contestID/',
+    component: Contest.ContestDetails,
+    meta: {title: 'Contest Details'},
+    children: [
+      {
+        name: 'contest-submission-list',
+        path: 'submissions',
+        component: SubmissionList
+      },
+      {
+        name: 'contest-problem-list',
+        path: 'problems',
+        component: Contest.ContestProblemList
+      },
+      {
+        name: 'contest-problem-details',
+        path: 'problem/:problemID/',
+        component: Problem
+      },
+      {
+        name: 'contest-announcement-list',
+        path: 'announcements',
+        component: Announcements
+      },
+      {
+        name: 'contest-rank',
+        path: 'rank',
+        component: Contest.ContestRank
+      },
+      {
+        name: 'acm-helper',
+        path: 'helper',
+        component: Contest.ACMContestHelper
+      }
+    ]
+  },
+  {
+    name: 'acm-rank',
+    path: '/acm-rank',
+    meta: {title: 'ACM Rankings'},
+    component: ACMRank
+  },
+  {
+    name: 'oi-rank',
+    path: '/oi-rank',
+    meta: {title: 'OI Rankings'},
+    component: OIRank
+  },
+  {
+    name: 'user-home',
+    path: '/user-home',
+    component: UserHome,
+    meta: {requiresAuth: true, title: 'User Home'}
+  },
+  {
+    path: '/setting',
+    component: Setting.Settings,
+    children: [
+      {
+        name: 'default-setting',
+        path: '',
+        meta: {requiresAuth: true, title: 'Default Settings'},
+        component: Setting.ProfileSetting
+      },
+      {
+        name: 'profile-setting',
+        path: 'profile',
+        meta: {requiresAuth: true, title: 'Profile Settings'},
+        component: Setting.ProfileSetting
+      },
+      {
+        name: 'account-setting',
+        path: 'account',
+        meta: {requiresAuth: true, title: 'Account Settings'},
+        component: Setting.AccountSetting
+      },
+      {
+        name: 'security-setting',
+        path: 'security',
+        meta: {requiresAuth: true, title: 'Security Settings'},
+        component: Setting.SecuritySetting
+      }
+    ]
+  },
+  {
+    path: '/about',
+    name: 'about',
+    meta: {title: 'About'},
+    component: About
+  },
+  {
+    path: '/faq',
+    name: 'faq',
+    meta: {title: 'FAQ'},
+    component: FAQ
+  },
+  {
+    path: '*',
+    meta: {title: '404'},
+    component: NotFound
+  }
+]

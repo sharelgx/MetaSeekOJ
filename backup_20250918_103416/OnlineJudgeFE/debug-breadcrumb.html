@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Breadcrumb</title>
+    <script>
+        // 等待页面加载完成后检查控制台
+        window.addEventListener('load', function() {
+            console.log('Debug page loaded');
+            
+            // 检查是否有Vue实例
+            setTimeout(function() {
+                if (typeof Vue !== 'undefined') {
+                    console.log('Vue is available');
+                } else {
+                    console.log('Vue is not available');
+                }
+                
+                // 尝试访问目标页面
+                window.location.href = '/topics/4/practice';
+            }, 1000);
+        });
+        
+        // 捕获所有错误
+        window.addEventListener('error', function(e) {
+            console.error('Page error:', e.error);
+        });
+        
+        // 捕获未处理的Promise拒绝
+        window.addEventListener('unhandledrejection', function(e) {
+            console.error('Unhandled promise rejection:', e.reason);
+        });
+    </script>
+</head>
+<body>
+    <h1>Debug Page</h1>
+    <p>Redirecting to /topics/4/practice...</p>
+    <p>Check browser console for debug information.</p>
+</body>
+</html>

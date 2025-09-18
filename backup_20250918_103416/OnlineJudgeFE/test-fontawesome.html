@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>FontAwesome 图标测试</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        .icon-test {
+            margin: 10px 0;
+            font-size: 16px;
+        }
+        .fa {
+            margin-right: 8px;
+            color: #409EFF;
+        }
+    </style>
+</head>
+<body>
+    <h1>FontAwesome 4.7.0 图标测试</h1>
+    
+    <div class="icon-test">
+        <i class="fa fa-home"></i>首页图标
+    </div>
+    
+    <div class="icon-test">
+        <i class="fa fa-graduation-cap"></i>毕业帽图标
+    </div>
+    
+    <div class="icon-test">
+        <i class="fa fa-folder"></i>文件夹图标
+    </div>
+    
+    <div class="icon-test">
+        <i class="fa fa-list"></i>列表图标
+    </div>
+    
+    <div class="icon-test">
+        <i class="fa fa-file-text"></i>文件文本图标
+    </div>
+    
+    <div class="icon-test">
+        <i class="fa fa-edit"></i>编辑图标
+    </div>
+    
+    <div class="icon-test">
+        <i class="fa fa-play"></i>播放图标
+    </div>
+    
+    <div class="icon-test">
+        <i class="fa fa-chevron-left"></i>左箭头图标
+    </div>
+    
+    <div class="icon-test">
+        <i class="fa fa-chevron-right"></i>右箭头图标
+    </div>
+    
+    <div class="icon-test">
+        <i class="fa fa-folder-open"></i>打开文件夹图标
+    </div>
+    
+    <div class="icon-test">
+        <i class="fa fa-spinner fa-spin"></i>旋转加载图标
+    </div>
+    
+    <script>
+        console.log('FontAwesome 测试页面加载完成');
+        
+        // 检查图标是否正确加载
+        window.addEventListener('load', function() {
+            const icons = document.querySelectorAll('.fa');
+            console.log('找到', icons.length, '个图标');
+            
+            icons.forEach((icon, index) => {
+                const computedStyle = window.getComputedStyle(icon);
+                const fontFamily = computedStyle.fontFamily;
+                console.log(`图标 ${index + 1}:`, icon.className, '字体:', fontFamily);
+            });
+        });
+    </script>
+</body>
+</html>

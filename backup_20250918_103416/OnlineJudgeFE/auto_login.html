@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Auto Login Test</title>
+</head>
+<body>
+    <h1>Auto Login Test</h1>
+    <button onclick="autoLogin()">Auto Login as Root</button>
+    <div id="result"></div>
+    
+    <script>
+    async function autoLogin() {
+        try {
+            const response = await fetch('/api/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    username: 'root',
+                    password: 'rootroot'
+                })
+            });
+            
+            const data = await response.json();
+            console.log('Login response:', data);
+            
+            if (data.error === null) {
+                document.getElementById('result').innerHTML = '<p style="color: green;">Login successful! Redirecting...</p>';
+                // 登录成功后跳转到试卷管理页面
+                setTimeout(() => {
+                    window.location.href = '/admin/exam-papers';
+                }, 1000);
+            } else {
+                document.getElementById('result').innerHTML = '<p style="color: red;">Login failed: ' + data.data + '</p>';
+            }
+        } catch (error) {
+            console.error('Login error:', error);
+            document.getElementById('result').innerHTML = '<p style="color: red;">Login error: ' + error.message + '</p>';
+        }
+    }
+    </script>
+</body>
+</html>

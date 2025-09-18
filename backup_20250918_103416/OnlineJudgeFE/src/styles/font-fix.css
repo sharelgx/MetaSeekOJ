@@ -1,0 +1,8 @@
+/* 字体优化配置 */
+
+/* 优化系统字体显示 */
+body, html {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
+/* 确保图标字体正常加载 - 移除了之前禁用图标字体的规则 */

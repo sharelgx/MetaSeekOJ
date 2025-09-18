@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>i18n 测试</title>
+    <script src="https://unpkg.com/vue@2/dist/vue.js"></script>
+    <script src="https://unpkg.com/vue-i18n/dist/vue-i18n.js"></script>
+</head>
+<body>
+    <div id="app">
+        <h1>i18n 测试</h1>
+        <p>Public 键测试: {{ $t('m.Public') }}</p>
+        <p>当前语言: {{ $i18n.locale }}</p>
+        <button @click="switchLanguage">切换语言</button>
+        
+        <h2>测试动态键值</h2>
+        <p>动态键值测试: {{ $t(`m.${dynamicKey}`) }}</p>
+        <input v-model="dynamicKey" placeholder="输入键名">
+        
+        <h2>调试信息</h2>
+        <pre>{{ debugInfo }}</pre>
+    </div>
+
+    <script>
+        // 模拟项目中的 i18n 配置
+        const messages = {
+            'zh-CN': {
+                m: {
+                    Public: '公开',
+                    Test: '测试',
+                    Hello: '你好'
+                }
+            },
+            'en-US': {
+                m: {
+                    Public: 'Public',
+                    Test: 'Test', 
+                    Hello: 'Hello'
+                }
+            }
+        };
+
+        const i18n = new VueI18n({
+            locale: 'zh-CN',
+            fallbackLocale: 'en-US',
+            messages,
+            silentTranslationWarn: false // 显示警告
+        });
+
+        new Vue({
+            el: '#app',
+            i18n,
+            data: {
+                dynamicKey: 'Public'
+            },
+            computed: {
+                debugInfo() {
+                    return JSON.stringify({
+                        locale: this.$i18n.locale,
+                        messages: this.$i18n.messages[this.$i18n.locale].m,
+                        publicKey: this.$i18n.messages[this.$i18n.locale].m.Public,
+                        publicType: typeof this.$i18n.messages[this.$i18n.locale].m.Public
+                    }, null, 2);
+                }
+            },
+            methods: {
+                switchLanguage() {
+                    this.$i18n.locale = this.$i18n.locale === 'zh-CN' ? 'en-US' : 'zh-CN';
+                }
+            }
+        });
+    </script>
+</body>
+</html>

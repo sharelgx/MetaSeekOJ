@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Login Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <h1>Admin Login Test</h1>
+    
+    <div id="login-section">
+        <h2>Login</h2>
+        <input type="text" id="username" placeholder="Username" value="root">
+        <input type="password" id="password" placeholder="Password" value="rootroot">
+        <button onclick="login()">Login</button>
+    </div>
+    
+    <div id="status"></div>
+    
+    <div id="problem-section" style="display:none;">
+        <h2>Problem 259 Test</h2>
+        <p>Current visible status: <span id="current-status"></span></p>
+        <button onclick="toggleVisible()">Toggle Visible</button>
+    </div>
+
+    <script>
+        // 配置axios
+        axios.defaults.baseURL = 'http://localhost:8080/api';
+        axios.defaults.xsrfHeaderName = 'X-CSRFToken';
+        axios.defaults.xsrfCookieName = 'csrftoken';
+        
+        let currentProblem = null;
+        
+        function updateStatus(message) {
+            document.getElementById('status').innerHTML = '<p>' + message + '</p>';
+        }
+        
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        
+        async function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            try {
+                // 首先获取CSRF token
+                await axios.get('/');
+                
+                const response = await axios.post('/login', {
+                    username: username,
+                    password: password
+                });
+                
+                if (response.data.error === null) {
+                    updateStatus('Login successful!');
+                    document.getElementById('login-section').style.display = 'none';
+                    document.getElementById('problem-section').style.display = 'block';
+                    await loadProblem();
+                } else {
+                    updateStatus('Login failed: ' + response.data.data);
+                }
+            } catch (error) {
+                updateStatus('Login error: ' + error.message);
+                console.error('Login error:', error);
+            }
+        }
+        
+        async function loadProblem() {
+            try {
+                const response = await axios.get('/admin/problem?id=259');
+                if (response.data.error === null) {
+                    currentProblem = response.data.data;
+                    document.getElementById('current-status').textContent = currentProblem.visible;
+                    updateStatus('Problem loaded successfully');
+                } else {
+                    updateStatus('Failed to load problem: ' + response.data.data);
+                }
+            } catch (error) {
+                updateStatus('Load problem error: ' + error.message);
+                console.error('Load problem error:', error);
+            }
+        }
+        
+        async function toggleVisible() {
+            if (!currentProblem) {
+                updateStatus('No problem loaded');
+                return;
+            }
+            
+            try {
+                // 修改visible状态
+                currentProblem.visible = !currentProblem.visible;
+                currentProblem._id = currentProblem.id;
+                
+                const response = await axios.put('/admin/problem', currentProblem);
+                
+                if (response.data.error === null) {
+                    document.getElementById('current-status').textContent = currentProblem.visible;
+                    updateStatus('Problem updated successfully!');
+                } else {
+                    updateStatus('Failed to update problem: ' + response.data.data);
+                    // 恢复原状态
+                    currentProblem.visible = !currentProblem.visible;
+                }
+            } catch (error) {
+                updateStatus('Update error: ' + error.message);
+                console.error('Update error:', error);
+                // 恢复原状态
+                currentProblem.visible = !currentProblem.visible;
+            }
+        }
+        
+        // 页面加载时获取CSRF token
+        window.onload = function() {
+            axios.get('/').catch(error => {
+                console.log('Failed to get CSRF token:', error);
+            });
+        };
+    </script>
+</body>
+</html>
