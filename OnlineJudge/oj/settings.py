@@ -15,8 +15,15 @@ from copy import deepcopy
 from utils.shortcuts import get_env
 
 production_env = get_env("OJ_ENV", "dev") == "production"
+docker_env = get_env("OJ_DOCKER", "false") == "true"
+test_env = get_env("OJ_ENV", "dev") == "test"
+
 if production_env:
     from .production_settings import *
+elif test_env:
+    from .test_settings import *
+elif docker_env:
+    from .docker_settings import *
 else:
     from .dev_settings import *
 
