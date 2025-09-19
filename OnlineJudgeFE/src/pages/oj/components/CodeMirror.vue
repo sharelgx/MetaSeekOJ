@@ -112,12 +112,38 @@
       }
     },
     mounted () {
-      utils.getLanguages().then(languages => {
+      utils.getLanguages().then(response => {
         let mode = {}
-        languages.forEach(lang => {
-          mode[lang.name] = lang.content_type
-        })
+        // 从响应对象中提取languages数组
+        const languages = response.languages || response
+        // 确保languages是数组，防止forEach错误
+        if (Array.isArray(languages)) {
+          languages.forEach(lang => {
+            mode[lang.name] = lang.content_type
+          })
+        } else {
+          console.warn('Languages data is not an array:', response)
+          // 使用默认的mode配置
+          mode = {
+            'C++': 'text/x-csrc',
+            'C': 'text/x-csrc',
+            'Java': 'text/x-java',
+            'Python2': 'text/x-python',
+            'Python3': 'text/x-python'
+          }
+        }
         this.mode = mode
+        this.editor.setOption('mode', this.mode[this.language])
+      }).catch(error => {
+        console.error('Failed to load languages:', error)
+        // 使用默认的mode配置
+        this.mode = {
+          'C++': 'text/x-csrc',
+          'C': 'text/x-csrc',
+          'Java': 'text/x-java',
+          'Python2': 'text/x-python',
+          'Python3': 'text/x-python'
+        }
         this.editor.setOption('mode', this.mode[this.language])
       })
       this.editor.focus()

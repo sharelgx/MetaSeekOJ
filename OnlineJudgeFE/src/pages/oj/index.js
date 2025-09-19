@@ -20,6 +20,8 @@ import '@/styles/index.less'
 import highlight from '@/plugins/highlight'
 import katex from '@/plugins/katex'
 import filters from '@/utils/filters.js'
+import storage from '@/utils/storage'
+import { STORAGE_KEY } from '@/utils/constants'
 
 import ECharts from 'vue-echarts/components/ECharts.vue'
 import 'echarts/lib/chart/bar'
@@ -63,5 +65,15 @@ Vue.prototype.$Message.config({
 Vue.prototype.$error = (s) => Vue.prototype.$Message.error(s)
 Vue.prototype.$info = (s) => Vue.prototype.$Message.info(s)
 Vue.prototype.$success = (s) => Vue.prototype.$Message.success(s)
+
+// 应用启动时恢复用户认证状态
+const isAuthed = storage.get(STORAGE_KEY.AUTHED)
+if (isAuthed) {
+  // 尝试获取用户信息以恢复登录状态
+  store.dispatch('getProfile').catch(() => {
+    // 如果获取用户信息失败，清除认证状态
+    storage.remove(STORAGE_KEY.AUTHED)
+  })
+}
 
 new Vue(Vue.util.extend({router, store, i18n}, App)).$mount('#app')

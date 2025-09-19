@@ -228,6 +228,17 @@ export default {
       return answerStr
     },
     
+    getCorrectAnswerIndexesForQuestion(question) {
+      // 为指定问题计算正确答案索引数组
+      if (!question.correct_answer) return []
+      
+      const answerStr = question.correct_answer
+      if (typeof answerStr === 'string') {
+        return answerStr.split(',').map(letter => letter.charCodeAt(0) - 65)
+      }
+      return answerStr
+    },
+    
     isAnswerCorrect() {
       const userAnswer = this.getUserAnswer()
       const correctAnswer = this.getCorrectAnswerIndexes()
@@ -265,7 +276,9 @@ export default {
       const question = this.questions[index]
       const questionId = question.id
       const userAnswer = this.userAnswers[questionId] || []
-      const correctAnswer = question.correct_answer || []
+      
+      // 直接计算正确答案，避免修改计算属性
+      const correctAnswer = this.getCorrectAnswerIndexesForQuestion(question)
       
       let classes = []
       

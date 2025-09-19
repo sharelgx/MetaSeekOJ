@@ -19,6 +19,8 @@
 <script>
   import { mapActions, mapState } from 'vuex'
   import NavBar from '@oj/components/NavBar.vue'
+  import storage from '@/utils/storage'
+  import { STORAGE_KEY } from '@/utils/constants'
 
   export default {
     name: 'app',
@@ -38,9 +40,25 @@
     },
     mounted () {
       this.getWebsiteConfig()
+      this.initAuth()
     },
     methods: {
-      ...mapActions(['getWebsiteConfig', 'changeDomTitle'])
+      ...mapActions(['getWebsiteConfig', 'changeDomTitle', 'getProfile']),
+      async initAuth () {
+        // 检查localStorage中是否有认证标志
+        const isAuthed = storage.get(STORAGE_KEY.AUTHED)
+        if (isAuthed) {
+          try {
+            // 尝试获取用户信息以验证token是否有效
+            await this.getProfile()
+          } catch (error) {
+            // token无效，清除认证状态
+            console.log('Token expired, clearing auth state')
+            storage.remove(STORAGE_KEY.AUTHED)
+            this.$store.dispatch('clearProfile')
+          }
+        }
+      }
     },
     computed: {
       ...mapState(['website'])

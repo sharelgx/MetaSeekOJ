@@ -85,9 +85,10 @@ function getLanguages () {
       resolve(languages)
     } else {
       ojAPI.getLanguages().then(res => {
-        let languages = res.data.data
-        storage.set(STORAGE_KEY.languages, languages)
-        resolve(languages)
+        let data = res.data.data
+        // 确保存储完整的响应数据，但返回时保持兼容性
+        storage.set(STORAGE_KEY.languages, data)
+        resolve(data)
       }, err => {
         reject(err)
       })

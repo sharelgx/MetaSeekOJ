@@ -5,7 +5,7 @@
   "author": "zemal <rawidn@163.com>",
   "private": true,
   "scripts": {
-    "dev": "NODE_OPTIONS=\"--openssl-legacy-provider\" node build/dev-server.js",
+    "dev": "webpack-dev-server --config webpack.dev.js",
     "start": "npm run dev",
     "build": "node build/build.js",
     "build:dll": "webpack --config=build/webpack.dll.conf.js",

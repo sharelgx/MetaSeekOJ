@@ -12,6 +12,7 @@ module.exports = {
     filename: '[name].js',
     publicPath: '/'
   },
+  devtool: 'cheap-module-eval-source-map',
   resolve: {
     extensions: ['.js', '.vue', '.json'],
     alias: {

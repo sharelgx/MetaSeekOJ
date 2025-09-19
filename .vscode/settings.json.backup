@@ -1,0 +1,36 @@
+{
+    "Codegeex.Chat.fontSize": 10,
+    "Codegeex.RepoIndex": false,
+    "files.exclude": {
+        "**/node_modules": true,
+        "**/backups": true,
+        "QingdaoOJ_Native/OnlineJudgeDeploy/data/**": true,
+        "**/.git": true,
+        "**/.DS_Store": true,
+        "**/Thumbs.db": true,
+        "**/*.log": true,
+        "**/logs": true,
+        "**/.cache": true,
+        "**/test_case": true,
+        "**/postgres": true
+    },
+    "search.exclude": {
+        "**/node_modules": true,
+        "**/backups": true,
+        "QingdaoOJ_Native/OnlineJudgeDeploy/data/**": true,
+        "**/.git": true,
+        "**/logs": true,
+        "**/test_case": true,
+        "**/postgres": true
+    },
+    "files.watcherExclude": {
+        "**/node_modules/**": true,
+        "**/backups/**": true,
+        "QingdaoOJ_Native/OnlineJudgeDeploy/data/**": true,
+        "**/.git/objects/**": true,
+        "**/.git/subtree-cache/**": true,
+        "**/logs/**": true,
+        "**/test_case/**": true,
+        "**/postgres/**": true
+    }
+}

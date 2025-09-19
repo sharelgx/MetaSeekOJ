@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>考试功能测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .test-result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 3px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>考试功能修复测试</h1>
+    
+    <div class="test-section">
+        <h2>1. 身份验证持久化测试</h2>
+        <p>测试页面刷新后是否还需要重新登录</p>
+        <button onclick="testAuthPersistence()">测试身份验证持久化</button>
+        <div id="auth-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>2. 本地存储状态测试</h2>
+        <p>检查localStorage中的认证状态</p>
+        <button onclick="testLocalStorage()">检查本地存储</button>
+        <div id="storage-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>3. 答案保存重试机制测试</h2>
+        <p>模拟答案保存失败和重试</p>
+        <button onclick="testAnswerSave()">测试答案保存</button>
+        <div id="save-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>4. 考试页面访问测试</h2>
+        <p>直接访问考试页面</p>
+        <button onclick="testExamAccess()">访问考试页面</button>
+        <div id="exam-result"></div>
+    </div>
+
+    <script>
+        function showResult(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<div class="test-result ${type}">${message}</div>`;
+        }
+
+        function testAuthPersistence() {
+            showResult('auth-result', '正在测试身份验证持久化...', 'info');
+            
+            // 检查localStorage中的认证状态
+            const authed = localStorage.getItem('AUTHED');
+            const profile = localStorage.getItem('profile');
+            
+            let message = '';
+            if (authed) {
+                message += `✓ AUTHED标志存在: ${authed}<br>`;
+            } else {
+                message += `✗ AUTHED标志不存在<br>`;
+            }
+            
+            if (profile) {
+                try {
+                    const profileData = JSON.parse(profile);
+                    message += `✓ 用户profile存在: ${profileData.username || '未知用户'}<br>`;
+                } catch (e) {
+                    message += `✗ 用户profile格式错误<br>`;
+                }
+            } else {
+                message += `✗ 用户profile不存在<br>`;
+            }
+            
+            const type = (authed && profile) ? 'success' : 'error';
+            showResult('auth-result', message, type);
+        }
+
+        function testLocalStorage() {
+            showResult('storage-result', '正在检查本地存储...', 'info');
+            
+            const keys = ['AUTHED', 'profile', 'website', 'language'];
+            let message = '<strong>localStorage内容:</strong><br>';
+            
+            keys.forEach(key => {
+                const value = localStorage.getItem(key);
+                if (value) {
+                    message += `${key}: ${value.substring(0, 100)}${value.length > 100 ? '...' : ''}<br>`;
+                } else {
+                    message += `${key}: <em>不存在</em><br>`;
+                }
+            });
+            
+            showResult('storage-result', message, 'info');
+        }
+
+        function testAnswerSave() {
+            showResult('save-result', '正在测试答案保存机制...', 'info');
+            
+            // 模拟网络错误的情况
+            const mockErrors = [
+                { status: 500, message: '服务器内部错误' },
+                { status: 408, message: '请求超时' },
+                { status: 429, message: '请求过于频繁' },
+                { status: 401, message: '认证失败' },
+                { status: 400, message: '重复提交' }
+            ];
+            
+            let message = '<strong>错误处理测试:</strong><br>';
+            
+            mockErrors.forEach(error => {
+                const shouldRetry = (error.status >= 500 || error.status === 408 || error.status === 429);
+                const errorType = error.status === 401 ? '认证错误' : 
+                                error.message.includes('重复') ? '重复提交' : '一般错误';
+                
+                message += `状态码 ${error.status} (${error.message}): `;
+                message += shouldRetry ? '✓ 会重试' : '✗ 不重试';
+                message += ` - ${errorType}<br>`;
+            });
+            
+            showResult('save-result', message, 'success');
+        }
+
+        function testExamAccess() {
+            showResult('exam-result', '正在测试考试页面访问...', 'info');
+            
+            // 检查当前页面是否是考试页面
+            const isExamPage = window.location.pathname.includes('/exam/');
+            const hasExamId = window.location.pathname.match(/\/exam\/(\d+)/);
+            
+            let message = '';
+            if (isExamPage) {
+                message += '✓ 当前在考试页面<br>';
+                if (hasExamId) {
+                    message += `✓ 考试ID: ${hasExamId[1]}<br>`;
+                }
+            } else {
+                message += '✗ 不在考试页面<br>';
+            }
+            
+            // 尝试访问考试页面
+            message += '<br><strong>测试链接:</strong><br>';
+            message += '<a href="http://localhost:8080/exam/22" target="_blank">访问考试22</a><br>';
+            message += '<em>点击链接测试页面刷新后的登录状态</em>';
+            
+            showResult('exam-result', message, 'info');
+        }
+
+        // 页面加载时自动运行一些测试
+        window.onload = function() {
+            testAuthPersistence();
+            testLocalStorage();
+        };
+    </script>
+</body>
+</html>

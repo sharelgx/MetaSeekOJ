@@ -1,11 +1,36 @@
-# 测试文件目录
-testcode/
+# 排除有权限问题的目录，避免索引构建失败
+QingdaoOJ_Native/OnlineJudgeDeploy/data/
+backups/
+backup_*/
 
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
+# 排除根目录下的node_modules
+node_modules/
+
+# 排除大型数据目录
+*/node_modules/
+*/test_case/
+*/postgres/
+*/judge_server/run/
+
+# 排除OnlineJudge项目的数据目录
+OnlineJudge/data/
+OnlineJudge/django_env/
+OnlineJudge/venv/
+
+# 排除前端构建产物和依赖
+OnlineJudgeFE/node_modules/
+OnlineJudgeFE/dist/
+OnlineJudgeFE/.nuxt/
+
+# 排除Docker相关文件
+*/docker-data/
+*/volumes/
+
+# 排除Python虚拟环境
+*/__pycache__/
+*.pyc
+*.pyo
+*.pyd
 .Python
 build/
 develop-eggs/
@@ -22,42 +47,15 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
-PIPFILE.lock
 
-# Django
-*.log
-local_settings.py
-db.sqlite3
-db.sqlite3-journal
-
-# Node.js
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.npm
-.yarn-integrity
-
-# IDE
-.vscode/
+# IDE 缓存和索引文件
+.vscode-server/
 .idea/
-*.swp
-*.swo
-*~
+*.code-workspace
 
-# OS
+# 系统文件
 .DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
 Thumbs.db
-
-# 数据库和缓存
-*.sqlite3
-*.db
-*.rdb
 
 # 日志文件
 *.log
@@ -66,88 +64,4 @@ logs/
 # 临时文件
 *.tmp
 *.temp
-
-# 环境变量
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
-# 编译文件
-*.pyc
-*.pyo
-*.class
-
-# 媒体文件（如果不需要版本控制）
-# media/
-# static/
-
-# 部署相关
-# OnlineJudgeDeploy-2.0/
-
-# 测试截图和错误文件
-*.png
-*.jpg
-*.jpeg
-*.gif
-
-# 备份文件
-*.bak
-*.backup
-*.orig
-
-# 压缩文件
-*.zip
-*.tar.gz
-*.rar
-*.7z
-
-# 配置文件（包含敏感信息）
-# config/
-# secrets/
-
-# 运行时文件
-pid
-*.pid
-*.seed
-*.pid.lock
-
-# Coverage reports
-htmlcov/
-.tox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-.hypothesis/
-.pytest_cache/
-
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# pyenv
-.python-version
-
-# celery beat schedule file
-celerybeat-schedule
-
-# SageMath parsed files
-*.sage.py
-
-# Spyder project settings
-.spyderproject
-.spyproject
-
-# Rope project settings
-.ropeproject
-
-# mkdocs documentation
-/site
-
-# mypy
-.mypy_cache/
-.dmypy.json
-dmypy.json
+.cache/

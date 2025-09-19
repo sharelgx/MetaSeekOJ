@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>身份验证持久化测试</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        .success { color: green; }
+        .error { color: red; }
+        .info { color: blue; }
+        button { margin: 5px; padding: 10px; }
+    </style>
+</head>
+<body>
+    <h1>身份验证持久化测试</h1>
+    
+    <div class="test-section">
+        <h3>测试1: 检查登录状态</h3>
+        <button onclick="checkLoginStatus()">检查登录状态</button>
+        <div id="loginStatus"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>测试2: 访问需要认证的API</h3>
+        <button onclick="testAuthenticatedAPI()">测试认证API</button>
+        <div id="apiResult"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>测试3: 模拟页面刷新</h3>
+        <button onclick="simulateRefresh()">模拟刷新并重新检查</button>
+        <div id="refreshResult"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>测试4: 考试页面访问</h3>
+        <button onclick="testExamPage()">测试考试页面</button>
+        <div id="examResult"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8086';
+        
+        async function checkLoginStatus() {
+            const statusDiv = document.getElementById('loginStatus');
+            try {
+                const response = await fetch(`${API_BASE}/api/profile/`, {
+                    credentials: 'include'
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    statusDiv.innerHTML = `<div class="success">✓ 已登录用户: ${data.data.username}</div>`;
+                } else {
+                    statusDiv.innerHTML = `<div class="error">✗ 未登录或登录已过期</div>`;
+                }
+            } catch (error) {
+                statusDiv.innerHTML = `<div class="error">✗ 检查登录状态失败: ${error.message}</div>`;
+            }
+        }
+        
+        async function testAuthenticatedAPI() {
+            const resultDiv = document.getElementById('apiResult');
+            try {
+                const response = await fetch(`${API_BASE}/api/plugin/choice/exam-papers/22/`, {
+                    credentials: 'include'
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    resultDiv.innerHTML = `<div class="success">✓ 成功获取试卷数据: ${data.data.title}</div>`;
+                } else {
+                    resultDiv.innerHTML = `<div class="error">✗ 获取试卷数据失败: ${response.status}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">✗ API请求失败: ${error.message}</div>`;
+            }
+        }
+        
+        async function simulateRefresh() {
+            const resultDiv = document.getElementById('refreshResult');
+            resultDiv.innerHTML = '<div class="info">正在模拟页面刷新...</div>';
+            
+            // 清除当前状态显示
+            document.getElementById('loginStatus').innerHTML = '';
+            document.getElementById('apiResult').innerHTML = '';
+            
+            // 等待一秒后重新检查
+            setTimeout(async () => {
+                await checkLoginStatus();
+                await testAuthenticatedAPI();
+                resultDiv.innerHTML = '<div class="success">✓ 页面刷新测试完成</div>';
+            }, 1000);
+        }
+        
+        async function testExamPage() {
+            const resultDiv = document.getElementById('examResult');
+            try {
+                const response = await fetch(`${API_BASE}/api/plugin/choice/exam-sessions/create/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({ paper_id: 22 })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    resultDiv.innerHTML = `<div class="success">✓ 成功创建考试会话，ID: ${data.data.id}</div>`;
+                } else {
+                    const errorData = await response.json();
+                    resultDiv.innerHTML = `<div class="error">✗ 创建考试会话失败: ${errorData.data}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">✗ 考试页面测试失败: ${error.message}</div>`;
+            }
+        }
+        
+        // 页面加载时自动检查登录状态
+        window.onload = function() {
+            checkLoginStatus();
+        };
+    </script>
+</body>
+</html>

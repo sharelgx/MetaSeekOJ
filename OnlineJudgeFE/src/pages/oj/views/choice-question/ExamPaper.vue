@@ -170,7 +170,8 @@ export default {
       submitModalVisible: false,
       loading: true,
       saveTimer: null, // 防抖定时器
-      savingAnswers: {} // 记录正在保存的题目
+      savingAnswers: {}, // 记录正在保存的题目
+      saveRetryCount: {} // 记录每个题目的重试次数
     }
   },
   
@@ -205,40 +206,8 @@ export default {
     
     console.log('试卷ID:', this.paperId)
     
-    // 检查用户是否已登录
-    if (!this.$store.getters.isAuthenticated) {
-      console.log('用户未登录，引导登录')
-      this.$Message.warning('请先登录后再参加考试')
-      this.$store.dispatch('changeModalStatus', {'mode': 'login', 'visible': true})
-      // 登录成功后重新初始化考试
-       const unwatch = this.$store.watch(
-         (state, getters) => getters.isAuthenticated,
-         async (newVal) => {
-           if (newVal) {
-             unwatch()
-             await this.initExam()
-             this.startTimer()
-             this.$nextTick(() => {
-               this.highlightCode()
-               this.renderMath()
-             })
-           }
-         }
-       )
-      return
-    }
-    
-    // 初始化考试
-    await this.initExam()
-    
-    // 启动计时器
-    this.startTimer()
-    
-    // 初始化代码高亮和数学公式渲染
-    this.$nextTick(() => {
-      this.highlightCode()
-      this.renderMath()
-    })
+    // 等待用户认证状态确定
+    await this.waitForAuthState()
   },
   
   beforeDestroy() {
@@ -251,6 +220,69 @@ export default {
   },
   
   methods: {
+    // 等待用户认证状态确定
+    async waitForAuthState() {
+      try {
+        // 首先尝试获取用户信息，确保认证状态是最新的
+        if (!this.$store.getters.isAuthenticated) {
+          console.log('尝试获取用户信息...')
+          try {
+            await this.$store.dispatch('getProfile')
+          } catch (error) {
+            console.log('获取用户信息失败，用户未登录')
+          }
+        }
+        
+        // 再次检查用户是否已登录
+        if (!this.$store.getters.isAuthenticated) {
+          console.log('用户未登录，引导登录')
+          this.$Message.warning('请先登录后再参加考试')
+          this.$store.dispatch('changeModalStatus', {'mode': 'login', 'visible': true})
+          
+          // 等待用户登录
+          return new Promise((resolve) => {
+            const unwatch = this.$store.watch(
+              (state, getters) => getters.isAuthenticated,
+              async (newVal) => {
+                if (newVal) {
+                  unwatch()
+                  console.log('用户登录成功，开始初始化考试')
+                  await this.initializeExam()
+                  resolve()
+                }
+              }
+            )
+          })
+        } else {
+          console.log('用户已登录，直接初始化考试')
+          await this.initializeExam()
+        }
+      } catch (error) {
+        console.error('等待认证状态时发生错误:', error)
+        this.$Message.error('认证状态检查失败')
+      }
+    },
+    
+    // 初始化考试的完整流程
+    async initializeExam() {
+      try {
+        // 初始化考试
+        await this.initExam()
+        
+        // 启动计时器
+        this.startTimer()
+        
+        // 初始化代码高亮和数学公式渲染
+        this.$nextTick(() => {
+          this.highlightCode()
+          this.renderMath()
+        })
+      } catch (error) {
+        console.error('初始化考试失败:', error)
+        this.$Message.error('考试初始化失败，请刷新页面重试')
+      }
+    },
+    
     // 获取选项文本的方法，处理不同格式的选项数据
     getOptionText(option) {
       if (typeof option === 'string') {
@@ -743,7 +775,7 @@ export default {
       return option
     },
     
-    async autoSaveAnswer(questionId) {
+    async autoSaveAnswer(questionId, retryCount = 0) {
       if (!questionId) return
       
       // 如果该题目正在保存，则跳过
@@ -766,32 +798,115 @@ export default {
           // 确保答案是纯数组，去除Vue的Observer包装
           const cleanAnswer = JSON.parse(JSON.stringify(answer))
           
-          console.log('开始保存答案:', questionId, cleanAnswer)
-          const response = await api.submitAnswer(this.examSession.id, questionId, cleanAnswer)
+          console.log('开始保存答案:', questionId, cleanAnswer, retryCount > 0 ? `(重试第${retryCount}次)` : '')
+          
+          // 检查用户是否仍然登录
+          if (!this.$store.getters.isAuthenticated) {
+            console.log('用户未登录，跳过保存')
+            return
+          }
+          
+          const response = await api.submitExamAnswer(this.examSession.id, {
+            question_id: questionId,
+            answer: cleanAnswer
+          })
           
           // 检查响应状态和内容
           if (response && response.data) {
-            // ajax函数已经处理了error检查，如果到这里说明请求成功
-            console.log('答案已自动保存:', questionId, cleanAnswer)
+            if (response.data.error) {
+              console.error('保存失败:', response.data.data || response.data.error)
+              throw new Error(response.data.data || response.data.error)
+            } else {
+              console.log('答案已自动保存:', questionId, cleanAnswer)
+              // 重置重试计数
+              if (this.saveRetryCount) {
+                delete this.saveRetryCount[questionId]
+              }
+            }
           } else {
-            console.error('保存失败 - 无效的响应:', response)
+            console.log('答案保存响应异常，但未报错')
           }
           
         } catch (err) {
           console.error('保存答案失败:', err)
+          
+          // 检查是否是网络错误或服务器错误，需要重试
+          const shouldRetry = this.shouldRetryError(err)
+          const maxRetries = 3
+          
+          if (shouldRetry && retryCount < maxRetries) {
+            console.log(`准备重试保存答案，第${retryCount + 1}次重试`)
+            // 初始化重试计数
+            if (!this.saveRetryCount) {
+              this.saveRetryCount = {}
+            }
+            this.saveRetryCount[questionId] = (this.saveRetryCount[questionId] || 0) + 1
+            
+            // 延迟重试，使用指数退避
+            setTimeout(() => {
+              delete this.savingAnswers[questionId]
+              this.autoSaveAnswer(questionId, retryCount + 1)
+            }, Math.pow(2, retryCount) * 1000) // 1s, 2s, 4s
+            return
+          }
+          
           // 检查是否是重复提交错误
           if (err.response && err.response.data && err.response.data.data && 
               (err.response.data.data.includes('重复提交') || err.response.data.data.includes('duplicate'))) {
             console.log('检测到重复提交错误，忽略')
+          } else if (err.response && err.response.status === 401) {
+            // 认证失败，可能需要重新登录
+            console.log('认证失败，可能需要重新登录')
+            this.$Message.warning('登录状态已过期，请重新登录')
           } else {
-            // 只在非重复提交错误时显示错误消息
-            this.$Message.error('保存答案失败，请稍后重试')
+            // 只在非重复提交错误且重试失败后显示错误消息
+            const errorMsg = this.getErrorMessage(err)
+            this.$Message.error('保存答案失败：' + errorMsg)
           }
         } finally {
           // 请求完成后移除标记
           delete this.savingAnswers[questionId]
         }
-      }, 800) // 增加延迟到800ms，减少请求频率
+      }, 800) // 延迟800ms，减少请求频率
+    },
+    
+    // 判断错误是否需要重试
+    shouldRetryError(err) {
+      if (!err.response) {
+        // 网络错误，需要重试
+        return true
+      }
+      
+      const status = err.response.status
+      // 5xx服务器错误或408请求超时，需要重试
+      if (status >= 500 || status === 408) {
+        return true
+      }
+      
+      // 429请求过于频繁，需要重试
+      if (status === 429) {
+        return true
+      }
+      
+      return false
+    },
+    
+    // 获取友好的错误消息
+    getErrorMessage(err) {
+      if (err.response && err.response.data) {
+        if (err.response.data.data) {
+          return err.response.data.data
+        }
+        if (err.response.data.error) {
+          return err.response.data.error
+        }
+      }
+      
+      if (err.message) {
+        return err.message
+      }
+      
+      return '未知错误'
     },
     
     showSubmitConfirm() {
