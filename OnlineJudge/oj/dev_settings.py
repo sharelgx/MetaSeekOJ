@@ -12,7 +12,7 @@ DATABASES = {
 }
 
 REDIS_CONF = {
-    'host': get_env('REDIS_HOST', '127.0.0.1'),
+    'host': get_env('REDIS_HOST', '172.17.0.2'),  # Docker Redis IP
     'port': get_env('REDIS_PORT', '6379')
 }
 

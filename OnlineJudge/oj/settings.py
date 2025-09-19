@@ -34,7 +34,7 @@ VENDOR_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    # 'django_dramatiq',  # Temporarily disabled for Django 2.1.7 compatibility
+    'django_dramatiq',  # Re-enabled for judge task processing
     'django_dbconn_retry',
     'corsheaders',
 ]
@@ -302,4 +302,6 @@ CSRF_TRUSTED_ORIGINS = [
     "http://127.0.0.1:8080",
     "http://localhost:8082",
     "http://127.0.0.1:8082",
+    "http://localhost:8086",
+    "http://127.0.0.1:8086",
 ]

@@ -61,9 +61,26 @@ class DispatcherBase(object):
         if data:
             kwargs["json"] = data
         try:
-            return requests.post(url, **kwargs).json()
+            response = requests.post(url, **kwargs)
+            logger.info(f"Judge server response status: {response.status_code}")
+            logger.info(f"Judge server response content: {response.text[:500]}")
+            if response.status_code != 200:
+                logger.error(f"Judge server returned status {response.status_code}: {response.text}")
+                return None
+            if not response.text.strip():
+                logger.error("Judge server returned empty response")
+                return None
+            return response.json()
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Request to judge server failed: {e}")
+            return None
+        except ValueError as e:
+            logger.error(f"Failed to parse JSON response from judge server: {e}")
+            logger.error(f"Response content: {response.text if 'response' in locals() else 'No response'}")
+            return None
         except Exception as e:
             logger.exception(e)
+            return None
 
 
 class SPJCompiler(DispatcherBase):
@@ -216,16 +233,20 @@ class JudgeDispatcher(DispatcherBase):
 
             profile = User.objects.select_for_update().get(id=self.submission.user_id).userprofile
             if problem.rule_type == ProblemRuleType.ACM:
-                acm_problems_status = profile.acm_problems_status.get("problems", {})
+                import json
+                acm_status_data = json.loads(profile.acm_problems_status) if isinstance(profile.acm_problems_status, str) else profile.acm_problems_status
+                acm_problems_status = acm_status_data.get("problems", {})
                 if acm_problems_status[problem_id]["status"] != JudgeStatus.ACCEPTED:
                     acm_problems_status[problem_id]["status"] = self.submission.result
                     if self.submission.result == JudgeStatus.ACCEPTED:
                         profile.accepted_number += 1
-                profile.acm_problems_status["problems"] = acm_problems_status
+                acm_status_data["problems"] = acm_problems_status
+                profile.acm_problems_status = json.dumps(acm_status_data)
                 profile.save(update_fields=["accepted_number", "acm_problems_status"])
 
             else:
-                oi_problems_status = profile.oi_problems_status.get("problems", {})
+                oi_status_data = json.loads(profile.oi_problems_status) if isinstance(profile.oi_problems_status, str) else profile.oi_problems_status
+                oi_problems_status = oi_status_data.get("problems", {})
                 score = self.submission.statistic_info["score"]
                 if oi_problems_status[problem_id]["status"] != JudgeStatus.ACCEPTED:
                     # minus last time score, add this tim score
@@ -235,7 +256,8 @@ class JudgeDispatcher(DispatcherBase):
                     oi_problems_status[problem_id]["status"] = self.submission.result
                     if self.submission.result == JudgeStatus.ACCEPTED:
                         profile.accepted_number += 1
-                profile.oi_problems_status["problems"] = oi_problems_status
+                oi_status_data["problems"] = oi_problems_status
+                profile.oi_problems_status = json.dumps(oi_status_data)
                 profile.save(update_fields=["accepted_number", "oi_problems_status"])
 
     def update_problem_status(self):
@@ -256,7 +278,9 @@ class JudgeDispatcher(DispatcherBase):
             user_profile = user.userprofile
             user_profile.submission_number += 1
             if problem.rule_type == ProblemRuleType.ACM:
-                acm_problems_status = user_profile.acm_problems_status.get("problems", {})
+                import json
+                acm_status_data = json.loads(user_profile.acm_problems_status) if isinstance(user_profile.acm_problems_status, str) else user_profile.acm_problems_status
+                acm_problems_status = acm_status_data.get("problems", {})
                 if problem_id not in acm_problems_status:
                     acm_problems_status[problem_id] = {"status": self.submission.result, "_id": self.problem._id}
                     if self.submission.result == JudgeStatus.ACCEPTED:
@@ -265,11 +289,13 @@ class JudgeDispatcher(DispatcherBase):
                     acm_problems_status[problem_id]["status"] = self.submission.result
                     if self.submission.result == JudgeStatus.ACCEPTED:
                         user_profile.accepted_number += 1
-                user_profile.acm_problems_status["problems"] = acm_problems_status
+                acm_status_data["problems"] = acm_problems_status
+                user_profile.acm_problems_status = json.dumps(acm_status_data)
                 user_profile.save(update_fields=["submission_number", "accepted_number", "acm_problems_status"])
 
             else:
-                oi_problems_status = user_profile.oi_problems_status.get("problems", {})
+                oi_status_data = json.loads(user_profile.oi_problems_status) if isinstance(user_profile.oi_problems_status, str) else user_profile.oi_problems_status
+                oi_problems_status = oi_status_data.get("problems", {})
                 score = self.submission.statistic_info["score"]
                 if problem_id not in oi_problems_status:
                     user_profile.add_score(score)
@@ -286,7 +312,8 @@ class JudgeDispatcher(DispatcherBase):
                     oi_problems_status[problem_id]["status"] = self.submission.result
                     if self.submission.result == JudgeStatus.ACCEPTED:
                         user_profile.accepted_number += 1
-                user_profile.oi_problems_status["problems"] = oi_problems_status
+                oi_status_data["problems"] = oi_problems_status
+                user_profile.oi_problems_status = json.dumps(oi_status_data)
                 user_profile.save(update_fields=["submission_number", "accepted_number", "oi_problems_status"])
 
     def update_contest_problem_status(self):
@@ -295,7 +322,9 @@ class JudgeDispatcher(DispatcherBase):
             user_profile = user.userprofile
             problem_id = str(self.problem.id)
             if self.contest.rule_type == ContestRuleType.ACM:
-                contest_problems_status = user_profile.acm_problems_status.get("contest_problems", {})
+                import json
+                acm_status_data = json.loads(user_profile.acm_problems_status) if isinstance(user_profile.acm_problems_status, str) else user_profile.acm_problems_status
+                contest_problems_status = acm_status_data.get("contest_problems", {})
                 if problem_id not in contest_problems_status:
                     contest_problems_status[problem_id] = {"status": self.submission.result, "_id": self.problem._id}
                 elif contest_problems_status[problem_id]["status"] != JudgeStatus.ACCEPTED:
@@ -303,11 +332,13 @@ class JudgeDispatcher(DispatcherBase):
                 else:
                     # 如果已AC， 直接跳过 不计入任何计数器
                     return
-                user_profile.acm_problems_status["contest_problems"] = contest_problems_status
+                acm_status_data["contest_problems"] = contest_problems_status
+                user_profile.acm_problems_status = json.dumps(acm_status_data)
                 user_profile.save(update_fields=["acm_problems_status"])
 
             elif self.contest.rule_type == ContestRuleType.OI:
-                contest_problems_status = user_profile.oi_problems_status.get("contest_problems", {})
+                oi_status_data = json.loads(user_profile.oi_problems_status) if isinstance(user_profile.oi_problems_status, str) else user_profile.oi_problems_status
+                contest_problems_status = oi_status_data.get("contest_problems", {})
                 score = self.submission.statistic_info["score"]
                 if problem_id not in contest_problems_status:
                     contest_problems_status[problem_id] = {"status": self.submission.result,
@@ -316,7 +347,8 @@ class JudgeDispatcher(DispatcherBase):
                 else:
                     contest_problems_status[problem_id]["score"] = score
                     contest_problems_status[problem_id]["status"] = self.submission.result
-                user_profile.oi_problems_status["contest_problems"] = contest_problems_status
+                oi_status_data["contest_problems"] = contest_problems_status
+                user_profile.oi_problems_status = json.dumps(oi_status_data)
                 user_profile.save(update_fields=["oi_problems_status"])
 
             problem = Problem.objects.select_for_update().get(contest_id=self.contest_id, id=self.problem.id)
