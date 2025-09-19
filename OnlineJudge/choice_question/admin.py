@@ -22,7 +22,7 @@ class QuestionTagAdmin(admin.ModelAdmin):
 class ChoiceQuestionAdmin(admin.ModelAdmin):
     list_display = ('id', 'title', 'category', 'difficulty', 'question_type', 'score', 'created_by', 'create_time')
     list_filter = ('category', 'difficulty', 'question_type', 'create_time')
-    search_fields = ('title', 'content')
+    search_fields = ('title', 'description')
     filter_horizontal = ('tags',)
     readonly_fields = ('create_time', 'last_update_time')
     
@@ -31,7 +31,7 @@ class ChoiceQuestionAdmin(admin.ModelAdmin):
             'fields': ('title', 'category', 'tags', 'difficulty', 'question_type', 'score')
         }),
         ('题目内容', {
-            'fields': ('content', 'options', 'correct_answer', 'explanation')
+            'fields': ('description', 'options', 'correct_answer', 'explanation')
         }),
         ('创建信息', {
             'fields': ('created_by', 'create_time', 'last_update_time'),
