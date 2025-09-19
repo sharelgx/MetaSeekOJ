@@ -85,8 +85,23 @@
           api.login(formData).then(res => {
             this.btnLoginLoading = false
             this.changeModalStatus({visible: false})
-            this.getProfile()
-            this.$success(this.$i18n.t('m.Welcome_back'))
+            this.getProfile().then(() => {
+              try {
+                this.$success(this.$i18n && this.$i18n.t ? this.$i18n.t('m.Welcome_back') : 'Welcome back')
+              } catch (e) {
+                console.error('国际化处理失败:', e)
+                this.$success('Welcome back')
+              }
+            }).catch(err => {
+              console.error('获取用户信息失败:', err)
+              // 即使获取用户信息失败，也显示登录成功消息
+              try {
+                this.$success(this.$i18n && this.$i18n.t ? this.$i18n.t('m.Welcome_back') : 'Welcome back')
+              } catch (e) {
+                console.error('国际化处理失败:', e)
+                this.$success('Welcome back')
+              }
+            })
           }, _ => {
             this.btnLoginLoading = false
           })

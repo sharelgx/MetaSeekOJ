@@ -29,7 +29,7 @@ def send_heartbeat():
     
     data = {
         "hostname": HOSTNAME,
-        "judger_version": "2.0.0",
+        "judger_version": "2.1.1",
         "cpu_core": 4,
         "memory": 0.5,
         "cpu": 0.1,
